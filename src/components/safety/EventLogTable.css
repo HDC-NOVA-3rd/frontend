@@ -1,0 +1,78 @@
+.event-log-table {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.event-log-table__loading,
+.event-log-table__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 16px;
+  color: #9ca3af;
+}
+
+.event-log-table__empty-icon {
+  font-size: 40px;
+}
+
+.event-log-table__empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.event-log-table__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.event-log-table__table thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.event-log-table__table th {
+  padding: 18px 20px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.event-log-table__table td {
+  padding: 18px 20px;
+  font-size: 16px;
+  color: #1f2937;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.event-log-table__row:hover {
+  background-color: #f9fafb;
+}
+
+.event-log-table__type {
+  font-weight: 500;
+}
+
+.event-log-table__description {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-log-table__location {
+  color: #6b7280;
+}
+
+.event-log-table__time {
+  white-space: nowrap;
+  color: #9ca3af;
+  font-size: 13px;
+}

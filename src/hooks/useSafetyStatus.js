@@ -6,6 +6,10 @@
 import { useCallback } from 'react';
 import { usePolling } from './usePolling';
 import { getSafetyStatus } from '../services/safetyApi';
+import { mockSafetyStatus } from '../mocks/safetyMockData';
+
+// 개발 중 Mock 데이터 사용 여부
+const USE_MOCK = true;
 
 /**
  * 안전 상태를 주기적으로 조회하는 훅
@@ -18,6 +22,12 @@ export function useSafetyStatus(apartmentId, options = {}) {
     if (!apartmentId) {
       return Promise.resolve(null);
     }
+    
+    // Mock 데이터 사용 (백엔드 연결 전)
+    if (USE_MOCK) {
+      return Promise.resolve(mockSafetyStatus);
+    }
+    
     return getSafetyStatus(apartmentId);
   }, [apartmentId]);
 

@@ -1,0 +1,82 @@
+.system-log-panel {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  position: sticky;
+  top: 24px;
+}
+
+.system-log-panel__title {
+  margin: 0 0 20px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.system-log-panel__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: #9ca3af;
+}
+
+.system-log-panel__empty-icon {
+  font-size: 32px;
+}
+
+.system-log-panel__empty p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.system-log-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.system-log-panel__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.system-log-panel__item:hover {
+  background-color: #f3f4f6;
+}
+
+.system-log-panel__item-status {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.system-log-panel__item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.system-log-panel__item-message {
+  font-size: 16px;
+  color: #1f2937;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.system-log-panel__item-time {
+  font-size: 14px;
+  color: #9ca3af;
+}

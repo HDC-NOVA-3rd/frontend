@@ -1,0 +1,716 @@
+/* 화재감시 관제 대시보드 - 지도 기반 UI */
+
+/* ===== 전체 레이아웃 ===== */
+.dashboard {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0f172a;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* ===== 사이드바 ===== */
+.sidebar {
+  width: 80px;
+  min-width: 80px;
+  height: 100vh;
+  background-color: white;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  gap: 32px;
+  flex-shrink: 0;
+}
+
+.sidebar__logo {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar__nav-btn {
+  padding: 14px;
+  background: none;
+  border: none;
+  border-radius: 14px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__nav-btn:hover {
+  color: #6366f1;
+}
+
+.sidebar__nav-btn--active {
+  background-color: #eef2ff;
+  color: #6366f1;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1);
+  border: 1px solid #e0e7ff;
+}
+
+/* ===== 메인 영역 ===== */
+.main {
+  flex: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ===== 헤더 ===== */
+.header {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.header__left,
+.header__right {
+  pointer-events: auto;
+}
+
+.header__title-box {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid #e2e8f0;
+  padding: 16px 24px;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.header__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #0f172a;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.header__title svg {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.header__subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 4px 0 0 0;
+  white-space: nowrap;
+}
+
+.header__right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.header__alarm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 16px;
+  border-right: 1px solid #e2e8f0;
+}
+
+.header__alarm-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.header__alarm-text {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'SF Mono', Monaco, monospace;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.header__locked {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.header__locked svg {
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* ===== 지도 영역 ===== */
+.map-area {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-area__grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.4;
+  background-image: 
+    linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+.map-container {
+  position: relative;
+  width: calc(100% - 500px);
+  max-width: 1000px;
+  aspect-ratio: 16 / 9;
+  background-color: rgba(248, 250, 252, 0.5);
+  border-radius: 40px;
+  border: 1px solid #e2e8f0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin: 100px auto 40px;
+}
+
+.map-roads {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* ===== 건물 ===== */
+.building {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.building__ping {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 24px;
+  opacity: 0.3;
+  animation: ping 1.5s ease-in-out infinite;
+}
+
+.building__ping--warning {
+  background-color: #fbbf24;
+}
+
+.building__ping--danger {
+  background-color: #ef4444;
+}
+
+.building__icon {
+  width: 100px;
+  height: 110px;
+  border-radius: 24px;
+  border: 2px solid #e2e8f0;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+  color: #94a3b8;
+}
+
+.building:hover .building__icon {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.2);
+}
+
+.building--selected .building__icon {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-color: #4338ca;
+  box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.4);
+  color: white;
+}
+
+.building--warning .building__icon {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border-color: #d97706;
+  box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.4);
+  color: white;
+}
+
+.building--danger .building__icon {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: #b91c1c;
+  box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.4);
+  color: white;
+}
+
+.building__name {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.building--selected .building__name,
+.building--warning .building__name,
+.building--danger .building__name {
+  color: #0f172a;
+}
+
+.building__lock-badge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background-color: #dc2626;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  animation: bounce 1s ease infinite;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes ping {
+  0% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.15); opacity: 0.15; }
+  100% { transform: scale(1); opacity: 0.3; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* ===== 로그 패널 ===== */
+.log-panel {
+  position: absolute;
+  bottom: 32px;
+  left: 32px;
+  width: 380px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 50;
+}
+
+.log-panel__header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background-color: #f8fafc;
+}
+
+.log-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.log-panel__title svg {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.log-panel__content {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.log-panel__content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.log-panel__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.log-panel__content::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.log-item {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid;
+}
+
+.log-item--locked {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.log-item--warning {
+  background-color: #fffbeb;
+  border-color: #fde68a;
+}
+
+.log-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+
+.log-item__location {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.log-item__badge {
+  background-color: #dc2626;
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.log-item__message {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ===== 상세 패널 ===== */
+.detail-panel {
+  position: absolute;
+  top: 100px;
+  right: 32px;
+  width: 380px;
+  max-height: calc(100vh - 140px);
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  padding: 24px;
+  overflow-y: auto;
+  z-index: 50;
+  animation: slide-in 0.3s ease;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.detail-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.detail-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.detail-panel::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.detail-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.detail-panel__title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0;
+}
+
+.detail-panel__subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 4px 0 0;
+  letter-spacing: -0.01em;
+}
+
+.detail-panel__close {
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detail-panel__close:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.detail-panel__sensors {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== 센서 카드 ===== */
+.sensor-card {
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #f1f5f9;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.sensor-card--locked {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.sensor-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.sensor-card__location {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.sensor-card__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sensor-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sensor-card__dot--normal {
+  background-color: #10b981;
+}
+
+.sensor-card__dot--warning {
+  background-color: #f59e0b;
+}
+
+.sensor-card__dot--danger {
+  background-color: #ef4444;
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+.sensor-card__value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.sensor-card__icon {
+  padding: 12px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sensor-card__icon--normal {
+  background-color: #d1fae5;
+  color: #10b981;
+}
+
+.sensor-card__icon--locked {
+  background-color: #dc2626;
+  color: white;
+  box-shadow: 0 8px 16px -4px rgba(220, 38, 38, 0.4);
+}
+
+.sensor-card__actions {
+  padding-top: 16px;
+  border-top: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.sensor-card__btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sensor-card__btn--lock {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 8px 16px -4px rgba(220, 38, 38, 0.4);
+}
+
+.sensor-card__btn--lock:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -4px rgba(220, 38, 38, 0.5);
+}
+
+.sensor-card__btn--unlock {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 8px 16px -4px rgba(16, 185, 129, 0.4);
+}
+
+.sensor-card__btn--unlock:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -4px rgba(16, 185, 129, 0.5);
+}
+
+.sensor-card__hint {
+  font-size: 10px;
+  font-style: italic;
+  font-weight: 500;
+  color: #94a3b8;
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+.detail-panel__log-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3);
+  transition: all 0.2s;
+}
+
+.detail-panel__log-btn:hover {
+  background-color: #1e293b;
+  transform: translateY(-2px);
+}
