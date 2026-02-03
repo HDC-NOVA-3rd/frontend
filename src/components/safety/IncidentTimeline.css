@@ -1,0 +1,352 @@
+/* ===================================================
+   IncidentTimeline - 사건 타임라인
+   철학: 맥락 기반, Incident 단위 그룹핑
+   =================================================== */
+
+.incident-timeline {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* ===== Header ===== */
+.incident-timeline__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.incident-timeline__header h3 {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #1e293b;
+  flex: 1;
+}
+
+.incident-timeline__header svg {
+  color: #64748b;
+}
+
+.incident-timeline__count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 0.125rem 0.5rem;
+  border-radius: 8px;
+}
+
+/* ===== Empty State ===== */
+.incident-timeline--empty .incident-timeline__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  gap: 0.75rem;
+  color: #9ca3af;
+}
+
+.incident-timeline__empty-state svg {
+  color: #d1d5db;
+}
+
+.incident-timeline__empty-state p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* ===== List ===== */
+.incident-timeline__list {
+  padding: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* ===== Incident Item ===== */
+.incident-item {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.incident-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Connector (dot + line) */
+.incident-item__connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.incident-item__dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.incident-item__dot--high {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 2px solid #fecaca;
+}
+
+.incident-item__dot--medium {
+  background: #fffbeb;
+  color: #d97706;
+  border: 2px solid #fde68a;
+}
+
+.incident-item--resolved .incident-item__dot {
+  background: #f0fdf4;
+  color: #22c55e;
+  border: 2px solid #bbf7d0;
+}
+
+.incident-item__line {
+  width: 2px;
+  flex: 1;
+  background: #e2e8f0;
+  min-height: 20px;
+}
+
+/* Card */
+.incident-item__card {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.incident-item__card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.incident-item--selected .incident-item__card {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.incident-item--high .incident-item__card {
+  border-left: 3px solid #dc2626;
+}
+
+.incident-item--medium .incident-item__card {
+  border-left: 3px solid #d97706;
+}
+
+.incident-item--resolved .incident-item__card {
+  border-left: 3px solid #22c55e;
+  opacity: 0.8;
+}
+
+/* Card Header */
+.incident-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.incident-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.incident-item__date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.incident-item__time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.incident-item__expand-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: #9ca3af;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.incident-item__expand-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.incident-item__expand-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.incident-item__expand-btn svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* Card Body */
+.incident-item__body {
+  padding: 0.625rem 0.75rem;
+}
+
+.incident-item__zone {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.375rem;
+}
+
+.incident-item__zone svg {
+  color: #6b7280;
+}
+
+.incident-item__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.incident-item__status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+.incident-item__status--danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.incident-item__status--warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.incident-item__status--safe {
+  background: #f0fdf4;
+  color: #22c55e;
+}
+
+.incident-item__event-count {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Events (Expanded) */
+.incident-item__events {
+  padding: 0.5rem 0.75rem 0.75rem;
+  border-top: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.event-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.event-detail:last-child {
+  border-bottom: none;
+}
+
+.event-detail__time {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  min-width: 60px;
+}
+
+.event-detail__icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.event-detail__content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.event-detail__type {
+  font-size: 0.8125rem;
+  color: #374151;
+}
+
+.event-detail__value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  background: #e5e7eb;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}
+
+.event-detail__status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.event-detail__status--danger {
+  color: #dc2626;
+}
+
+.event-detail__status--safe {
+  color: #22c55e;
+}
+
+.event-detail__status--warning {
+  color: #d97706;
+}
+
+/* Scrollbar */
+.incident-timeline__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.incident-timeline__list::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.incident-timeline__list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}

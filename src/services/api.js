@@ -3,7 +3,9 @@
  * React Query 없이 fetch 기반으로 API 호출을 처리합니다.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+// 개발 환경에서는 Vite 프록시를 사용하도록 상대 경로를 기본으로 사용
+const API_BASE = import.meta.env.DEV ? '' : RAW_API_BASE;
 
 /**
  * API 에러 클래스
