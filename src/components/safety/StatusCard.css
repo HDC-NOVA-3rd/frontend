@@ -1,0 +1,96 @@
+.status-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+  min-height: 220px;
+}
+
+.status-card[role="button"] {
+  cursor: pointer;
+}
+
+.status-card[role="button"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.status-card--normal {
+  border-color: #bbf7d0;
+  background: linear-gradient(135deg, #f0fdf4 0%, white 100%);
+}
+
+.status-card--warning {
+  border-color: #fde68a;
+  background: linear-gradient(135deg, #fffbeb 0%, white 100%);
+}
+
+.status-card--danger {
+  border-color: #fecaca;
+  background: linear-gradient(135deg, #fef2f2 0%, white 100%);
+  animation: card-pulse-danger 2s ease-in-out infinite;
+}
+
+.status-card--unknown {
+  border-color: #e5e7eb;
+}
+
+.status-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.status-card__icon {
+  font-size: 40px;
+}
+
+.status-card__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.status-card__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.status-card__value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.status-card__value-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.status-card__value-unit {
+  font-size: 20px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.status-card__description {
+  margin: 16px 0 0;
+  font-size: 16px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+@keyframes card-pulse-danger {
+  0%, 100% {
+    border-color: #fecaca;
+  }
+  50% {
+    border-color: #ef4444;
+  }
+}

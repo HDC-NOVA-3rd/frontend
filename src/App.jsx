@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { FireMonitoringDashboard } from './pages';
+import Login from './pages/Login/Login';
+import Layout from './components/layout/Layout';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        {/* 로그인 */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* 관리자 영역 (헤더 + 사이드바 포함) */}
+        <Route path="/admin/*" element={
+          <Layout>
+            <Routes>
+              <Route path="safety" element={<FireMonitoringDashboard />} />
+              <Route path="residents" element={<div>입주민 조회 페이지 (구현 예정)</div>} />
+              <Route path="units" element={<div>세대 관리 페이지 (구현 예정)</div>} />
+              <Route path="complaints" element={<div>민원 처리 페이지 (구현 예정)</div>} />
+              <Route path="notices" element={<div>공지사항 페이지 (구현 예정)</div>} />
+              <Route path="bills" element={<div>고지서 관리 페이지 (구현 예정)</div>} />
+              <Route path="facilities" element={<div>시설 관리 페이지 (구현 예정)</div>} />
+              <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>} />
+            </Routes>
+          </Layout>
+        } />
+        
+        {/* 기본 경로 → 로그인으로 리다이렉트 */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        
+        {/* 404 */}
+        <Route path="*" element={
+          <div style={{ padding: 40, textAlign: 'center' }}>
+            <h1>404</h1>
+            <p>페이지를 찾을 수 없습니다.</p>
+          </div>
+        } />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

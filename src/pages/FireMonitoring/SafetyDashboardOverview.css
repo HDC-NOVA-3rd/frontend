@@ -1,0 +1,301 @@
+/* ===================================================
+   SafetyDashboardOverview - 화재감시 대시보드 홈
+   철학 기반 재설계: 즉시성, 신뢰성, 행동 유도
+   =================================================== */
+
+.safety-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ===== KPI Section ===== */
+.safety-overview__kpi {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* KPI Card V2 */
+.kpi-card-v2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.kpi-card-v2[role="button"] {
+  cursor: pointer;
+}
+
+.kpi-card-v2[role="button"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Status-based left border */
+.kpi-card-v2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.kpi-card-v2--danger::before { background: #dc2626; }
+.kpi-card-v2--warning::before { background: #f59e0b; }
+.kpi-card-v2--success::before { background: #22c55e; }
+.kpi-card-v2--offline::before { background: #6b7280; }
+.kpi-card-v2--neutral::before { background: #e2e8f0; }
+
+/* Icon */
+.kpi-card-v2__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-card-v2--danger .kpi-card-v2__icon {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.kpi-card-v2--warning .kpi-card-v2__icon {
+  background: #fffbeb;
+  color: #f59e0b;
+}
+
+.kpi-card-v2--success .kpi-card-v2__icon {
+  background: #f0fdf4;
+  color: #22c55e;
+}
+
+.kpi-card-v2--offline .kpi-card-v2__icon {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.kpi-card-v2--neutral .kpi-card-v2__icon {
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+/* Content */
+.kpi-card-v2__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.kpi-card-v2__value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.kpi-card-v2--danger .kpi-card-v2__value {
+  color: #dc2626;
+}
+
+.kpi-card-v2--warning .kpi-card-v2__value {
+  color: #d97706;
+}
+
+.kpi-card-v2__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Sub text */
+.kpi-card-v2__sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* Arrow */
+.kpi-card-v2__arrow {
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+
+/* ===== Main Grid ===== */
+.safety-overview__main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== Alerts Section (Left) ===== */
+.safety-overview__alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+/* Top Risk Section */
+.top-risk-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.top-risk-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #374151;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.top-risk-section h4 svg {
+  color: #f59e0b;
+}
+
+.top-risk-list {
+  padding: 0.5rem;
+}
+
+/* Top Risk Zone Card */
+.top-risk-zone {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.top-risk-zone:hover {
+  background: #f9fafb;
+}
+
+.top-risk-zone__rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  width: 24px;
+}
+
+.top-risk-zone__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.top-risk-zone__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.top-risk-zone__reason {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.top-risk-zone__status {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.top-risk-zone__status--danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.top-risk-zone__status--warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+/* ===== Timeline Section (Right) ===== */
+.safety-overview__timeline {
+  overflow-y: auto;
+}
+
+/* ===== Footer ===== */
+.safety-overview__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1200px) {
+  .safety-overview__main {
+    grid-template-columns: 1fr;
+  }
+
+  .safety-overview__alerts {
+    order: 1;
+  }
+
+  .safety-overview__timeline {
+    order: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .safety-overview__kpi {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-card-v2 {
+    padding: 1rem;
+  }
+
+  .kpi-card-v2__value {
+    font-size: 1.5rem;
+  }
+}
+
+/* ===== Scrollbar ===== */
+.safety-overview__alerts::-webkit-scrollbar,
+.safety-overview__timeline::-webkit-scrollbar {
+  width: 6px;
+}
+
+.safety-overview__alerts::-webkit-scrollbar-track,
+.safety-overview__timeline::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.safety-overview__alerts::-webkit-scrollbar-thumb,
+.safety-overview__timeline::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
