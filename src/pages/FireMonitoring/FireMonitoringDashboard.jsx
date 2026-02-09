@@ -7,7 +7,7 @@
  * - SafetySensorLogResponse: { sensorName, dongNo, facilityName, sensorType, value, unit, recordedAt }
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { 
   Flame, 
   ThermometerSun,
@@ -30,14 +30,16 @@ import {
   Layers,
   RefreshCw,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import './FireMonitoringDashboard.css';
-import { getSafetyStatus, getEventLog, getSensorLog, lockFacility } from '../../services/safetyApi';
+import { lockFacility } from '../../services/safetyApi';
+import { useSafetyMqtt } from '../../hooks/useSafetyMqtt';
 
 // ========== 설정 ==========
 const DEFAULT_APARTMENT_ID = 1; // 테스트용 아파트 ID
-const POLLING_INTERVAL = 5000; // 5초마다 자동 새로고침
 
 // ========== Helper Functions ==========
 
@@ -74,61 +76,23 @@ const getReasonLabel = (reason) => {
 // ========== Component ==========
 
 export function FireMonitoringDashboard() {
-  const [safetyStatus, setSafetyStatus] = useState([]);
-  const [eventLogs, setEventLogs] = useState([]);
-  const [sensorLogs, setSensorLogs] = useState([]);
   const [selectedZone, setSelectedZone] = useState(null);
-  
-  // 로딩 및 에러 상태
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // 데이터 fetch 함수
-  const fetchAllData = useCallback(async (isManualRefresh = false) => {
-    try {
-      if (isManualRefresh) {
-        setIsRefreshing(true);
-      }
-      setError(null);
-
-      // 병렬로 3개 API 호출
-      const [statusData, eventData, sensorData] = await Promise.all([
-        getSafetyStatus(DEFAULT_APARTMENT_ID),
-        getEventLog(DEFAULT_APARTMENT_ID),
-        getSensorLog(DEFAULT_APARTMENT_ID),
-      ]);
-
-      setSafetyStatus(statusData || []);
-      setEventLogs(eventData || []);
-      setSensorLogs(sensorData || []);
-      setLastUpdated(new Date());
-      
-    } catch (err) {
-      console.error('API 호출 실패:', err);
-      setError(err.message || 'API 호출에 실패했습니다.');
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
-
-  // 초기 로딩 & 폴링
-  useEffect(() => {
-    fetchAllData();
-
-    // 폴링: 5초마다 자동 새로고침
-    const intervalId = setInterval(() => {
-      fetchAllData();
-    }, POLLING_INTERVAL);
-
-    return () => clearInterval(intervalId);
-  }, [fetchAllData]);
+  // MQTT 실시간 연결: 초기 데이터는 REST API로, 이후 업데이트는 MQTT로 수신
+  const {
+    safetyStatus,
+    eventLogs,
+    sensorLogs,
+    isConnected,
+    loading,
+    error,
+    lastUpdated,
+    refetch,
+  } = useSafetyMqtt(DEFAULT_APARTMENT_ID);
 
   // 수동 새로고침
   const handleRefresh = () => {
-    fetchAllData(true);
+    refetch();
   };
 
   // 통계 계산
@@ -202,7 +166,7 @@ export function FireMonitoringDashboard() {
       console.log('잠금 응답:', response);
       
       // 성공 시 데이터 새로고침
-      await fetchAllData(true);
+      await refetch();
       
     } catch (err) {
       console.error('잠금 처리 실패:', err);
@@ -300,15 +264,17 @@ export function FireMonitoringDashboard() {
                 </span>
               )}
               <button 
-                className={`refresh-btn ${isRefreshing ? 'refreshing' : ''}`} 
+                className="refresh-btn" 
                 onClick={handleRefresh}
-                disabled={isRefreshing}
               >
                 <RefreshCw size={16} />
               </button>
-              <div className="live-indicator">
-                <span className="pulse-dot"></span>
-                실시간
+              <div className={`live-indicator ${isConnected ? '' : 'live-indicator--disconnected'}`}>
+                {isConnected ? (
+                  <><span className="pulse-dot"></span><Wifi size={14} /> MQTT 실시간</>
+                ) : (
+                  <><WifiOff size={14} /> 연결 끊김</>
+                )}
               </div>
             </div>
           </div>
