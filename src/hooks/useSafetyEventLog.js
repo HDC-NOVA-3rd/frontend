@@ -1,39 +1,40 @@
 /**
  * 안전 이벤트 로그 조회 훅
- * 10초마다 이벤트 로그 데이터를 폴링합니다.
+ * 초기에 1회 로드합니다. 실시간 업데이트는 useSafetyMqtt에서 함께 처리됩니다.
  */
 
-import { useCallback } from 'react';
-import { usePolling } from './usePolling';
+import { useState, useEffect, useCallback } from 'react';
 import { getEventLog } from '../services/safetyApi';
-import { mockEventLog } from '../mocks/safetyMockData';
-
-// 개발 중 Mock 데이터 사용 여부
-const USE_MOCK = true;
 
 /**
- * 안전 이벤트 로그를 주기적으로 조회하는 훅
+ * 안전 이벤트 로그를 초기에 1회 조회하는 훅
  * @param {number} apartmentId - 아파트 ID
  * @param {object} options - 추가 옵션
- * @returns {object} - { data, loading, error, lastUpdated, refetch }
+ * @returns {object} - { data, loading, error, refetch }
  */
 export function useSafetyEventLog(apartmentId, options = {}) {
-  const fetchFn = useCallback(() => {
-    if (!apartmentId) {
-      return Promise.resolve(null);
-    }
-    
-    // Mock 데이터 사용 (백엔드 연결 전)
-    if (USE_MOCK) {
-      return Promise.resolve(mockEventLog);
-    }
-    
-    return getEventLog(apartmentId);
-  }, [apartmentId]);
+  const { enabled = true } = options;
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  return usePolling(fetchFn, {
-    ...options,
-    enabled: !!apartmentId && (options.enabled !== false),
-    deps: [apartmentId],
-  });
+  const fetchData = useCallback(async () => {
+    if (!apartmentId || !enabled) return;
+    try {
+      setLoading(true);
+      const result = await getEventLog(apartmentId);
+      setData(result);
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [apartmentId, enabled]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
 }

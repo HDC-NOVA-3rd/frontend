@@ -2,25 +2,25 @@
  * 센서 로그 테이블
  */
 
-import { formatDateTime } from '../../utils/dateFormat';
-import { StatusIndicator } from './StatusIndicator';
-import './SensorLogTable.css';
+import { formatDateTime } from "../../utils/dateFormat";
+import { StatusIndicator } from "./StatusIndicator";
+import "./SensorLogTable.css";
 
 const SENSOR_TYPE_LABELS = {
-  electric: '전기',
-  gas: '가스',
-  temperature: '온도',
-  fire: '화재',
-  community: '공용시설',
+  GAS: "가스",
+  HEAT: "온도",
+};
+
+const getSensorTypeLabel = (sensorType) => {
+  const normalized = String(sensorType || "").toUpperCase();
+  return SENSOR_TYPE_LABELS[normalized] || sensorType;
 };
 
 export function SensorLogTable({ logs = [], loading = false }) {
   if (loading) {
     return (
       <div className="sensor-log-table">
-        <div className="sensor-log-table__loading">
-          센서 로그를 불러오는 중...
-        </div>
+        <div className="sensor-log-table__loading">센서 로그를 불러오는 중...</div>
       </div>
     );
   }
@@ -55,24 +55,14 @@ export function SensorLogTable({ logs = [], loading = false }) {
               <td>
                 <StatusIndicator status={log.status} showLabel={false} />
               </td>
-              <td className="sensor-log-table__type">
-                {SENSOR_TYPE_LABELS[log.sensorType] || log.sensorType}
-              </td>
+              <td className="sensor-log-table__type">{getSensorTypeLabel(log.sensorType)}</td>
               <td className="sensor-log-table__name">{log.sensorName}</td>
               <td className="sensor-log-table__value">
-                <span className="sensor-log-table__value-number">
-                  {log.value}
-                </span>
-                {log.unit && (
-                  <span className="sensor-log-table__value-unit">
-                    {log.unit}
-                  </span>
-                )}
+                <span className="sensor-log-table__value-number">{log.value}</span>
+                {log.unit && <span className="sensor-log-table__value-unit">{log.unit}</span>}
               </td>
-              <td className="sensor-log-table__location">{log.location || '-'}</td>
-              <td className="sensor-log-table__time">
-                {formatDateTime(log.timestamp)}
-              </td>
+              <td className="sensor-log-table__location">{log.location || "-"}</td>
+              <td className="sensor-log-table__time">{formatDateTime(log.timestamp)}</td>
             </tr>
           ))}
         </tbody>
