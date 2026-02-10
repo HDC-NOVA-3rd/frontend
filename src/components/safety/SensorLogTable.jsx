@@ -7,13 +7,14 @@ import { StatusIndicator } from "./StatusIndicator";
 import "./SensorLogTable.css";
 
 const SENSOR_TYPE_LABELS = {
-  electric: "전기",
-  gas: "가스",
   GAS: "가스",
-  temperature: "온도",
   HEAT: "온도",
-  fire: "화재",
-  community: "공용시설",
+  SMOKE: "가스",
+};
+
+const getSensorTypeLabel = (sensorType) => {
+  const normalized = String(sensorType || "").toUpperCase();
+  return SENSOR_TYPE_LABELS[normalized] || sensorType;
 };
 
 export function SensorLogTable({ logs = [], loading = false }) {
@@ -55,9 +56,7 @@ export function SensorLogTable({ logs = [], loading = false }) {
               <td>
                 <StatusIndicator status={log.status} showLabel={false} />
               </td>
-              <td className="sensor-log-table__type">
-                {SENSOR_TYPE_LABELS[log.sensorType] || log.sensorType}
-              </td>
+              <td className="sensor-log-table__type">{getSensorTypeLabel(log.sensorType)}</td>
               <td className="sensor-log-table__name">{log.sensorName}</td>
               <td className="sensor-log-table__value">
                 <span className="sensor-log-table__value-number">{log.value}</span>
