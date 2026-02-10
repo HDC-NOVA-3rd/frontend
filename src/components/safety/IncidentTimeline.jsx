@@ -1,50 +1,50 @@
 /**
  * IncidentTimeline - 사건 타임라인 컴포넌트
- * 
+ *
  *  개별 이벤트 나열이 아닌 "Incident" 단위로 묶어서 맥락 제공
  * - 어떤 센서들이 어떤 순서로 트리거됐는지
  * - 인접 구역 확산 여부
  * - 조치 이력 (인지/해제/메모)
  */
 
-import { useState } from 'react';
-import { 
-  Clock, 
-  ChevronDown, 
+import { useState } from "react";
+import {
+  Clock,
+  ChevronDown,
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Wind,
+  Flame,
   ThermometerSun,
   User,
   MessageSquare,
   ArrowRight,
-  MapPin
-} from 'lucide-react';
-import './IncidentTimeline.css';
+  MapPin,
+} from "lucide-react";
+import "./IncidentTimeline.css";
 
 // 시간 포맷팅
 const formatTime = (isoString) => {
-  if (!isoString) return '-';
+  if (!isoString) return "-";
   const date = new Date(isoString);
-  return date.toLocaleTimeString('ko-KR', { 
-    hour: '2-digit', 
-    minute: '2-digit', 
-    second: '2-digit' 
+  return date.toLocaleTimeString("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   });
 };
 
 const formatDate = (isoString) => {
-  if (!isoString) return '-';
+  if (!isoString) return "-";
   const date = new Date(isoString);
   const today = new Date();
   const isToday = date.toDateString() === today.toDateString();
-  
-  if (isToday) return '오늘';
-  
-  return date.toLocaleDateString('ko-KR', { 
-    month: 'short', 
-    day: 'numeric' 
+
+  if (isToday) return "오늘";
+
+  return date.toLocaleDateString("ko-KR", {
+    month: "short",
+    day: "numeric",
   });
 };
 
@@ -53,7 +53,7 @@ const groupEventsToIncidents = (events) => {
   if (!events || events.length === 0) return [];
 
   const sorted = [...events].sort(
-    (a, b) => new Date(b.eventAt).getTime() - new Date(a.eventAt).getTime()
+    (a, b) => new Date(b.eventAt).getTime() - new Date(a.eventAt).getTime(),
   );
 
   const incidents = [];
@@ -61,7 +61,7 @@ const groupEventsToIncidents = (events) => {
 
   sorted.forEach((event) => {
     const eventTime = new Date(event.eventAt).getTime();
-    const zoneName = event.dongNo || event.facilityName || 'unknown';
+    const zoneName = event.dongNo || event.facilityName || "unknown";
 
     // 새 Incident 시작 조건:
     // 1) 첫 이벤트
@@ -83,16 +83,16 @@ const groupEventsToIncidents = (events) => {
         endTime: eventTime,
         events: [event],
         status: event.statusTo,
-        severity: event.statusTo === 'DANGER' ? 'high' : 'medium',
+        severity: event.statusTo === "DANGER" ? "high" : "medium",
         acknowledged: event.acknowledged || false,
       };
     } else {
       currentIncident.events.push(event);
       currentIncident.endTime = eventTime;
       // 가장 심각한 상태로 업데이트
-      if (event.statusTo === 'DANGER') {
-        currentIncident.status = 'DANGER';
-        currentIncident.severity = 'high';
+      if (event.statusTo === "DANGER") {
+        currentIncident.status = "DANGER";
+        currentIncident.severity = "high";
       }
     }
   });
@@ -106,8 +106,9 @@ const groupEventsToIncidents = (events) => {
 
 // 이벤트 아이콘
 const getEventIcon = (event) => {
-  if (event.sensorType === 'SMOKE') return <Wind size={14} />;
-  if (event.sensorType === 'HEAT') return <ThermometerSun size={14} />;
+  if (event.sensorType === "SMOKE") return <Flame size={14} />;
+  if (event.sensorType === "GAS") return <Flame size={14} />;
+  if (event.sensorType === "HEAT") return <ThermometerSun size={14} />;
   if (event.manual) return <User size={14} />;
   return <AlertTriangle size={14} />;
 };
@@ -115,18 +116,18 @@ const getEventIcon = (event) => {
 // 상태 변화 라벨
 const getStatusChangeLabel = (statusTo) => {
   const labels = {
-    'DANGER': '위험 감지',
-    'SAFE': '정상 복귀',
-    'WARNING': '주의 발생',
+    DANGER: "위험 감지",
+    SAFE: "정상 복귀",
+    WARNING: "주의 발생",
   };
   return labels[statusTo] || statusTo;
 };
 
-export function IncidentTimeline({ 
-  events = [], 
+export function IncidentTimeline({
+  events = [],
   maxIncidents = 10,
   onIncidentSelect,
-  selectedIncidentId
+  selectedIncidentId,
 }) {
   const [expandedIncidentId, setExpandedIncidentId] = useState(null);
 
@@ -166,34 +167,28 @@ export function IncidentTimeline({
           const isExpanded = expandedIncidentId === incident.id;
           const isSelected = selectedIncidentId === incident.id;
           const eventCount = incident.events.length;
-          const isResolved = incident.status === 'SAFE';
+          const isResolved = incident.status === "SAFE";
 
           return (
-            <div 
+            <div
               key={incident.id}
               className={`
                 incident-item 
                 incident-item--${incident.severity}
-                ${isResolved ? 'incident-item--resolved' : ''}
-                ${isSelected ? 'incident-item--selected' : ''}
+                ${isResolved ? "incident-item--resolved" : ""}
+                ${isSelected ? "incident-item--selected" : ""}
               `}
             >
               {/* 타임라인 커넥터 */}
               <div className="incident-item__connector">
                 <div className={`incident-item__dot incident-item__dot--${incident.severity}`}>
-                  {isResolved ? (
-                    <CheckCircle2 size={12} />
-                  ) : (
-                    <AlertTriangle size={12} />
-                  )}
+                  {isResolved ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
                 </div>
-                {idx < incidents.length - 1 && (
-                  <div className="incident-item__line" />
-                )}
+                {idx < incidents.length - 1 && <div className="incident-item__line" />}
               </div>
 
               {/* 사건 카드 */}
-              <div 
+              <div
                 className="incident-item__card"
                 onClick={() => {
                   handleToggleExpand(incident.id);
@@ -211,10 +206,7 @@ export function IncidentTimeline({
                     </span>
                   </div>
                   <button className="incident-item__expand-btn">
-                    <ChevronDown 
-                      size={16} 
-                      className={isExpanded ? 'rotated' : ''} 
-                    />
+                    <ChevronDown size={16} className={isExpanded ? "rotated" : ""} />
                   </button>
                 </div>
 
@@ -225,13 +217,13 @@ export function IncidentTimeline({
                     <span>{incident.zone}</span>
                   </div>
                   <div className="incident-item__summary">
-                    <span className={`incident-item__status incident-item__status--${incident.status.toLowerCase()}`}>
+                    <span
+                      className={`incident-item__status incident-item__status--${incident.status.toLowerCase()}`}
+                    >
                       {getStatusChangeLabel(incident.status)}
                     </span>
                     {eventCount > 1 && (
-                      <span className="incident-item__event-count">
-                        +{eventCount - 1}개 이벤트
-                      </span>
+                      <span className="incident-item__event-count">+{eventCount - 1}개 이벤트</span>
                     )}
                   </div>
                 </div>
@@ -241,22 +233,21 @@ export function IncidentTimeline({
                   <div className="incident-item__events">
                     {incident.events.map((event, eventIdx) => (
                       <div key={event.id || eventIdx} className="event-detail">
-                        <div className="event-detail__time">
-                          {formatTime(event.eventAt)}
-                        </div>
-                        <div className="event-detail__icon">
-                          {getEventIcon(event)}
-                        </div>
+                        <div className="event-detail__time">{formatTime(event.eventAt)}</div>
+                        <div className="event-detail__icon">{getEventIcon(event)}</div>
                         <div className="event-detail__content">
                           <span className="event-detail__type">
-                            {event.manual ? '수동 조작' : event.sensorType || '감지'}
+                            {event.manual ? "수동 조작" : event.sensorType || "감지"}
                           </span>
                           {event.value && (
                             <span className="event-detail__value">
-                              {event.value}{event.unit}
+                              {event.value}
+                              {event.unit}
                             </span>
                           )}
-                          <span className={`event-detail__status event-detail__status--${event.statusTo.toLowerCase()}`}>
+                          <span
+                            className={`event-detail__status event-detail__status--${event.statusTo.toLowerCase()}`}
+                          >
                             <ArrowRight size={10} />
                             {event.statusTo}
                           </span>

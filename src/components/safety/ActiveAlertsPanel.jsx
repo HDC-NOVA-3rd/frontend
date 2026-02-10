@@ -1,30 +1,29 @@
 /**
  * ActiveAlertsPanel - 우선순위 경보 패널
- * 
+ *
  * "지금 처리해야 할 것"을 최상단 고정
  * - Active/Unacknowledged 경보만 표시
  * - 심각도 + 미인지 시간 기준 정렬
  * - 1클릭 인지(Acknowledge) 가능
  */
 
-import { useState } from 'react';
-import { 
-  AlertTriangle, 
-  ShieldAlert, 
-  Clock, 
+import { useState } from "react";
+import {
+  AlertTriangle,
+  ShieldAlert,
+  Clock,
   CheckCircle2,
   ChevronRight,
   Flame,
   ThermometerSun,
-  Wind,
   User,
-  MessageSquare
-} from 'lucide-react';
-import './ActiveAlertsPanel.css';
+  MessageSquare,
+} from "lucide-react";
+import "./ActiveAlertsPanel.css";
 
 // 경과 시간 계산 (사람이 읽기 쉬운 형태)
 const getElapsedTime = (isoString) => {
-  if (!isoString) return '-';
+  if (!isoString) return "-";
   const now = new Date();
   const eventTime = new Date(isoString);
   const diffMs = now - eventTime;
@@ -41,33 +40,37 @@ const getElapsedTime = (isoString) => {
 // 긴급도 계산 (경보 우선순위)
 const calculateUrgency = (alert) => {
   let score = 0;
-  
+
   // 1. 심각도
-  if (alert.status === 'DANGER') score += 100;
-  else if (alert.status === 'WARNING') score += 50;
-  
+  if (alert.status === "DANGER") score += 100;
+  else if (alert.status === "WARNING") score += 50;
+
   // 2. 미인지 여부
   if (!alert.acknowledged) score += 30;
-  
+
   // 3. 경과 시간 (오래될수록 긴급)
   const elapsed = Date.now() - new Date(alert.eventAt || alert.updatedAt).getTime();
   const elapsedMin = elapsed / 60000;
   if (elapsedMin > 10) score += 20;
   else if (elapsedMin > 5) score += 10;
-  
-  // 4. 센서 타입 (연기 > 고온)
-  if (alert.reason === 'FIRE_SMOKE' || alert.sensorType === 'SMOKE') score += 15;
-  if (alert.reason === 'HEAT' || alert.sensorType === 'HEAT') score += 10;
-  
+
+  // 4. 센서 타입 (가스 > 고온)
+  if (alert.reason === "FIRE_SMOKE" || alert.sensorType === "SMOKE") score += 15;
+  if (alert.reason === "GAS" || alert.sensorType === "GAS") score += 15;
+  if (alert.reason === "HEAT" || alert.sensorType === "HEAT") score += 10;
+
   return score;
 };
 
 // 경보 아이콘 결정
 const getAlertIcon = (alert) => {
-  if (alert.reason === 'FIRE_SMOKE' || alert.sensorType === 'SMOKE') {
-    return <Wind size={16} />;
+  if (alert.reason === "FIRE_SMOKE" || alert.sensorType === "SMOKE") {
+    return <Flame size={16} />;
   }
-  if (alert.reason === 'HEAT' || alert.sensorType === 'HEAT') {
+  if (alert.reason === "GAS" || alert.sensorType === "GAS") {
+    return <Flame size={16} />;
+  }
+  if (alert.reason === "HEAT" || alert.sensorType === "HEAT") {
     return <ThermometerSun size={16} />;
   }
   return <Flame size={16} />;
@@ -76,9 +79,9 @@ const getAlertIcon = (alert) => {
 // 상태 라벨
 const getStatusLabel = (status) => {
   const labels = {
-    'DANGER': '위험',
-    'WARNING': '주의',
-    'SAFE': '정상',
+    DANGER: "위험",
+    WARNING: "주의",
+    SAFE: "정상",
   };
   return labels[status] || status;
 };
@@ -86,30 +89,31 @@ const getStatusLabel = (status) => {
 // 사유 라벨
 const getReasonLabel = (reason, sensorType) => {
   const labels = {
-    'FIRE_SMOKE': '연기 감지',
-    'HEAT': '고온 감지',
-    'MANUAL_LOCK': '수동 잠금',
-    'SMOKE': '연기 감지',
+    FIRE_SMOKE: "가스 감지",
+    HEAT: "고온 감지",
+    GAS: "가스 감지",
+    MANUAL_LOCK: "수동 잠금",
+    SMOKE: "가스 감지",
   };
-  return labels[reason] || labels[sensorType] || reason || '-';
+  return labels[reason] || labels[sensorType] || reason || "-";
 };
 
-export function ActiveAlertsPanel({ 
-  alerts = [], 
+export function ActiveAlertsPanel({
+  alerts = [],
   onAcknowledge,
   onSelect,
   onAddNote,
-  selectedAlertId
+  selectedAlertId,
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
   // 활성 경보만 필터 (DANGER, WARNING 상태 + 미해결)
   const activeAlerts = alerts
-    .filter(a => a.status === 'DANGER' || a.status === 'WARNING')
-    .map(a => ({ ...a, urgency: calculateUrgency(a) }))
+    .filter((a) => a.status === "DANGER" || a.status === "WARNING")
+    .map((a) => ({ ...a, urgency: calculateUrgency(a) }))
     .sort((a, b) => b.urgency - a.urgency);
 
-  const unacknowledgedCount = activeAlerts.filter(a => !a.acknowledged).length;
+  const unacknowledgedCount = activeAlerts.filter((a) => !a.acknowledged).length;
 
   const handleAcknowledge = (e, alert) => {
     e.stopPropagation();
@@ -146,9 +150,7 @@ export function ActiveAlertsPanel({
         <h3>활성 경보</h3>
         <span className="active-alerts-panel__count">{activeAlerts.length}</span>
         {unacknowledgedCount > 0 && (
-          <span className="active-alerts-panel__unack-badge">
-            {unacknowledgedCount} 미확인
-          </span>
+          <span className="active-alerts-panel__unack-badge">{unacknowledgedCount} 미확인</span>
         )}
       </div>
 
@@ -158,17 +160,17 @@ export function ActiveAlertsPanel({
           const alertId = alert.id || `${alert.dongNo || alert.facilityName}-${alert.eventAt}`;
           const isExpanded = expandedId === alertId;
           const isSelected = selectedAlertId === alertId;
-          const zoneName = alert.dongNo || alert.facilityName || '알 수 없음';
+          const zoneName = alert.dongNo || alert.facilityName || "알 수 없음";
 
           return (
-            <div 
+            <div
               key={alertId}
               className={`
                 alert-item 
                 alert-item--${alert.status.toLowerCase()}
-                ${!alert.acknowledged ? 'alert-item--unacknowledged' : ''}
-                ${isSelected ? 'alert-item--selected' : ''}
-                ${isExpanded ? 'alert-item--expanded' : ''}
+                ${!alert.acknowledged ? "alert-item--unacknowledged" : ""}
+                ${isSelected ? "alert-item--selected" : ""}
+                ${isExpanded ? "alert-item--expanded" : ""}
               `}
               onClick={() => onSelect && onSelect(alert)}
             >
@@ -183,7 +185,9 @@ export function ActiveAlertsPanel({
                 <div className="alert-item__content">
                   <div className="alert-item__top">
                     <span className="alert-item__zone">{zoneName}</span>
-                    <span className={`alert-item__status alert-item__status--${alert.status.toLowerCase()}`}>
+                    <span
+                      className={`alert-item__status alert-item__status--${alert.status.toLowerCase()}`}
+                    >
                       {getStatusLabel(alert.status)}
                     </span>
                   </div>
@@ -193,7 +197,8 @@ export function ActiveAlertsPanel({
                     </span>
                     {alert.value && (
                       <span className="alert-item__value">
-                        {alert.value}{alert.unit}
+                        {alert.value}
+                        {alert.unit}
                       </span>
                     )}
                   </div>
@@ -206,17 +211,14 @@ export function ActiveAlertsPanel({
                 </div>
 
                 {/* 확장 토글 */}
-                <button 
+                <button
                   className="alert-item__expand-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleToggleExpand(alertId);
                   }}
                 >
-                  <ChevronRight 
-                    size={16} 
-                    className={isExpanded ? 'rotated' : ''} 
-                  />
+                  <ChevronRight size={16} className={isExpanded ? "rotated" : ""} />
                 </button>
               </div>
 
@@ -224,7 +226,7 @@ export function ActiveAlertsPanel({
               {isExpanded && (
                 <div className="alert-item__actions">
                   {!alert.acknowledged && (
-                    <button 
+                    <button
                       className="alert-action alert-action--acknowledge"
                       onClick={(e) => handleAcknowledge(e, alert)}
                     >
@@ -232,7 +234,7 @@ export function ActiveAlertsPanel({
                       인지(확인)
                     </button>
                   )}
-                  <button 
+                  <button
                     className="alert-action alert-action--assign"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -242,7 +244,7 @@ export function ActiveAlertsPanel({
                     <User size={14} />
                     담당 배정
                   </button>
-                  <button 
+                  <button
                     className="alert-action alert-action--note"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -256,9 +258,7 @@ export function ActiveAlertsPanel({
               )}
 
               {/* 미인지 강조 표시 */}
-              {!alert.acknowledged && (
-                <div className="alert-item__unack-indicator" />
-              )}
+              {!alert.acknowledged && <div className="alert-item__unack-indicator" />}
             </div>
           );
         })}
