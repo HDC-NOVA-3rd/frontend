@@ -57,13 +57,11 @@ function TopRiskZone({ zone, rank, onClick }) {
       <div className="top-risk-zone__content">
         <span className="top-risk-zone__name">{zoneName}</span>
         <span className="top-risk-zone__reason">
-          {zone.reason === "FIRE_SMOKE"
-            ? "가스 감지"
-            : zone.reason === "HEAT"
-              ? "고온 감지"
-              : zone.reason === "GAS"
-                ? "가스 감지"
-                : zone.reason || "-"}
+          {zone.reason === "HEAT"
+            ? "고온 감지"
+            : zone.reason === "GAS"
+              ? "가스 감지"
+              : zone.reason || "-"}
         </span>
       </div>
       <span className={`top-risk-zone__status top-risk-zone__status--${statusClass}`}>

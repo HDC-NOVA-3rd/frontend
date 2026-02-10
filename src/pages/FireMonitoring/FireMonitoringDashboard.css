@@ -285,9 +285,6 @@
   color: #64748b;
 }
 
-.sensor-mini--smoke {
-  color: #64748b;
-}
 .sensor-mini--gas {
   color: #16a34a;
 }
@@ -511,10 +508,6 @@
   font-size: 0.65rem;
 }
 
-.sensor-type--smoke {
-  background: rgba(100, 116, 139, 0.3);
-  color: #cbd5e1;
-}
 .sensor-type--gas {
   background: rgba(22, 163, 74, 0.25);
   color: #86efac;
@@ -744,11 +737,6 @@
   width: fit-content;
 }
 
-.sensor-item--smoke .sensor-item__type {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
 .sensor-item--gas .sensor-item__type {
   background: #dcfce7;
   color: #16a34a;
@@ -813,9 +801,6 @@
   margin-bottom: 0.75rem;
 }
 
-.sensor-card--smoke .sensor-card__header {
-  color: #64748b;
-}
 .sensor-card--gas .sensor-card__header {
   color: #16a34a;
 }

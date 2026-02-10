@@ -9,7 +9,6 @@ import "./SensorLogTable.css";
 const SENSOR_TYPE_LABELS = {
   GAS: "가스",
   HEAT: "온도",
-  SMOKE: "가스",
 };
 
 const getSensorTypeLabel = (sensorType) => {

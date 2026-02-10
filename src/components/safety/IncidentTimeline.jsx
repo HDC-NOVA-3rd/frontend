@@ -106,7 +106,6 @@ const groupEventsToIncidents = (events) => {
 
 // 이벤트 아이콘
 const getEventIcon = (event) => {
-  if (event.sensorType === "SMOKE") return <Flame size={14} />;
   if (event.sensorType === "GAS") return <Flame size={14} />;
   if (event.sensorType === "HEAT") return <ThermometerSun size={14} />;
   if (event.manual) return <User size={14} />;

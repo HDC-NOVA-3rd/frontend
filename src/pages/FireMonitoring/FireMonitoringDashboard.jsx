@@ -75,7 +75,6 @@ const getZoneType = (item) => {
 
 const getReasonLabel = (reason) => {
   const labels = {
-    FIRE_SMOKE: "가스 감지",
     HEAT: "고온 감지",
     GAS: "가스 감지",
     MANUAL_LOCK: "수동 잠금",
@@ -86,8 +85,7 @@ const getReasonLabel = (reason) => {
 
 const normalizeSensorType = (sensorType) => {
   if (!sensorType) return "";
-  const normalized = sensorType.toUpperCase();
-  return normalized === "SMOKE" ? "GAS" : normalized;
+  return sensorType.toUpperCase();
 };
 
 const getSensorIcon = (sensorType, size) => {
@@ -116,9 +114,7 @@ export function FireMonitoringDashboard() {
     const safeZones = safetyStatus.filter((s) => s.status === "SAFE");
     const dongCount = safetyStatus.filter((s) => s.dongNo).length;
     const facilityCount = safetyStatus.filter((s) => s.facilityName).length;
-    const gasAlerts = dangerZones.filter(
-      (s) => s.reason === "GAS" || s.reason === "FIRE_SMOKE",
-    ).length;
+    const gasAlerts = dangerZones.filter((s) => s.reason === "GAS").length;
     const heatAlerts = dangerZones.filter((s) => s.reason === "HEAT").length;
 
     return {

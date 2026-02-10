@@ -55,7 +55,6 @@ const calculateUrgency = (alert) => {
   else if (elapsedMin > 5) score += 10;
 
   // 4. 센서 타입 (가스 > 고온)
-  if (alert.reason === "FIRE_SMOKE" || alert.sensorType === "SMOKE") score += 15;
   if (alert.reason === "GAS" || alert.sensorType === "GAS") score += 15;
   if (alert.reason === "HEAT" || alert.sensorType === "HEAT") score += 10;
 
@@ -64,9 +63,6 @@ const calculateUrgency = (alert) => {
 
 // 경보 아이콘 결정
 const getAlertIcon = (alert) => {
-  if (alert.reason === "FIRE_SMOKE" || alert.sensorType === "SMOKE") {
-    return <Flame size={16} />;
-  }
   if (alert.reason === "GAS" || alert.sensorType === "GAS") {
     return <Flame size={16} />;
   }
@@ -89,11 +85,9 @@ const getStatusLabel = (status) => {
 // 사유 라벨
 const getReasonLabel = (reason, sensorType) => {
   const labels = {
-    FIRE_SMOKE: "가스 감지",
     HEAT: "고온 감지",
     GAS: "가스 감지",
     MANUAL_LOCK: "수동 잠금",
-    SMOKE: "가스 감지",
   };
   return labels[reason] || labels[sensorType] || reason || "-";
 };
