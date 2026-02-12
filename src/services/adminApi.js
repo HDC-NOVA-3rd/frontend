@@ -16,7 +16,7 @@ import { get, post } from "./api";
  * @returns {Promise<any>}
  */
 export function adminLogin(data) {
-  return post("/api/admin/login", data);
+  return post("/api/admin/auth/login", data);
 }
 
 /**
@@ -25,10 +25,7 @@ export function adminLogin(data) {
  * @returns {Promise<any>} - AdminTokenResponse
  */
 export function adminLoginVerifyOtp(data) {
-  return post(
-    "/api/admin/login/verify-otp-code",
-    data,
-  );
+  return post("/api/admin/auth/login/otp", data);
 }
 
 /**
@@ -37,7 +34,7 @@ export function adminLoginVerifyOtp(data) {
  * @returns {Promise<any>}
  */
 export function adminLogout(data) {
-  return post("/api/admin/logout", data);
+  return post("/api/admin/account/logout", data);
 }
 
 /**
@@ -46,7 +43,7 @@ export function adminLogout(data) {
  * @returns {Promise<any>} - AdminTokenResponse
  */
 export function adminRefresh(data) {
-  return post("/api/admin/refresh", data);
+  return post("/api/admin/auth/refresh", data);
 }
 
 /* ===========================
@@ -60,7 +57,7 @@ export function adminRefresh(data) {
  */
 export function requestChangePassword(data) {
   return post(
-    "/api/admin/password/change/request",
+    "/api/admin/account/password/change/request",
     data,
   );
 }
@@ -72,7 +69,7 @@ export function requestChangePassword(data) {
  */
 export function confirmChangePassword(data) {
   return post(
-    "/api/admin/password/change/confirm",
+    "/api/admin/account/password/change/confirm",
     data,
   );
 }
@@ -84,7 +81,7 @@ export function confirmChangePassword(data) {
  */
 export function requestPasswordReset(data) {
   return post(
-    "/api/admin/password/reset/request",
+    "/api/admin/auth/password/reset/request",
     data,
   );
 }
@@ -96,7 +93,7 @@ export function requestPasswordReset(data) {
  */
 export function confirmPasswordReset(data) {
   return post(
-    "/api/admin/password/reset/confirm",
+    "/api/admin/auth/password/reset/confirm",
     data,
   );
 }
@@ -111,7 +108,10 @@ export function confirmPasswordReset(data) {
  * @returns {Promise<any>}
  */
 export function createAdmin(data) {
-  return post("/api/admin/signup", data);
+  return post(
+    "/api/admin/account/register",
+    data,
+  );
 }
 
 /* ===========================
@@ -123,7 +123,7 @@ export function createAdmin(data) {
  * @returns {Promise<any>} - AdminInfoResponse
  */
 export function getMyAdminInfo() {
-  return get("/api/admin/profile");
+  return get("/api/admin/account/profile");
 }
 
 /**
@@ -131,5 +131,5 @@ export function getMyAdminInfo() {
  * @returns {Promise<any>} - AdminApartmentResponse
  */
 export function getMyApartmentInfo() {
-  return get("/api/admin/apartment");
+  return get("/api/admin/account/apartment");
 }
