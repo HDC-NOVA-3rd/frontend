@@ -24,9 +24,25 @@ export function adminLogin(data) {
  * @param {object} data - { loginId, otpCode }
  * @returns {Promise<any>} - AdminTokenResponse
  */
-export function adminLoginVerifyOtp(data) {
+// services/adminApi.js
+
+// export const verifyOtp = async (data) => {
+//   // 백엔드: @PostMapping("/login/otp")
+//   const response = post(
+//     "/api/admin/auth/login/otp",
+//     data,
+//   );
+//   return response.data;
+// };
+
+/**
+ * 로그인 OTP 검증 (2차 인증)
+ */
+export const verifyOtp = async (data) => {
+  // axios.post 대신 공통 함수 post를 사용하세요.
+  // 그래야 baseURL(/api/admin...)과 인터셉터가 정상 작동합니다.
   return post("/api/admin/auth/login/otp", data);
-}
+};
 
 /**
  * 로그아웃

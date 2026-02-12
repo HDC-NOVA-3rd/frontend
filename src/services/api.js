@@ -8,10 +8,7 @@ const API_BASE =
 ================================ */
 const api = axios.create({
   baseURL: API_BASE,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  validateStatus: () => true, // 직접 상태코드 처리
+  headers: { "Content-Type": "application/json" },
 });
 
 /* ================================
