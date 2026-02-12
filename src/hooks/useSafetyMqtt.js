@@ -100,17 +100,43 @@ export function useSafetyMqtt(apartmentId, options = {}) {
         console.log("📨 Safety MQTT update:", update);
 
         // safetyStatus 즉시 업데이트 (구역 상태 카드)
+        const updatedStatus = {
+          dongId: update.dongId,
+          dongNo: update.dongNo,
+          facilityId: update.facilityId,
+          facilityName: update.facilityName,
+          status: update.statusTo, // statusTo -> status 매핑
+          reason: update.reason,
+          updatedAt: update.eventAt || update.recordedAt, // eventAt -> updatedAt 매핑
+        };
+
         setSafetyStatus((prev) => {
           const idx = prev.findIndex(
             (item) => item.dongNo === update.dongNo && item.facilityName === update.facilityName,
           );
           if (idx !== -1) {
             const next = [...prev];
-            next[idx] = update;
+            next[idx] = { ...next[idx], ...updatedStatus };
             return next;
           }
-          return [update, ...prev];
+          return [updatedStatus, ...prev];
         });
+
+        // 이벤트 로그 연동 (Prepend)
+        const newLog = {
+          id: `mqtt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // 임시 ID
+          dongNo: update.dongNo,
+          facilityName: update.facilityName,
+          manual: update.manual || false,
+          requestFrom: update.requestFrom || "SYSTEM",
+          sensorName: update.sensorName,
+          sensorType: update.sensorType,
+          value: update.value,
+          unit: update.unit,
+          statusTo: update.statusTo,
+          eventAt: update.eventAt || update.recordedAt,
+        };
+        setEventLogs((prev) => [newLog, ...prev].slice(0, 50)); // 최신 50개 유지
 
         setLastUpdated(new Date());
 

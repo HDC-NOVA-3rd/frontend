@@ -7,7 +7,7 @@
  * - SafetySensorLogResponse: { sensorName, dongNo, facilityName, sensorType, value, unit, recordedAt }
  */
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import {
   Flame,
   ThermometerSun,
@@ -36,6 +36,7 @@ import {
 import "./FireMonitoringDashboard.css";
 import { lockFacility } from "../../services/safetyApi";
 import { useSafetyMqtt } from "../../hooks/useSafetyMqtt";
+import { useAlert } from "../../hooks/useAlert";
 
 // ========== 설정 ==========
 const DEFAULT_APARTMENT_ID = 1; // 테스트용 아파트 ID
@@ -138,6 +139,48 @@ export function FireMonitoringDashboard() {
         (selectedZone.facilityName && s.facilityName === selectedZone.facilityName),
     );
   }, [selectedZone, sensorLogs]);
+
+  // 알림 훅
+  const { send: sendEmergencyAlert } = useAlert();
+
+  // 화재 긴급 알림 (전체)
+  const handleEmergencyAlert = async () => {
+    if (!window.confirm("아파트 전체에 화재 위험 긴급 알림을 발송하시겠습니까?")) return;
+
+    try {
+      await sendEmergencyAlert({
+        apartmentId: DEFAULT_APARTMENT_ID,
+        title: "화재 경보 발생",
+        message: "현재 아파트 내 화재 위험이 감지되었습니다. 신속히 대피하시고 안전에 유의하시기 바랍니다.",
+        type: "FIRE_EMERGENCY",
+      });
+      alert("긴급 알림이 발송되었습니다.");
+    } catch (err) {
+      alert(`알림 발송 실패: ${err.message}`);
+    }
+  };
+
+  // 전 구역 시설 예약 차단
+  const handleGlobalLockdown = async () => {
+    const facilities = safetyStatus.filter((z) => z.facilityId);
+    if (facilities.length === 0) {
+      alert("차단할 시설이 없습니다.");
+      return;
+    }
+
+    if (!window.confirm(`전체 ${facilities.length}개 시설의 예약을 즉시 차단하시겠습니까?`)) return;
+
+    try {
+      const promises = facilities.map((f) =>
+        lockFacility({ facilityId: f.facilityId, reservationAvailable: false }),
+      );
+      await Promise.all(promises);
+      alert("모든 시설의 예약이 차단되었습니다.");
+      await refetch();
+    } catch (err) {
+      alert(`시설 차단 중 오류 발생: ${err.message}`);
+    }
+  };
 
   // 호/공간별로 그룹핑
   const groupedSensors = useMemo(() => {
@@ -363,11 +406,11 @@ export function FireMonitoringDashboard() {
               <ShieldAlert size={16} /> 긴급 제어
             </h4>
             <div className="control-buttons">
-              <button className="control-btn control-btn--alert">
+              <button className="control-btn control-btn--alert" onClick={handleEmergencyAlert}>
                 <Megaphone size={18} />
                 긴급 알림
               </button>
-              <button className="control-btn control-btn--lockdown">
+              <button className="control-btn control-btn--lockdown" onClick={handleGlobalLockdown}>
                 <CalendarX size={18} />
                 시설 예약 차단
               </button>
@@ -466,8 +509,8 @@ export function FireMonitoringDashboard() {
                   const hasAlert = sensors.some((s) => {
                     const sensorType = normalizeSensorType(s.sensorType);
                     return (
-                      (sensorType === "GAS" && s.value > GAS_DANGER_THRESHOLD) ||
-                      (sensorType === "HEAT" && s.value > HEAT_DANGER_THRESHOLD)
+                      (sensorType === "GAS" && s.value >= GAS_DANGER_THRESHOLD) ||
+                      (sensorType === "HEAT" && s.value >= HEAT_DANGER_THRESHOLD)
                     );
                   });
 
@@ -487,8 +530,8 @@ export function FireMonitoringDashboard() {
                         {sensors.map((sensor, idx) => {
                           const sensorType = normalizeSensorType(sensor.sensorType);
                           const isAlert =
-                            (sensorType === "GAS" && sensor.value > GAS_DANGER_THRESHOLD) ||
-                            (sensorType === "HEAT" && sensor.value > HEAT_DANGER_THRESHOLD);
+                            (sensorType === "GAS" && sensor.value >= GAS_DANGER_THRESHOLD) ||
+                            (sensorType === "HEAT" && sensor.value >= HEAT_DANGER_THRESHOLD);
 
                           return (
                             <div
@@ -575,7 +618,7 @@ function ZoneCard({ zone, isSelected, onSelect, sensors, onManualLock }) {
           <>
             {gasLatest > 0 && (
               <div
-                className={`sensor-mini sensor-mini--gas ${gasLatest > GAS_DANGER_THRESHOLD ? "alert" : ""}`}
+                className={`sensor-mini sensor-mini--gas ${gasLatest >= GAS_DANGER_THRESHOLD ? "alert" : ""}`}
               >
                 <Flame size={12} />
                 <span>{gasLatest.toFixed(0)}</span>
@@ -583,7 +626,7 @@ function ZoneCard({ zone, isSelected, onSelect, sensors, onManualLock }) {
             )}
             {heatLatest > 0 && (
               <div
-                className={`sensor-mini sensor-mini--heat ${heatLatest > HEAT_DANGER_THRESHOLD ? "alert" : ""}`}
+                className={`sensor-mini sensor-mini--heat ${heatLatest >= HEAT_DANGER_THRESHOLD ? "alert" : ""}`}
               >
                 <ThermometerSun size={12} />
                 <span>{heatLatest.toFixed(1)}°</span>

@@ -538,6 +538,15 @@
   color: #86efac;
 }
 
+.event-item--danger {
+  border-left: 3px solid #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.event-item--safe {
+  border-left: 3px solid transparent;
+}
+
 /* ===== Zone Detail Drawer ===== */
 .zone-detail-drawer {
   position: fixed;
