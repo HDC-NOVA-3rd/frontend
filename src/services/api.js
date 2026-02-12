@@ -3,9 +3,9 @@
  * React Query 없이 fetch 기반으로 API 호출을 처리합니다.
  */
 
-const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 // 개발 환경에서는 Vite 프록시를 사용하도록 상대 경로를 기본으로 사용
-const API_BASE = import.meta.env.DEV ? '' : RAW_API_BASE;
+const API_BASE = import.meta.env.DEV ? "" : RAW_API_BASE;
 
 /**
  * API 에러 클래스
@@ -14,7 +14,7 @@ const API_BASE = import.meta.env.DEV ? '' : RAW_API_BASE;
 export class ApiError extends Error {
   constructor(status, statusText, message) {
     super(message || `API Error: ${status} ${statusText}`);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
     this.statusText = statusText;
   }
@@ -32,13 +32,13 @@ export async function fetchJson(endpoint, options = {}) {
   const config = {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     },
   };
 
   // Authorization 헤더 추가 (로그인 담당자가 구현할 토큰 관리와 연동)
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -61,7 +61,7 @@ export async function fetchJson(endpoint, options = {}) {
  * GET 요청 헬퍼
  */
 export function get(endpoint, options = {}) {
-  return fetchJson(endpoint, { ...options, method: 'GET' });
+  return fetchJson(endpoint, { ...options, method: "GET" });
 }
 
 /**
@@ -70,7 +70,7 @@ export function get(endpoint, options = {}) {
 export function post(endpoint, data, options = {}) {
   return fetchJson(endpoint, {
     ...options,
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(data),
   });
 }
@@ -81,7 +81,7 @@ export function post(endpoint, data, options = {}) {
 export function put(endpoint, data, options = {}) {
   return fetchJson(endpoint, {
     ...options,
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(data),
   });
 }
@@ -90,5 +90,5 @@ export function put(endpoint, data, options = {}) {
  * DELETE 요청 헬퍼
  */
 export function del(endpoint, options = {}) {
-  return fetchJson(endpoint, { ...options, method: 'DELETE' });
+  return fetchJson(endpoint, { ...options, method: "DELETE" });
 }

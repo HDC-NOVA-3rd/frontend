@@ -6,6 +6,7 @@ import NoticeCreate from "./pages/Notices/NoticeCreate";
 import NoticeEdit from "./pages/Notices/NoticeEdit";
 import NoticesList from "./pages/Notices/NoticesList";
 import NoticeLog from "./pages/Notices/NoticeLog";
+import ComplaintStatistics from "./pages/Complaints/Statistics";
 import "./App.css";
 
 function App() {
@@ -32,6 +33,8 @@ function App() {
                 <Route path="bills" element={<div>고지서 관리 페이지 (구현 예정)</div>} />
                 <Route path="facilities" element={<div>시설 관리 페이지 (구현 예정)</div>} />
                 <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>} />
+                <Route path="complaints" element={<div>민원 처리 페이지 (구현 예정)</div>} />
+                <Route path="complaints/statistics" element={<ComplaintStatistics />} />
               </Routes>
             </Layout>
           }
