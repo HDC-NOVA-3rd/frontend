@@ -7,15 +7,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Package Manager Lock files (요청하신 사항)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Build outputs
+dist/
+dist-ssr/
 *.local
+
+# Environment variables (보안을 위해 필수 제외)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.bak
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*

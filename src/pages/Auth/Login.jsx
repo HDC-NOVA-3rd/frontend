@@ -8,35 +8,38 @@ import "./Login.css";
 import {
   adminLogin,
   verifyOtp,
-} from "../../services/adminApi"; // verifyOtp 서비스 추가 필요
+} from "../../services/adminApi";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
-  const { loginSuccess } = useAuth(); // AuthContext에서 제공하는 로그인 성공 함수 (이름은 Context 확인 필요)
-  const { setAuthFromToken } = useAuth(); // import 확인
+  const { setAuthFromToken } = useAuth(); // 토큰 기반 인증 상태 업데이트 함수
   const navigate = useNavigate();
 
+  // [상태 관리] 입력 폼 데이터
   const [formData, setFormData] = useState({
     loginId: "",
     password: "",
-    otpCode: "", // OTP 코드 추가
+    otpCode: "",
   });
 
+  // [상태 관리] UI 단계 및 로딩/에러
   const [isOtpStep, setIsOtpStep] =
-    useState(false); // OTP 입력 단계인지 확인
+    useState(false); // false: ID/PW 단계, true: OTP 단계
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] =
     useState(false);
 
+  // [핸들러] 입력값 변경 시 formData 업데이트
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setError("");
+    setError(""); // 사용자가 입력을 시작하면 에러 메시지 초기화
   };
 
+  // [핸들러] 폼 제출 (로그인 시도)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -44,21 +47,25 @@ export default function Login() {
 
     try {
       if (!isOtpStep) {
+        // -----------------------------------------------------------
         // [1단계] ID/PW 로그인 시도
-        // 백엔드에서 1단계 통과 시 200 OK와 함께 OTP 필요 신호를 준다고 가정합니다.
+        // -----------------------------------------------------------
         await adminLogin({
           loginId: formData.loginId,
           password: formData.password,
         });
-        setIsOtpStep(true); // OTP 입력 칸으로 전환
+        // 성공 시 서버에서 OTP를 발송했다고 가정하고 OTP 입력 단계로 전환
+        setIsOtpStep(true);
       } else {
+        // -----------------------------------------------------------
         // [2단계] OTP 인증 시도
+        // -----------------------------------------------------------
         const tokenData = await verifyOtp({
           loginId: formData.loginId,
           otpCode: formData.otpCode,
         });
 
-        // 최종 토큰 저장
+        // 브라우저 로컬 스토리지에 토큰 저장
         localStorage.setItem(
           "accessToken",
           tokenData.accessToken,
@@ -68,10 +75,10 @@ export default function Login() {
           tokenData.refreshToken,
         );
 
-        // 🔥 여기서 Context의 유저 정보를 업데이트!
+        // AuthContext 상태 업데이트 (전역 유저 정보 설정)
         setAuthFromToken(tokenData.accessToken);
 
-        // 역할별 이동 (tokenData에 role이 포함되어 있다고 가정)
+        // 관리자 권한에 따른 페이지 리다이렉션
         if (tokenData.role === "SUPER_ADMIN") {
           navigate("/admin/safety");
         } else {
@@ -79,6 +86,7 @@ export default function Login() {
         }
       }
     } catch (err) {
+      // 서버 에러 메시지가 있으면 표시, 없으면 기본 메시지 출력
       setError(
         err.response?.data?.message ||
           "인증에 실패했습니다.",
@@ -91,6 +99,7 @@ export default function Login() {
   return (
     <div className="login-container">
       <div className="login-box">
+        {/* 헤더 섹션: 단계에 따라 제목 변경 */}
         <div className="login-header">
           <h1 className="login-title">
             {isOtpStep
@@ -109,7 +118,9 @@ export default function Login() {
           className="login-form"
         >
           {!isOtpStep ? (
-            // ID, Password 입력창
+            // -----------------------------------------------------------
+            // [입력창] 1단계: 아이디 및 비밀번호
+            // -----------------------------------------------------------
             <>
               <div className="form-group">
                 <label className="form-label">
@@ -139,7 +150,9 @@ export default function Login() {
               </div>
             </>
           ) : (
-            // OTP 입력창
+            // -----------------------------------------------------------
+            // [입력창] 2단계: OTP 코드 입력
+            // -----------------------------------------------------------
             <div className="form-group">
               <label className="form-label">
                 인증번호 (OTP)
@@ -173,6 +186,7 @@ export default function Login() {
             </div>
           )}
 
+          {/* 에러 메시지 출력 */}
           {error && (
             <div className="login-error">
               <AlertCircle size={16} />
@@ -180,6 +194,7 @@ export default function Login() {
             </div>
           )}
 
+          {/* 메인 액션 버튼 */}
           <button
             type="submit"
             className="login-button"
@@ -192,6 +207,38 @@ export default function Login() {
                 : "로그인"}
           </button>
 
+          {/* -----------------------------------------------------------
+              [링크 추가] 비밀번호 찾기 (1단계에서만 표시)
+          ----------------------------------------------------------- */}
+          {!isOtpStep && (
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "15px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/password-reset")
+                }
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#6366f1",
+                  fontSize: "0.875rem",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                비밀번호를 잊으셨나요?
+              </button>
+            </div>
+          )}
+
+          {/* -----------------------------------------------------------
+              [링크 추가] 이전으로 돌아가기 (2단계 OTP 화면에서만 표시)
+          ----------------------------------------------------------- */}
           {isOtpStep && (
             <button
               type="button"
@@ -203,6 +250,7 @@ export default function Login() {
                 color: "#666",
                 marginTop: "10px",
                 cursor: "pointer",
+                width: "100%",
               }}
             >
               이전으로 돌아가기

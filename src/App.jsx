@@ -6,7 +6,8 @@ import {
 } from "react-router-dom";
 import { FireMonitoringDashboard } from "./pages";
 import { AuthProvider } from "./context/AuthContext";
-import Login from "./pages/Login/Login";
+import Login from "./pages/Auth/Login";
+import PasswordReset from "./pages/Auth/PasswordReset";
 import Layout from "./components/layout/Layout";
 import NoticeCreate from "./pages/Notices/NoticeCreate";
 import NoticeEdit from "./pages/Notices/NoticeEdit";
@@ -20,10 +21,16 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* 로그인 */}
+          {/* 기본 로그인 경로 */}
           <Route
             path="/login"
             element={<Login />}
+          />
+
+          {/* 비밀번호 초기화 경로 (Login에서 navigate로 이동할 목적지) */}
+          <Route
+            path="/password-reset"
+            element={<PasswordReset />}
           />
 
           {/* 관리자 영역 (헤더 + 사이드바 포함) */}
