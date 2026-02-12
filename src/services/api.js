@@ -1,7 +1,10 @@
 import axios from "axios";
 
-const API_BASE =
+const RAW_API_BASE =
   import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE = import.meta.env.DEV
+  ? ""
+  : RAW_API_BASE;
 
 /* ================================
    Axios Instance
@@ -11,7 +14,6 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  validateStatus: () => true, // 직접 상태코드 처리
 });
 
 /* ================================
@@ -65,44 +67,44 @@ async function refreshAccessToken() {
   );
   if (!refreshToken) return null;
 
-  const response = await axios.post(
-    `${API_BASE}/api/admin/auth/refresh`,
-    { refreshToken },
-    { validateStatus: () => true },
-  );
-
-  if (response.status === 200) {
-    const newAccessToken =
-      response.data.accessToken;
-    localStorage.setItem(
-      "accessToken",
-      newAccessToken,
+  try {
+    const response = await axios.post(
+      `${API_BASE}/api/admin/auth/refresh`,
+      { refreshToken },
+      { validateStatus: () => true },
     );
-    return newAccessToken;
-  }
 
-  return null;
+    if (response.status === 200) {
+      const newAccessToken =
+        response.data.accessToken;
+      localStorage.setItem(
+        "accessToken",
+        newAccessToken,
+      );
+      return newAccessToken;
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
 }
 
 /* ================================
    Response Interceptor
 ================================ */
 api.interceptors.response.use(
-  async (response) => {
-    // 정상 응답
-    if (
-      response.status >= 200 &&
-      response.status < 300
-    ) {
-      if (response.status === 204) return null;
-      return response;
-    }
-
-    const originalRequest = response.config;
+  (response) => {
+    if (response.status === 204) return null;
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error.response?.status;
 
     // 401 처리
     if (
-      response.status === 401 &&
+      status === 401 &&
       !originalRequest._retry
     ) {
       if (isRefreshing) {
@@ -125,7 +127,6 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } else {
-        // refresh 실패 → 로그아웃 처리
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         window.location.href = "/login";
@@ -135,16 +136,15 @@ api.interceptors.response.use(
       }
     }
 
-    // 기타 에러
     const message =
-      response.data?.message ||
-      response.data?.error ||
-      response.statusText;
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message;
 
     return Promise.reject(
       new ApiError(
-        response.status,
-        response.statusText,
+        status,
+        error.response?.statusText,
         message,
       ),
     );
@@ -154,9 +154,10 @@ api.interceptors.response.use(
 /* ================================
    HTTP Methods
 ================================ */
+
 export async function get(url, config = {}) {
   const response = await api.get(url, config);
-  return response.data;
+  return response?.data ?? null;
 }
 
 export async function post(
@@ -169,7 +170,7 @@ export async function post(
     data,
     config,
   );
-  return response.data;
+  return response?.data ?? null;
 }
 
 export async function put(
@@ -182,10 +183,12 @@ export async function put(
     data,
     config,
   );
-  return response.data;
+  return response?.data ?? null;
 }
 
 export async function del(url, config = {}) {
   const response = await api.delete(url, config);
-  return response.data;
+  return response?.data ?? null;
 }
+
+export default api;
