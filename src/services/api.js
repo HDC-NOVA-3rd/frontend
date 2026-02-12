@@ -66,7 +66,7 @@ async function refreshAccessToken() {
   if (!refreshToken) return null;
 
   const response = await axios.post(
-    `${API_BASE}/auth/refresh`,
+    `${API_BASE}/api/admin/auth/refresh`,
     { refreshToken },
     { validateStatus: () => true },
   );
