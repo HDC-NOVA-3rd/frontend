@@ -15,6 +15,7 @@ import NoticeCreate from "./pages/Notices/NoticeCreate";
 import NoticeEdit from "./pages/Notices/NoticeEdit";
 import NoticesList from "./pages/Notices/NoticesList";
 import NoticeLog from "./pages/Notices/NoticeLog";
+import ComplaintStatistics from "./pages/Complaints/Statistics";
 
 import "./App.css";
 
@@ -39,91 +40,75 @@ function App() {
                   "ROLE_SUPER_ADMIN",
                 ]}
               >
-                <Layout>
-                  <Routes>
-                    <Route
-                      path="notices"
-                      element={<NoticesList />}
-                    />
-                    <Route
-                      path="notices/create"
-                      element={<NoticeCreate />}
-                    />
-                    <Route
-                      path="notices/:noticeId/edit"
-                      element={<NoticeEdit />}
-                    />
-                    <Route
-                      path="notices/log"
-                      element={<NoticeLog />}
-                    />
-                    <Route
-                      path="safety"
-                      element={
-                        <RoleRoute
-                          allowedRoles={[
-                            "ROLE_ADMIN",
-                            "ROLE_SUPER_ADMIN",
-                          ]}
-                        >
-                          <FireMonitoringDashboard />
-                        </RoleRoute>
-                      }
-                    />
-                    <Route
-                      path="residents"
-                      element={
-                        <div>
-                          입주민 조회 페이지
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="units"
-                      element={
-                        <div>
-                          세대 관리 페이지
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="complaints"
-                      element={
-                        <div>
-                          민원 처리 페이지
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="bills"
-                      element={
-                        <div>
-                          고지서 관리 페이지
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="facilities"
-                      element={
-                        <div>
-                          시설 관리 페이지
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="*"
-                      element={
-                        <div>
-                          페이지를 찾을 수
-                          없습니다.
-                        </div>
-                      }
-                    />
-                  </Routes>
-                </Layout>
+                <Layout />
               </RoleRoute>
             }
-          />
+          >
+            <Route
+              path="notices"
+              element={<NoticesList />}
+            />
+            <Route
+              path="notices/create"
+              element={<NoticeCreate />}
+            />
+            <Route
+              path="notices/:noticeId/edit"
+              element={<NoticeEdit />}
+            />
+            <Route
+              path="notices/log"
+              element={<NoticeLog />}
+            />
+            <Route
+              path="safety"
+              element={
+                <FireMonitoringDashboard />
+              }
+            />
+            <Route
+              path="residents"
+              element={
+                <div>입주민 조회 페이지</div>
+              }
+            />
+            <Route
+              path="units"
+              element={
+                <div>세대 관리 페이지</div>
+              }
+            />
+            <Route
+              path="complaints"
+              element={
+                <div>민원 처리 페이지</div>
+              }
+            />
+            <Route
+              path="complaints/statistics"
+              element={<ComplaintStatistics />}
+            />
+            <Route
+              path="bills"
+              element={
+                <div>고지서 관리 페이지</div>
+              }
+            />
+            <Route
+              path="facilities"
+              element={
+                <div>시설 관리 페이지</div>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <div>
+                  페이지를 찾을 수 없습니다.
+                </div>
+              }
+            />
+          </Route>
 
           {/* 기본 경로 → 로그인 */}
           <Route

@@ -1,151 +1,104 @@
 /**
- * Admin API 서비스
- * 관리자 로그인 및 계정/정보 관리 관련 API 함수들
- * 담당자: 창석 안
+ * Admin API Service
+ * 관리자 인증 및 계정 관리 관련 API
  */
 
 import { get, post } from "./api";
 
 /* ===========================
-    Auth 관련
+    Auth
 =========================== */
 
 /**
  * 관리자 로그인 (1차 - ID/PW)
- * @param {object} data - { loginId, password }
- * @returns {Promise<any>}
+ * @param {{ loginId: string, password: string }}
  */
-export function adminLogin(data) {
-  return post("/api/admin/auth/login", data);
-}
+export const adminLogin = (data) =>
+  post("/api/admin/auth/login", data);
 
 /**
  * 로그인 OTP 검증 (2차 인증)
- * @param {object} data - { loginId, otpCode }
- * @returns {Promise<any>} - AdminTokenResponse
+ * @param {{ loginId: string, otpCode: string }}
  */
-// services/adminApi.js
-
-// export const verifyOtp = async (data) => {
-//   // 백엔드: @PostMapping("/login/otp")
-//   const response = post(
-//     "/api/admin/auth/login/otp",
-//     data,
-//   );
-//   return response.data;
-// };
-
-/**
- * 로그인 OTP 검증 (2차 인증)
- */
-export const verifyOtp = async (data) => {
-  // axios.post 대신 공통 함수 post를 사용하세요.
-  // 그래야 baseURL(/api/admin...)과 인터셉터가 정상 작동합니다.
-  return post("/api/admin/auth/login/otp", data);
-};
+export const verifyOtp = (data) =>
+  post("/api/admin/auth/login/otp", data);
 
 /**
  * 로그아웃
- * @param {object} data - { refreshToken }
- * @returns {Promise<any>}
+ * @param {{ refreshToken: string }}
  */
-export function adminLogout(data) {
-  return post("/api/admin/account/logout", data);
-}
+export const adminLogout = (data) =>
+  post("/api/admin/account/logout", data);
 
 /**
  * Access 토큰 재발급
- * @param {object} data - { refreshToken }
- * @returns {Promise<any>} - AdminTokenResponse
+ * @param {{ refreshToken: string }}
  */
-export function adminRefresh(data) {
-  return post("/api/admin/auth/refresh", data);
-}
+export const adminRefresh = (data) =>
+  post("/api/admin/auth/refresh", data);
 
 /* ===========================
-    비밀번호 관련
+    Password
 =========================== */
 
 /**
  * 로그인 상태 비밀번호 변경 요청 (OTP 발송)
- * @param {object} data - { loginId, currentPassword }
- * @returns {Promise<any>}
  */
-export function requestChangePassword(data) {
-  return post(
+export const requestChangePassword = (data) =>
+  post(
     "/api/admin/account/password/change/request",
     data,
   );
-}
 
 /**
  * 로그인 상태 비밀번호 변경 확정
- * @param {object} data - { otpCode, currentPassword, newPassword, passwordConfirm }
- * @returns {Promise<any>}
  */
-export function confirmChangePassword(data) {
-  return post(
+export const confirmChangePassword = (data) =>
+  post(
     "/api/admin/account/password/change/confirm",
     data,
   );
-}
 
 /**
  * 비로그인 비밀번호 초기화 요청 (OTP 발송)
- * @param {object} data - { loginId, email }
- * @returns {Promise<any>}
  */
-export function requestPasswordReset(data) {
-  return post(
+export const requestPasswordReset = (data) =>
+  post(
     "/api/admin/auth/password/reset/request",
     data,
   );
-}
 
 /**
  * 비로그인 비밀번호 초기화 확정
- * @param {object} data - { loginId, otpCode, newPassword, passwordConfirm }
- * @returns {Promise<any>}
  */
-export function confirmPasswordReset(data) {
-  return post(
+export const confirmPasswordReset = (data) =>
+  post(
     "/api/admin/auth/password/reset/confirm",
     data,
   );
-}
 
 /* ===========================
-   👤 관리자 계정 관리
+    Admin Account
 =========================== */
 
 /**
  * 관리자 생성 (SUPER_ADMIN 전용)
- * @param {object} data - AdminCreateRequest
- * @returns {Promise<any>}
  */
-export function createAdmin(data) {
-  return post(
-    "/api/admin/account/register",
-    data,
-  );
-}
+export const createAdmin = (data) =>
+  post("/api/admin/account/register", data);
 
 /* ===========================
-   📄 관리자 정보 조회
+    Admin Info
 =========================== */
 
 /**
  * 내 정보 조회
- * @returns {Promise<any>} - AdminInfoResponse
  */
-export function getMyAdminInfo() {
-  return get("/api/admin/account/profile");
-}
+export const getMyAdminInfo = () =>
+  get("/api/admin/account/profile");
 
 /**
  * 내 아파트 정보 조회
- * @returns {Promise<any>} - AdminApartmentResponse
  */
-export function getMyApartmentInfo() {
-  return get("/api/admin/account/apartment");
-}
+export const getMyApartmentInfo = () =>
+  get("/api/admin/account/apartment");
