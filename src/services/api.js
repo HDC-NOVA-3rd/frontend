@@ -186,6 +186,19 @@ export async function put(
   return response?.data ?? null;
 }
 
+export async function patch(
+  url,
+  data,
+  config = {},
+) {
+  const response = await api.patch(
+    url,
+    data,
+    config,
+  );
+  return response?.data ?? null;
+}
+
 export async function del(url, config = {}) {
   const response = await api.delete(url, config);
   return response?.data ?? null;
