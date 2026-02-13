@@ -14,6 +14,15 @@ import NoticeEdit from "./pages/Notices/NoticeEdit";
 import NoticesList from "./pages/Notices/NoticesList";
 import NoticeLog from "./pages/Notices/NoticeLog";
 import ComplaintStatistics from "./pages/Complaints/Statistics";
+/* 민원 관련 페이지 컴포넌트 임포트 (경로 확인 필요) */
+import ComplaintsList from "./pages/Complaints/ComplaintsList";
+import ComplaintAnswer from "./pages/Complaints/ComplaintAnswer";
+import ComplaintLog from "./pages/Complaints/ComplaintLog";
+import ComplaintStatus from "./pages/Complaints/ComplaintStatus";
+
+/* 관리비 관련 컴포넌트 임포트 (파일 생성 후 경로 확인 필요) */
+import ManagementFeeList from "./pages/Management/ManagementFeeList"; 
+
 import "./App.css";
 
 function App() {
@@ -27,13 +36,13 @@ function App() {
             element={<Login />}
           />
 
-          {/* 비밀번호 초기화 경로 (Login에서 navigate로 이동할 목적지) */}
+          {/* 비밀번호 초기화 경로 */}
           <Route
             path="/password-reset"
             element={<PasswordReset />}
           />
 
-          {/* 관리자 영역 (헤더 + 사이드바 포함) */}
+          {/* 관리자 영역 */}
           <Route
             path="/admin/*"
             element={
@@ -64,69 +73,66 @@ function App() {
                   <Route
                     path="residents"
                     element={
-                      <div>
-                        입주민 조회 페이지 (구현
-                        예정)
-                      </div>
+                      <div>입주민 조회 페이지 (구현 예정)</div>
                     }
                   />
                   <Route
                     path="units"
                     element={
-                      <div>
-                        세대 관리 페이지 (구현
-                        예정)
-                      </div>
+                      <div>세대 관리 페이지 (구현 예정)</div>
                     }
+                  />
+                  
+                  {/* --- 민원 관리 라우트 추가 시작 --- */}
+                  <Route
+                    path="complaints/list"
+                    element={<ComplaintsList />}
                   />
                   <Route
-                    path="complaints"
-                    element={
-                      <div>
-                        민원 처리 페이지 (구현
-                        예정)
-                      </div>
-                    }
+                    path="complaints/answer"
+                    element={<ComplaintAnswer />}
                   />
+                  <Route
+                    path="complaints/status"
+                    element={<ComplaintStatus />}
+                  />
+                  <Route
+                    path="complaints/log"
+                    element={<ComplaintLog />}
+                  />
+                  <Route
+                    path="complaints/statistics"
+                    element={<ComplaintStatistics />}
+                  />
+                  <Route 
+                    path="complaints" 
+                    element={<Navigate to="list" replace />} 
+                  />
+                  {/* --- 민원 관리 라우트 추가 끝 --- */}
+
+                  {/* --- 관리비 항목 관리 라우트 추가 시작 --- */}
+                  <Route
+                    path="/bills/items"
+                    element={<ManagementFeeList />}
+                  />
+                  {/* --- 관리비 항목 관리 라우트 추가 끝 --- */}
+
                   <Route
                     path="bills"
                     element={
-                      <div>
-                        고지서 관리 페이지 (구현
-                        예정)
-                      </div>
+                      <div>고지서 관리 페이지 (구현 예정)</div>
                     }
                   />
                   <Route
                     path="facilities"
                     element={
-                      <div>
-                        시설 관리 페이지 (구현
-                        예정)
-                      </div>
+                      <div>시설 관리 페이지 (구현 예정)</div>
                     }
                   />
                   <Route
                     path="*"
                     element={
-                      <div>
-                        페이지를 찾을 수 없습니다.
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="complaints"
-                    element={
-                      <div>
-                        민원 처리 페이지 (구현
-                        예정)
-                      </div>
-                    }
-                  />
-                  <Route
-                    path="complaints/statistics"
-                    element={
-                      <ComplaintStatistics />
+                      <div>페이지를 찾을 수 없습니다.</div>
                     }
                   />
                 </Routes>
@@ -146,12 +152,7 @@ function App() {
           <Route
             path="*"
             element={
-              <div
-                style={{
-                  padding: 40,
-                  textAlign: "center",
-                }}
-              >
+              <div style={{ padding: 40, textAlign: "center" }}>
                 <h1>404</h1>
                 <p>페이지를 찾을 수 없습니다.</p>
               </div>
