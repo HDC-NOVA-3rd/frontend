@@ -1,5 +1,5 @@
 /**
- * 상태 표시 인디케이터 (정상/주의/위험)
+ * 상태 표시 인디케이터 (정상/위험)
  */
 
 import './StatusIndicator.css';
@@ -8,10 +8,6 @@ const STATUS_CONFIG = {
   normal: {
     label: '정상',
     className: 'status-indicator--normal',
-  },
-  warning: {
-    label: '주의',
-    className: 'status-indicator--warning',
   },
   danger: {
     label: '위험',

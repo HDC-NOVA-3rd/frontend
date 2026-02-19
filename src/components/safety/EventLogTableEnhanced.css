@@ -254,10 +254,6 @@
   border-left: 3px solid #dc2626;
 }
 
-.event-row--warning td:first-child {
-  border-left: 3px solid #f59e0b;
-}
-
 /* ===== Expand Button ===== */
 .event-row__expand-cell {
   width: 40px;
