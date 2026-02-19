@@ -243,11 +243,6 @@
   color: #dc2626;
 }
 
-.incident-item__status--warning {
-  background: #fffbeb;
-  color: #d97706;
-}
-
 .incident-item__status--safe {
   background: #f0fdf4;
   color: #22c55e;
@@ -331,10 +326,6 @@
 
 .event-detail__status--safe {
   color: #22c55e;
-}
-
-.event-detail__status--warning {
-  color: #d97706;
 }
 
 /* Scrollbar */

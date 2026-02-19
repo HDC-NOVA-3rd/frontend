@@ -1,10 +1,4 @@
 /**
- * SafetyDashboardOverview - 화재감시 대시보드 홈 (철학 기반 재설계)
- *
- *
- * 1. 즉시성: "지금 위험한가?"를 1초 안에 답하게 한다
- * 2. 신뢰성: 데이터 신선도, 센서 상태, 근거를 항상 함께 제시
- * 3. 행동 유도: 경보를 "보는 것"에서 끝내지 않고 조치까지 연결
  *
  * 레이아웃:
  * - 상단: KPI 3개만 (Active Alarms, Unacknowledged, Offline Sensors)
@@ -45,7 +39,7 @@ function KpiCard({ icon: Icon, label, value, status, subText, onClick }) {
 
 // 가장 위험한 구역 카드
 function TopRiskZone({ zone, rank, onClick }) {
-  const statusClass = zone.status === "DANGER" ? "danger" : "warning";
+  const statusClass = "danger";
   const zoneName = zone.dongNo || zone.facilityName || "알 수 없음";
 
   return (
@@ -65,7 +59,7 @@ function TopRiskZone({ zone, rank, onClick }) {
         </span>
       </div>
       <span className={`top-risk-zone__status top-risk-zone__status--${statusClass}`}>
-        {zone.status === "DANGER" ? "위험" : "주의"}
+        위험
       </span>
     </div>
   );
@@ -87,16 +81,15 @@ export function SafetyDashboardOverview({
   // KPI 계산
   const kpis = useMemo(() => {
     const dangerZones = safetyStatus.filter((s) => s.status === "DANGER");
-    const warningZones = safetyStatus.filter((s) => s.status === "WARNING");
 
     // 미인지 경보 (acknowledged 플래그가 없거나 false인 DANGER 상태)
-    const unacknowledged = [...dangerZones, ...warningZones].filter((s) => !s.acknowledged);
+    const unacknowledged = dangerZones.filter((s) => !s.acknowledged);
 
     // 오프라인 센서 (실제로는 센서 상태 API가 필요하지만, 여기서는 시뮬레이션)
     const offlineSensors = sensorLogs.filter((s) => s.status === "OFFLINE").length;
 
     return {
-      activeAlarms: dangerZones.length + warningZones.length,
+      activeAlarms: dangerZones.length,
       unacknowledged: unacknowledged.length,
       offlineSensors: offlineSensors,
     };
@@ -105,22 +98,15 @@ export function SafetyDashboardOverview({
   // 가장 위험한 구역 TOP 3
   const topRiskZones = useMemo(() => {
     return safetyStatus
-      .filter((s) => s.status === "DANGER" || s.status === "WARNING")
-      .sort((a, b) => {
-        // DANGER > WARNING
-        if (a.status !== b.status) {
-          return a.status === "DANGER" ? -1 : 1;
-        }
-        // 같은 상태면 updatedAt 최신순
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      })
+      .filter((s) => s.status === "DANGER")
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       .slice(0, 3);
   }, [safetyStatus]);
 
   // 경보용 데이터 (safetyStatus를 alert 형태로 변환)
   const alertsData = useMemo(() => {
     return safetyStatus
-      .filter((s) => s.status === "DANGER" || s.status === "WARNING")
+      .filter((s) => s.status === "DANGER")
       .map((s) => ({
         ...s,
         id: s.id || `${s.dongNo || s.facilityName}-${s.updatedAt}`,
@@ -143,7 +129,7 @@ export function SafetyDashboardOverview({
           icon={AlertCircle}
           label="미확인"
           value={kpis.unacknowledged}
-          status={kpis.unacknowledged > 0 ? "warning" : "neutral"}
+          status={kpis.unacknowledged > 0 ? "danger" : "neutral"}
           subText={kpis.unacknowledged > 0 ? "인지 대기 중" : "모두 확인됨"}
         />
         <KpiCard

@@ -117,7 +117,6 @@ const getStatusChangeLabel = (statusTo) => {
   const labels = {
     DANGER: "위험 감지",
     SAFE: "정상 복귀",
-    WARNING: "주의 발생",
   };
   return labels[statusTo] || statusTo;
 };

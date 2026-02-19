@@ -53,7 +53,6 @@
 }
 
 .kpi-card-v2--danger::before { background: #dc2626; }
-.kpi-card-v2--warning::before { background: #f59e0b; }
 .kpi-card-v2--success::before { background: #22c55e; }
 .kpi-card-v2--offline::before { background: #6b7280; }
 .kpi-card-v2--neutral::before { background: #e2e8f0; }
@@ -72,11 +71,6 @@
 .kpi-card-v2--danger .kpi-card-v2__icon {
   background: #fef2f2;
   color: #dc2626;
-}
-
-.kpi-card-v2--warning .kpi-card-v2__icon {
-  background: #fffbeb;
-  color: #f59e0b;
 }
 
 .kpi-card-v2--success .kpi-card-v2__icon {
@@ -111,10 +105,6 @@
 
 .kpi-card-v2--danger .kpi-card-v2__value {
   color: #dc2626;
-}
-
-.kpi-card-v2--warning .kpi-card-v2__value {
-  color: #d97706;
 }
 
 .kpi-card-v2__label {
@@ -234,11 +224,6 @@
 .top-risk-zone__status--danger {
   background: #fef2f2;
   color: #dc2626;
-}
-
-.top-risk-zone__status--warning {
-  background: #fffbeb;
-  color: #d97706;
 }
 
 /* ===== Timeline Section (Right) ===== */

@@ -43,7 +43,6 @@ const calculateUrgency = (alert) => {
 
   // 1. 심각도
   if (alert.status === "DANGER") score += 100;
-  else if (alert.status === "WARNING") score += 50;
 
   // 2. 미인지 여부
   if (!alert.acknowledged) score += 30;
@@ -76,7 +75,6 @@ const getAlertIcon = (alert) => {
 const getStatusLabel = (status) => {
   const labels = {
     DANGER: "위험",
-    WARNING: "주의",
     SAFE: "정상",
   };
   return labels[status] || status;
@@ -101,9 +99,9 @@ export function ActiveAlertsPanel({
 }) {
   const [expandedId, setExpandedId] = useState(null);
 
-  // 활성 경보만 필터 (DANGER, WARNING 상태 + 미해결)
+  // 활성 경보만 필터 (DANGER 상태 + 미해결)
   const activeAlerts = alerts
-    .filter((a) => a.status === "DANGER" || a.status === "WARNING")
+    .filter((a) => a.status === "DANGER")
     .map((a) => ({ ...a, urgency: calculateUrgency(a) }))
     .sort((a, b) => b.urgency - a.urgency);
 

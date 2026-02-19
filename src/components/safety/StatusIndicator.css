@@ -26,17 +26,6 @@
   color: #16a34a;
 }
 
-/* 주의 - 노랑/주황 */
-.status-indicator--warning .status-indicator__dot {
-  background-color: #f59e0b;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
-  animation: pulse-warning 1.5s ease-in-out infinite;
-}
-
-.status-indicator--warning .status-indicator__label {
-  color: #d97706;
-}
-
 /* 위험 - 빨강 */
 .status-indicator--danger .status-indicator__dot {
   background-color: #ef4444;
@@ -64,17 +53,6 @@
   }
   50% {
     opacity: 0.7;
-  }
-}
-
-@keyframes pulse-warning {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.1);
   }
 }
 

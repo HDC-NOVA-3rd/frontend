@@ -72,7 +72,6 @@ const FILTER_OPTIONS = {
   severity: [
     { value: 'all', label: '전체' },
     { value: 'danger', label: '위험' },
-    { value: 'warning', label: '주의' },
     { value: 'normal', label: '정상' },
   ],
   acknowledged: [

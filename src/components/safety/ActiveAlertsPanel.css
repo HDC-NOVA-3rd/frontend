@@ -170,11 +170,6 @@
   color: #dc2626;
 }
 
-.alert-item__icon--warning {
-  background: #fffbeb;
-  color: #d97706;
-}
-
 /* Content */
 .alert-item__content {
   flex: 1;
@@ -205,11 +200,6 @@
 .alert-item__status--danger {
   background: #fef2f2;
   color: #dc2626;
-}
-
-.alert-item__status--warning {
-  background: #fffbeb;
-  color: #d97706;
 }
 
 .alert-item__bottom {
