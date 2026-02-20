@@ -7,21 +7,27 @@ import {
 import { FireMonitoringDashboard } from "./pages";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Auth/Login";
-import PasswordReset from "./pages/Auth/PasswordReset";
+
 import Layout from "./components/layout/Layout";
 import NoticeCreate from "./pages/Notices/NoticeCreate";
 import NoticeEdit from "./pages/Notices/NoticeEdit";
 import NoticesList from "./pages/Notices/NoticesList";
 import NoticeLog from "./pages/Notices/NoticeLog";
 import ComplaintStatistics from "./pages/Complaints/Statistics";
-/* 민원 관련 페이지 컴포넌트 임포트 (경로 확인 필요) */
+
+/* 민원 관련 페이지 컴포넌트 임포트 */
 import ComplaintsList from "./pages/Complaints/ComplaintsList";
 import ComplaintAnswer from "./pages/Complaints/ComplaintAnswer";
 import ComplaintLog from "./pages/Complaints/ComplaintLog";
 import ComplaintStatus from "./pages/Complaints/ComplaintStatus";
 
-/* 관리비 관련 컴포넌트 임포트 (파일 생성 후 경로 확인 필요) */
+/* 관리비 관련 컴포넌트 임포트 */
 import ManagementFeeList from "./pages/Management/ManagementFeeList"; 
+
+import PasswordReset from "./pages/Auth/PasswordReset";
+import PasswordResetRequest from "./pages/Auth/PasswordResetRequest";
+import PasswordResetOtp from "./pages/Auth/PasswordResetOtp";
+import PasswordResetNewPassword from "./pages/Auth/PasswordResetNewPassword";
 
 import "./App.css";
 
@@ -37,10 +43,14 @@ function App() {
           />
 
           {/* 비밀번호 초기화 경로 */}
-          <Route
+          {/* <Route
             path="/password-reset"
             element={<PasswordReset />}
-          />
+          /> */}
+
+          <Route path="/password-reset" element={<PasswordReset />} />
+          <Route path="/password-reset/otp" element={<PasswordResetOtp />} />
+          <Route path="/password-reset/new" element={<PasswordResetNewPassword />} />
 
           {/* 관리자 영역 */}
           <Route
