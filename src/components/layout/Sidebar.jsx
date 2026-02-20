@@ -143,17 +143,17 @@ export default function Sidebar({
       icon: CreditCard,
       submenu: [
         {
-          label: "고지서 조회",
+          label: "세대별 납부 현황",
           path: "/admin/bills",
         },
         {
-          label: "관리비 항목",
+          label: "관리비 세부 항목",
           path: "/admin/bills/items",
         },
-        {
-          label: "결제 현황",
-          path: "/admin/bills/payments",
-        },
+                {
+          label: "관리비 통계",
+          path: "/admin/bills/statistics",
+        }
       ],
     },
     {
