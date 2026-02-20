@@ -161,16 +161,16 @@ export default function Sidebar({
       icon: Settings,
       submenu: [
         {
-          label: "아파트 정보 설정",
-          path: "/admin/settings/apartment",
-        },
-        {
-          label: "관리자 계정 관리",
+          label: "내 계정 정보",
           path: "/admin/settings/accounts",
         },
         {
           label: "비밀번호 변경",
-          path: "/admin/settings/password",
+          path: "/admin/account/password-change",
+        },
+        {
+          label: "담당 아파트 정보",
+          path: "/admin/settings/apartment",
         },
       ],
     },
