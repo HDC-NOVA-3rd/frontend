@@ -143,17 +143,17 @@ export default function Sidebar({
       icon: CreditCard,
       submenu: [
         {
-          label: "고지서 조회",
+          label: "세대별 납부 현황",
           path: "/admin/bills",
         },
         {
-          label: "관리비 항목",
+          label: "관리비 세부 항목",
           path: "/admin/bills/items",
         },
-        {
-          label: "결제 현황",
-          path: "/admin/bills/payments",
-        },
+                {
+          label: "관리비 통계",
+          path: "/admin/bills/statistics",
+        }
       ],
     },
     {
@@ -161,16 +161,16 @@ export default function Sidebar({
       icon: Settings,
       submenu: [
         {
-          label: "아파트 정보 설정",
-          path: "/admin/settings/apartment",
-        },
-        {
-          label: "관리자 계정 관리",
+          label: "내 계정 정보",
           path: "/admin/settings/accounts",
         },
         {
           label: "비밀번호 변경",
-          path: "/admin/settings/password",
+          path: "/admin/account/password-change",
+        },
+        {
+          label: "담당 아파트 정보",
+          path: "/admin/settings/apartment",
         },
       ],
     },

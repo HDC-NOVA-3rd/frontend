@@ -33,6 +33,13 @@ import ComplaintStatistics from "./pages/Complaints/Statistics";
 
 /* 관리비 관련 */
 import ManagementFeeList from "./pages/Management/ManagementFeeList"; 
+import BillListPage from "./pages/Bill/BillListPage"; 
+
+/* 계정 관련 */
+import PasswordChange from "./pages/Account/PasswordChange";
+import ProfilePage from "./pages/Account/ProfilePage";
+import ApartmentPage from "./pages/Account/ApartmentPage";
+
 
 import "./App.css";
 
@@ -74,7 +81,13 @@ function App() {
 
               {/* 관리비 */}
               <Route path="bills/items" element={<ManagementFeeList />} />
-              <Route path="bills" element={<div>고지서 관리 페이지 (구현 예정)</div>} />
+              <Route path="bills" element={<BillListPage />} />
+
+              {/* 계정 설정 */}
+              <Route path="account/password-change" element={<PasswordChange loginId={window.loginId} />} />
+              <Route path="settings/accounts" element={<ProfilePage />} />
+              <Route path="settings/apartment" element={<ApartmentPage />} />
+
 
               {/* 시설 관리 */}
               <Route path="facilities" element={<div>시설 관리 페이지 (구현 예정)</div>} />
