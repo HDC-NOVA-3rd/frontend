@@ -123,10 +123,7 @@ export default function PasswordReset() {
         navigate("/login");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "처리에 실패했습니다.",
-      );
+      setError(err.message || "처리에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }

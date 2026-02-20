@@ -29,24 +29,49 @@ export default function Login() {
   const [isLoading, setIsLoading] =
     useState(false);
 
-  // [핸들러] 입력값 변경 시 formData 업데이트
+  // 입력값 변경 시 formData 업데이트
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    // -----------------------------------------------------------
+    //  OTP 입력 시 숫자 필터링 및 자동 제출 
+    // -----------------------------------------------------------
+    if (name === "otpCode") {
+      const onlyNums = value.replace(/[^0-9]/g, ""); // 숫자 이외의 문자 제거
+      setFormData((prev) => ({
+        ...prev,
+        [name]: onlyNums,
+      }));
+
+      // 6자리가 모두 입력되면 자동으로 제출 시도
+      if (onlyNums.length === 6) {
+        handleProcessLogin(true, onlyNums);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
     setError(""); // 사용자가 입력을 시작하면 에러 메시지 초기화
   };
 
-  // [핸들러] 폼 제출 (로그인 시도)
+  // 폼 제출 (로그인 시도)
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    // 공통 로직 호출
+    await handleProcessLogin(isOtpStep, formData.otpCode);
+  };
+
+  // 로그인 및 OTP 검증 처리 공통 함수
+  const handleProcessLogin = async (isOtp, currentOtpCode) => {
+    if (isLoading) return; // 중복 제출 방지
+    
     setError("");
     setIsLoading(true);
 
     try {
-      if (!isOtpStep) {
+      if (!isOtp) {
         // -----------------------------------------------------------
         // [1단계] ID/PW 로그인 시도
         // -----------------------------------------------------------
@@ -62,7 +87,7 @@ export default function Login() {
         // -----------------------------------------------------------
         const tokenData = await verifyOtp({
           loginId: formData.loginId,
-          otpCode: formData.otpCode,
+          otpCode: currentOtpCode,
         });
 
         // 브라우저 로컬 스토리지에 토큰 저장
@@ -79,18 +104,21 @@ export default function Login() {
         setAuthFromToken(tokenData.accessToken);
 
         // 관리자 권한에 따른 페이지 리다이렉션
-        if (tokenData.role === "SUPER_ADMIN") {
-          navigate("/admin/safety");
-        } else {
-          navigate("/admin/safety");
-        }
+        navigate("/admin/safety");
       }
     } catch (err) {
-      // 서버 에러 메시지가 있으면 표시, 없으면 기본 메시지 출력
-      setError(
-        err.response?.data?.message ||
-          "인증에 실패했습니다.",
-      );
+
+      // -----------------------------------------------------------
+      // 가공된 에러 객체(ApiError)에서 메시지 추출
+      // -----------------------------------------------------------
+      const msg = err.message || "인증에 실패했습니다.";
+
+      setError(msg);
+
+      // OTP 단계에서 실패 시 입력칸 초기화
+      if (isOtp) {
+        setFormData((prev) => ({ ...prev, otpCode: "" }));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +179,7 @@ export default function Login() {
             </>
           ) : (
             // -----------------------------------------------------------
-            // [입력창] 2단계: OTP 코드 입력
+            // [입력창] 2단계: OTP 코드 입력 
             // -----------------------------------------------------------
             <div className="form-group">
               <label className="form-label">
@@ -163,6 +191,7 @@ export default function Login() {
               >
                 <input
                   type="text"
+                  inputMode="numeric" // 모바일 숫자 키패드 활성화
                   name="otpCode"
                   placeholder="000000"
                   value={formData.otpCode}
@@ -171,6 +200,7 @@ export default function Login() {
                   maxLength={6}
                   required
                   autoFocus
+                  style={{ textAlign: "center", letterSpacing: "8px", fontSize: "1.2rem" }}
                 />
                 <ShieldCheck
                   size={20}
@@ -186,7 +216,7 @@ export default function Login() {
             </div>
           )}
 
-          {/* 에러 메시지 출력 */}
+          {/* 에러 메시지 출력 (백엔드 ErrorResponse.message 포함) */}
           {error && (
             <div className="login-error">
               <AlertCircle size={16} />

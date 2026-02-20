@@ -89,34 +89,34 @@ export default function Sidebar({
       icon: Users,
       submenu: [
         {
-          label: "입주민 조회",
-          path: "/admin/residents",
+          label: "입주민 관리",
+          path: "/admin/resident/list",
         },
         {
           label: "세대 관리",
-          path: "/admin/units",
+          path: "/admin/household/list",
         },
         {
-          label: "입주민 등록",
-          path: "/admin/residents/create",
+          label: "입주민 대시보드",
+          path: "/admin/resident/dashboard",
         },
       ],
     },
     {
-      label: "민원 처리",
+      label: "민원 현황",
       icon: FileText,
       submenu: [
         {
           label: "민원 목록",
-          path: "/admin/complaints",
+          path: "/admin/complaint/list",
         },
         {
           label: "민원 통계",
-          path: "/admin/complaints/statistics",
+          path: "/admin/complaint/statistics",
         },
         {
           label: "처리 현황",
-          path: "/admin/complaints/status",
+          path: "/admin/complaint/status",
         },
       ],
     },

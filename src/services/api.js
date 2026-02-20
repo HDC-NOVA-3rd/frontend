@@ -21,16 +21,17 @@ const api = axios.create({
 
 
 /* =================================
-   Custom Error
+   Custom Error 
 ================================= */
 
 export class ApiError extends Error {
-  constructor(status, statusText, message) {
+  constructor(status, statusText, message, data) {
     super(message || `API Error: ${status} ${statusText}`);
 
     this.name       = "ApiError";
     this.status     = status;
     this.statusText = statusText;
+    this.data       = data; 
   }
 }
 
@@ -104,46 +105,61 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status          = error.response?.status;
+    const serverData      = error.response?.data;
+
+    // 에러 메시지 추출 공통 로직
+    const message =
+      serverData?.message ||
+      serverData?.error   ||
+      error.message       ||
+      "알 수 없는 오류가 발생했습니다.";
 
     /* 401 처리 */
-    if (status === 401 && !originalRequest._retry) {
+    if (status === 401) {
+      // -----------------------------------------------------------
+      // 로그인 API(/auth/login) 호출 중 401은 실패 메시지만 전달
+      // -----------------------------------------------------------
+      if (originalRequest.url.includes("/api/admin/auth/login")) {
+        return Promise.reject(
+          new ApiError(status, error.response?.statusText, message, serverData)
+        );
+      }
 
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          addRefreshSubscriber((newToken) => {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            resolve(api(originalRequest));
+      // 일반적인 API 호출 시 401이 나면 기존 리프레시 로직 작동
+      if (!originalRequest._retry) {
+        if (isRefreshing) {
+          return new Promise((resolve) => {
+            addRefreshSubscriber((newToken) => {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              resolve(api(originalRequest));
+            });
           });
-        });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        const newToken = await refreshAccessToken();
+        isRefreshing   = false;
+
+        if (newToken) {
+          onRefreshed(newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        }
+
+        // 리프레시 실패 시 세션 만료 처리
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+
+        return Promise.reject(new ApiError(401, "Unauthorized", "세션이 만료되었습니다."));
       }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      const newToken = await refreshAccessToken();
-      isRefreshing   = false;
-
-      if (newToken) {
-        onRefreshed(newToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return api(originalRequest);
-      }
-
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      window.location.href = "/login";
-
-      return Promise.reject(new ApiError(401, "Unauthorized"));
     }
 
-    const message =
-      error.response?.data?.message ||
-      error.response?.data?.error   ||
-      error.message;
-
+    // 그 외 에러(400, 403, 500 등) 처리
     return Promise.reject(
-      new ApiError(status, error.response?.statusText, message)
+      new ApiError(status, error.response?.statusText, message, serverData)
     );
   }
 );
