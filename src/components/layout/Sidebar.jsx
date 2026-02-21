@@ -162,7 +162,7 @@ export default function Sidebar({
       submenu: [
         {
           label: "내 계정 정보",
-          path: "/admin/settings/accounts",
+          path: "/admin/account",
         },
         {
           label: "비밀번호 변경",
@@ -171,6 +171,10 @@ export default function Sidebar({
         {
           label: "담당 아파트 정보",
           path: "/admin/settings/apartment",
+        },
+        {
+          label: "관리자 계정 생성",
+          path: "/admin/settings/register-admin",
         },
       ],
     },
