@@ -7,7 +7,7 @@
  * - SafetySensorLogResponse: { sensorName, dongNo, facilityName, sensorType, value, unit, recordedAt }
  */
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   Flame,
   ThermometerSun,
@@ -15,9 +15,7 @@ import {
   ShieldCheck,
   Building2,
   Home,
-  CalendarX,
   AlertTriangle,
-  Megaphone,
   CircuitBoard,
   XCircle,
   Clock,
@@ -85,6 +83,32 @@ const getReasonLabel = (reason) => {
   return labels[reason] || reason || "-";
 };
 
+const getSensorAlertReasons = (sensors) => {
+  const hasGasAlert = sensors.some(
+    (s) => normalizeSensorType(s.sensorType) === "GAS" && Number(s.value) > GAS_DANGER_THRESHOLD,
+  );
+  const hasHeatAlert = sensors.some(
+    (s) => normalizeSensorType(s.sensorType) === "HEAT" && Number(s.value) > HEAT_DANGER_THRESHOLD,
+  );
+
+  const reasons = [];
+  if (hasGasAlert) reasons.push("GAS");
+  if (hasHeatAlert) reasons.push("HEAT");
+  return reasons;
+};
+
+const getReasonSummary = (reasonCodes = [], fallbackStatus = "SAFE") => {
+  if (!Array.isArray(reasonCodes) || reasonCodes.length === 0) {
+    return fallbackStatus === "DANGER" ? "위험 상태" : "";
+  }
+
+  if (reasonCodes.includes("GAS") && reasonCodes.includes("HEAT")) {
+    return "가스·고온 동시 감지";
+  }
+
+  return reasonCodes.map((code) => getReasonLabel(code)).join(" · ");
+};
+
 const normalizeSensorType = (sensorType) => {
   if (!sensorType) return "";
   return sensorType.toUpperCase();
@@ -117,10 +141,36 @@ export function FireMonitoringDashboard() {
   const [selectedZone, setSelectedZone] = useState(null);
   const [householdUnits, setHouseholdUnits] = useState([]);
   const [facilityUnits, setFacilityUnits] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lockingFacilityId, setLockingFacilityId] = useState(null);
+  const [criticalAlert, setCriticalAlert] = useState(null);
+  const closeButtonRef = useRef(null);
+  const isDangerWatchInitializedRef = useRef(false);
+  const prevDangerSignaturesRef = useRef(new Map());
 
   // MQTT 실시간 연결: 초기 데이터는 REST API로, 이후 업데이트는 MQTT로 수신
   const { safetyStatus, eventLogs, sensorLogs, isConnected, loading, error, lastUpdated, refetch } =
     useSafetyMqtt(DEFAULT_APARTMENT_ID);
+
+  useEffect(() => {
+    if (!selectedZone) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSelectedZone(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectedZone]);
 
   useEffect(() => {
     let cancelled = false;
@@ -165,6 +215,7 @@ export function FireMonitoringDashboard() {
                 facilityId: facility.facilityId,
                 facilityName: facility.name,
                 spaceName: "공간 미지정",
+                reservationAvailable: facility.reservationAvailable,
               });
               return;
             }
@@ -174,6 +225,7 @@ export function FireMonitoringDashboard() {
                 facilityId: facility.facilityId,
                 facilityName: facility.name,
                 spaceName: space.name,
+                reservationAvailable: facility.reservationAvailable,
               });
             });
           });
@@ -236,8 +288,19 @@ export function FireMonitoringDashboard() {
         const gasLatest = getLatestByType(sensors, "GAS");
         const heatLatest = getLatestByType(sensors, "HEAT");
         const alertCount = sensors.filter((s) => isSensorAlert(s)).length;
-        const sensorReason =
-          gasLatest > GAS_DANGER_THRESHOLD ? "GAS" : heatLatest > HEAT_DANGER_THRESHOLD ? "HEAT" : null;
+        const sensorReasons = getSensorAlertReasons(sensors);
+        const hasSensors = sensors.length > 0;
+        const status = sensorReasons.length > 0
+          ? "DANGER"
+          : hasSensors
+            ? "SAFE"
+            : matchedStatus?.status || "SAFE";
+        const mergedReasons =
+          sensorReasons.length > 0
+            ? sensorReasons
+            : status === "DANGER" && matchedStatus?.reason
+              ? [matchedStatus.reason]
+              : [];
 
         const latestRecordedAt = sensors
           .map((s) => s.recordedAt)
@@ -249,8 +312,9 @@ export function FireMonitoringDashboard() {
           zoneType: "household",
           dongNo: dongNo || undefined,
           hoNo,
-          status: sensorReason ? "DANGER" : matchedStatus?.status || "SAFE",
-          reason: sensorReason || matchedStatus?.reason || null,
+          status,
+          reasonCodes: mergedReasons,
+          reason: mergedReasons[0] || null,
           updatedAt: latestRecordedAt || matchedStatus?.updatedAt || null,
           sensors,
           gasLatest,
@@ -293,8 +357,19 @@ export function FireMonitoringDashboard() {
         const gasLatest = getLatestByType(sensors, "GAS");
         const heatLatest = getLatestByType(sensors, "HEAT");
         const alertCount = sensors.filter((s) => isSensorAlert(s)).length;
-        const sensorReason =
-          gasLatest > GAS_DANGER_THRESHOLD ? "GAS" : heatLatest > HEAT_DANGER_THRESHOLD ? "HEAT" : null;
+        const sensorReasons = getSensorAlertReasons(sensors);
+        const hasSensors = sensors.length > 0;
+        const status = sensorReasons.length > 0
+          ? "DANGER"
+          : hasSensors
+            ? "SAFE"
+            : matchedStatus?.status || "SAFE";
+        const mergedReasons =
+          sensorReasons.length > 0
+            ? sensorReasons
+            : status === "DANGER" && matchedStatus?.reason
+              ? [matchedStatus.reason]
+              : [];
         const latestRecordedAt = sensors
           .map((s) => s.recordedAt)
           .filter(Boolean)
@@ -306,8 +381,13 @@ export function FireMonitoringDashboard() {
           facilityName,
           spaceName,
           facilityId: matchedStatus?.facilityId || matchedUnit?.facilityId,
-          status: sensorReason ? "DANGER" : matchedStatus?.status || "SAFE",
-          reason: sensorReason || matchedStatus?.reason || null,
+          reservationAvailable:
+            typeof matchedUnit?.reservationAvailable === "boolean"
+              ? matchedUnit.reservationAvailable
+              : null,
+          status,
+          reasonCodes: mergedReasons,
+          reason: mergedReasons[0] || null,
           updatedAt: latestRecordedAt || matchedStatus?.updatedAt || null,
           sensors,
           gasLatest,
@@ -320,24 +400,84 @@ export function FireMonitoringDashboard() {
       .sort((a, b) => getZoneName(a).localeCompare(getZoneName(b), "ko-KR"));
   }, [sensorLogs, statusByFacility, facilityUnits]);
 
+  const allZones = useMemo(() => [...householdZones, ...facilityZones], [householdZones, facilityZones]);
+  const dangerZones = useMemo(
+    () => allZones.filter((zone) => zone.status === "DANGER" && zone.hasSensor),
+    [allZones],
+  );
+
+  useEffect(() => {
+    const currentDangerSignatures = new Map(
+      dangerZones.map((zone) => [zone.id, [...(zone.reasonCodes || [])].sort().join(",")]),
+    );
+
+    // 초기 로딩 시 기존 위험 상태는 이벤트로 간주하지 않음
+    if (!isDangerWatchInitializedRef.current) {
+      prevDangerSignaturesRef.current = currentDangerSignatures;
+      isDangerWatchInitializedRef.current = true;
+      return;
+    }
+
+    const newlyDetectedZones = dangerZones.filter((zone) => {
+      const currentSignature = currentDangerSignatures.get(zone.id) || "";
+      const previousSignature = prevDangerSignaturesRef.current.get(zone.id) || "";
+
+      if (!previousSignature) return true;
+
+      const previousCodes = previousSignature.split(",").filter(Boolean);
+      const currentCodes = currentSignature.split(",").filter(Boolean);
+      return currentCodes.some((code) => !previousCodes.includes(code));
+    });
+
+    if (newlyDetectedZones.length > 0) {
+      const head = newlyDetectedZones
+        .slice(0, 2)
+        .map((zone) => `${getZoneName(zone)}(${getReasonSummary(zone.reasonCodes, zone.status)})`)
+        .join(" / ");
+      const tail = newlyDetectedZones.length > 2 ? ` 외 ${newlyDetectedZones.length - 2}건` : "";
+
+      setCriticalAlert({
+        id: Date.now(),
+        count: newlyDetectedZones.length,
+        message: `${head}${tail}`,
+      });
+    }
+
+    prevDangerSignaturesRef.current = currentDangerSignatures;
+  }, [dangerZones]);
+
+  useEffect(() => {
+    if (!criticalAlert) return undefined;
+
+    const timer = setTimeout(() => {
+      setCriticalAlert(null);
+    }, 9000);
+
+    return () => clearTimeout(timer);
+  }, [criticalAlert]);
+
   // 수동 새로고침
-  const handleRefresh = () => {
-    refetch();
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      await refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   // 통계 계산
   const stats = useMemo(() => {
-    const allZones = [...householdZones, ...facilityZones];
-    const dangerZones = allZones.filter((s) => s.status === "DANGER");
+    const dangerZonesAll = allZones.filter((s) => s.status === "DANGER");
     const safeZones = allZones.filter((s) => s.status === "SAFE");
     const dongCount = householdZones.length;
     const facilityCount = facilityZones.length;
-    const gasAlerts = dangerZones.filter((s) => s.reason === "GAS").length;
-    const heatAlerts = dangerZones.filter((s) => s.reason === "HEAT").length;
+    const gasAlerts = dangerZonesAll.filter((s) => (s.reasonCodes || []).includes("GAS")).length;
+    const heatAlerts = dangerZonesAll.filter((s) => (s.reasonCodes || []).includes("HEAT")).length;
 
     return {
       total: allZones.length,
-      danger: dangerZones.length,
+      danger: dangerZonesAll.length,
       safe: safeZones.length,
       dongCount,
       facilityCount,
@@ -345,7 +485,7 @@ export function FireMonitoringDashboard() {
       heatAlerts,
       sensorCount: sensorLogs.length, // 백엔드가 센서당 최신 1건만 반환
     };
-  }, [householdZones, facilityZones, sensorLogs]);
+  }, [allZones, householdZones, facilityZones, sensorLogs]);
 
   // 선택된 구역의 센서 목록 (호/공간별 그룹핑)
   const selectedZoneSensors = useMemo(() => {
@@ -372,7 +512,7 @@ export function FireMonitoringDashboard() {
   }, [selectedZoneSensors, selectedZone]);
 
   // 수동 잠금/해제 핸들러 (백엔드 API 호출)
-  const handleManualLock = async (zone, lock) => {
+  const handleManualLock = async (zone, reservationAvailable) => {
     // 시설만 잠금 가능 (facilityId 필요)
     if (!zone.facilityId) {
       // 동(Dong)은 아직 잠금 API가 없으므로 알림만
@@ -381,18 +521,30 @@ export function FireMonitoringDashboard() {
     }
 
     try {
+      setLockingFacilityId(zone.facilityId);
       const response = await lockFacility({
         facilityId: zone.facilityId,
-        reservationAvailable: !lock, // lock=true면 예약차단(false), lock=false면 예약허용(true)
+        reservationAvailable,
       });
 
       console.log("잠금 응답:", response);
+
+      setFacilityUnits((prev) =>
+        prev.map((unit) =>
+          unit.facilityId === zone.facilityId ? { ...unit, reservationAvailable } : unit,
+        ),
+      );
+      setSelectedZone((prev) =>
+        prev && prev.facilityId === zone.facilityId ? { ...prev, reservationAvailable } : prev,
+      );
 
       // 성공 시 데이터 새로고침
       await refetch();
     } catch (err) {
       console.error("잠금 처리 실패:", err);
       alert(`잠금 처리 실패: ${err.message}`);
+    } finally {
+      setLockingFacilityId(null);
     }
   };
 
@@ -425,7 +577,29 @@ export function FireMonitoringDashboard() {
   }
 
   return (
-    <div className="safety-dashboard">
+    <div className={`safety-dashboard ${criticalAlert ? "safety-dashboard--critical-active" : ""}`}>
+      {criticalAlert && (
+        <>
+          <div className="critical-alert-flash" aria-hidden="true" />
+          <section className="critical-alert-banner" role="alert" aria-live="assertive">
+            <div className="critical-alert-banner__icon">
+              <AlertTriangle size={22} />
+            </div>
+            <div className="critical-alert-banner__content">
+              <strong>센서 위험 수치 감지</strong>
+              <p>{criticalAlert.message}</p>
+            </div>
+            <button
+              type="button"
+              className="critical-alert-banner__close"
+              onClick={() => setCriticalAlert(null)}
+            >
+              확인
+            </button>
+          </section>
+        </>
+      )}
+
       {/* ===== KPI Summary ===== */}
       <section className="kpi-section">
         <div className="kpi-card kpi-card--primary">
@@ -493,7 +667,12 @@ export function FireMonitoringDashboard() {
                   {lastUpdated.toLocaleTimeString("ko-KR")} 업데이트
                 </span>
               )}
-              <button className="refresh-btn" onClick={handleRefresh}>
+              <button
+                className={`refresh-btn ${isRefreshing ? "refreshing" : ""}`}
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                aria-label="데이터 새로고침"
+              >
                 <RefreshCw size={16} />
               </button>
               <div
@@ -557,25 +736,8 @@ export function FireMonitoringDashboard() {
           </div>
         </section>
 
-        {/* 우측: 이벤트 로그 & 긴급 제어 */}
+        {/* 우측: 이벤트 로그 */}
         <aside className="side-section">
-          {/* 긴급 제어 */}
-          <div className="control-panel">
-            <h4>
-              <ShieldAlert size={16} /> 긴급 제어
-            </h4>
-            <div className="control-buttons">
-              <button className="control-btn control-btn--alert">
-                <Megaphone size={18} />
-                긴급 알림
-              </button>
-              <button className="control-btn control-btn--lockdown">
-                <CalendarX size={18} />
-                시설 예약 차단
-              </button>
-            </div>
-          </div>
-
           {/* 이벤트 로그 */}
           <div className="event-log-panel">
             <div className="event-log__header">
@@ -585,6 +747,9 @@ export function FireMonitoringDashboard() {
               <span className="live-badge">LIVE</span>
             </div>
             <div className="event-log__list">
+              {eventLogs.length === 0 && (
+                <div className="event-log__empty">수신된 이벤트가 없습니다.</div>
+              )}
               {eventLogs.slice(0, 10).map((log) => (
                 <div
                   key={log.id}
@@ -628,112 +793,160 @@ export function FireMonitoringDashboard() {
 
       {/* ===== 선택된 구역 상세 (Modal/Drawer) ===== */}
       {selectedZone && (
-        <div className="zone-detail-drawer">
-          <div className="drawer-header">
-            <h3>{getZoneName(selectedZone)} 상세</h3>
-            <button className="close-btn" onClick={() => setSelectedZone(null)}>
-              <XCircle size={20} />
-            </button>
-          </div>
-
-          <div className="drawer-status">
-            <div className={`status-badge status-badge--${selectedZone.status.toLowerCase()}`}>
-              {selectedZone.status === "DANGER" ? (
-                <ShieldAlert size={16} />
-              ) : (
-                <ShieldCheck size={16} />
-              )}
-              {selectedZone.status}
+        <div className="zone-detail-backdrop" onClick={() => setSelectedZone(null)}>
+          <div
+            className="zone-detail-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${getZoneName(selectedZone)} 상세`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="drawer-header">
+              <h3>{getZoneName(selectedZone)} 상세</h3>
+              <button
+                ref={closeButtonRef}
+                className="close-btn"
+                onClick={() => setSelectedZone(null)}
+                aria-label="상세 닫기"
+              >
+                <XCircle size={20} />
+              </button>
             </div>
-            {selectedZone.reason && (
-              <span className="reason-text">{getReasonLabel(selectedZone.reason)}</span>
-            )}
-            <span className="updated-text">
-              마지막 업데이트: {formatDateTime(selectedZone.updatedAt)}
-            </span>
-          </div>
 
-          <div className="drawer-sensors">
-            <h4>
-              {selectedZone.zoneType === "household" ? <DoorOpen size={16} /> : <Layers size={16} />}
-              {selectedZone.zoneType === "household" ? "세대 센서 현황" : "시설 센서 현황"}
-              <span className="sensor-count">({selectedZoneSensors.length}개)</span>
-            </h4>
-            {selectedZoneSensors.length === 0 ? (
-              <div className="empty-sensors">등록된 센서가 없습니다.</div>
-            ) : (
-              <div className="unit-groups">
-                {Object.entries(groupedSensors).map(([unitName, sensors]) => {
-                  // 해당 호/공간의 최대값 체크
-                  const hasAlert = sensors.some((s) => isSensorAlert(s));
+            <div className="drawer-status">
+              <div className={`status-badge status-badge--${selectedZone.status.toLowerCase()}`}>
+                {selectedZone.status === "DANGER" ? (
+                  <ShieldAlert size={16} />
+                ) : (
+                  <ShieldCheck size={16} />
+                )}
+                {selectedZone.status}
+              </div>
+              {selectedZone.reasonCodes?.length > 0 && (
+                <span className="reason-text">
+                  {getReasonSummary(selectedZone.reasonCodes, selectedZone.status)}
+                </span>
+              )}
+              <span className="updated-text">
+                마지막 업데이트: {formatDateTime(selectedZone.updatedAt)}
+              </span>
+            </div>
 
-                  return (
-                    <div
-                      key={unitName}
-                      className={`unit-group ${hasAlert ? "unit-group--alert" : ""}`}
-                    >
-                      <div className="unit-group__header">
-                        <span className="unit-name">
-                          {selectedZone.zoneType === "household" ? (
-                            <DoorOpen size={14} />
-                          ) : (
-                            <Layers size={14} />
-                          )}
-                          {unitName}
-                        </span>
-                        <span className="unit-sensor-count">{sensors.length}개 센서</span>
-                      </div>
-                      <div className="unit-group__sensors">
-                        {sensors.map((sensor, idx) => {
-                          const sensorType = normalizeSensorType(sensor.sensorType);
-                          const isAlert = isSensorAlert(sensor);
+            <div className="drawer-sensors">
+              <h4>
+                {selectedZone.zoneType === "household" ? <DoorOpen size={16} /> : <Layers size={16} />}
+                {selectedZone.zoneType === "household" ? "세대 센서 현황" : "시설 센서 현황"}
+                <span className="sensor-count">({selectedZoneSensors.length}개)</span>
+              </h4>
+              {selectedZoneSensors.length === 0 ? (
+                <div className="empty-sensors">등록된 센서가 없습니다.</div>
+              ) : (
+                <div className="unit-groups">
+                  {Object.entries(groupedSensors).map(([unitName, sensors]) => {
+                    // 해당 호/공간의 최대값 체크
+                    const hasAlert = sensors.some((s) => isSensorAlert(s));
 
-                          return (
-                            <div
-                              key={idx}
-                              className={`sensor-item sensor-item--${sensorType.toLowerCase()} ${isAlert ? "sensor-item--alert" : ""}`}
-                            >
-                              <div className="sensor-item__type">
-                                {getSensorIcon(sensorType, 14)}
-                                <span>{sensorType}</span>
+                    return (
+                      <div
+                        key={unitName}
+                        className={`unit-group ${hasAlert ? "unit-group--alert" : ""}`}
+                      >
+                        <div className="unit-group__header">
+                          <span className="unit-name">
+                            {selectedZone.zoneType === "household" ? (
+                              <DoorOpen size={14} />
+                            ) : (
+                              <Layers size={14} />
+                            )}
+                            {unitName}
+                          </span>
+                          <span className="unit-sensor-count">{sensors.length}개 센서</span>
+                        </div>
+                        <div className="unit-group__sensors">
+                          {sensors.map((sensor, idx) => {
+                            const sensorType = normalizeSensorType(sensor.sensorType);
+                            const isAlert = isSensorAlert(sensor);
+
+                            return (
+                              <div
+                                key={idx}
+                                className={`sensor-item sensor-item--${sensorType.toLowerCase()} ${isAlert ? "sensor-item--alert" : ""}`}
+                              >
+                                <div className="sensor-item__type">
+                                  {getSensorIcon(sensorType, 14)}
+                                  <span>{sensorType}</span>
+                                </div>
+                                <div className="sensor-item__value">
+                                  <span className="value">
+                                    {sensor.value != null ? Number(sensor.value).toFixed(1) : "-"}
+                                  </span>
+                                  <span className="unit">{sensor.unit}</span>
+                                </div>
+                                <div className="sensor-item__name">{sensor.sensorName}</div>
                               </div>
-                              <div className="sensor-item__value">
-                                <span className="value">
-                                  {sensor.value != null ? Number(sensor.value).toFixed(1) : "-"}
-                                </span>
-                                <span className="unit">{sensor.unit}</span>
-                              </div>
-                              <div className="sensor-item__name">{sensor.sensorName}</div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {selectedZone.facilityName && (
+              <div className="drawer-actions">
+                <p className="reservation-state">
+                  예약 상태:{" "}
+                  {selectedZone.reservationAvailable === null
+                    ? "확인 중"
+                    : selectedZone.reservationAvailable
+                      ? "허용"
+                      : "차단"}
+                </p>
+                <div className="drawer-action-row">
+                  <button
+                    className="action-btn action-btn--lock"
+                    onClick={() => handleManualLock(selectedZone, false)}
+                    disabled={
+                      lockingFacilityId === selectedZone.facilityId ||
+                      selectedZone.reservationAvailable === null ||
+                      selectedZone.reservationAvailable === false
+                    }
+                  >
+                    {lockingFacilityId === selectedZone.facilityId ? (
+                      <>
+                        <Loader2 size={16} className="btn-spinner" /> 처리 중...
+                      </>
+                    ) : (
+                      <>
+                        <Lock size={16} /> 수동 잠금 (예약 차단)
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="action-btn action-btn--unlock"
+                    onClick={() => handleManualLock(selectedZone, true)}
+                    disabled={
+                      lockingFacilityId === selectedZone.facilityId ||
+                      selectedZone.reservationAvailable === null ||
+                      selectedZone.reservationAvailable === true
+                    }
+                  >
+                    {lockingFacilityId === selectedZone.facilityId ? (
+                      <>
+                        <Loader2 size={16} className="btn-spinner" /> 처리 중...
+                      </>
+                    ) : (
+                      <>
+                        <Unlock size={16} /> 수동 해제 (예약 허용)
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </div>
-
-          {selectedZone.facilityName && (
-            <div className="drawer-actions">
-              {selectedZone.status === "SAFE" ? (
-                <button
-                  className="action-btn action-btn--lock"
-                  onClick={() => handleManualLock(selectedZone, true)}
-                >
-                  <Lock size={16} /> 수동 잠금 (예약 차단)
-                </button>
-              ) : (
-                <button
-                  className="action-btn action-btn--unlock"
-                  onClick={() => handleManualLock(selectedZone, false)}
-                >
-                  <Unlock size={16} /> 수동 해제 (예약 허용)
-                </button>
-              )}
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -750,9 +963,12 @@ function ZoneCard({ zone, isSelected, onSelect }) {
   const heatLatest = zone.heatLatest || 0;
 
   return (
-    <div
+    <button
+      type="button"
       className={`zone-card zone-card--${zone.status.toLowerCase()} ${isSelected ? "selected" : ""}`}
       onClick={onSelect}
+      aria-pressed={isSelected}
+      aria-label={`${zoneName} ${zone.status === "DANGER" ? "위험" : "정상"} 상세 열기`}
     >
       <div className="zone-card__header">
         <span className="zone-card__name">{zoneName}</span>
@@ -806,11 +1022,11 @@ function ZoneCard({ zone, isSelected, onSelect }) {
         <span className="reason-tag">
           {!zone.hasSensor
             ? "센서 연결 대기"
-            : zone.reason
-              ? getReasonLabel(zone.reason)
-              : `업데이트 ${formatTime(zone.updatedAt)}`}
+            : zone.reasonCodes?.length > 0
+              ? getReasonSummary(zone.reasonCodes, zone.status)
+              : "정상 범위"}
         </span>
       </div>
-    </div>
+    </button>
   );
 }
