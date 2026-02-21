@@ -241,6 +241,15 @@
   align-items: center;
 }
 
+.zone-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #64748b;
+  gap: 0.5rem;
+}
+
 .zone-card__name {
   font-weight: 700;
   font-size: 1rem;
