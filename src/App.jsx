@@ -39,7 +39,7 @@ import BillListPage from "./pages/Bill/BillListPage";
 import PasswordChange from "./pages/Account/PasswordChange";
 import ProfilePage from "./pages/Account/ProfilePage";
 import ApartmentPage from "./pages/Account/ApartmentPage";
-
+import RegisterAdminPage from "./pages/Account/RegisterAdminPage";
 
 import "./App.css";
 
@@ -85,8 +85,9 @@ function App() {
 
               {/* 계정 설정 */}
               <Route path="account/password-change" element={<PasswordChange loginId={window.loginId} />} />
-              <Route path="settings/accounts" element={<ProfilePage />} />
+              <Route path="account" element={<ProfilePage />} />
               <Route path="settings/apartment" element={<ApartmentPage />} />
+              <Route path="settings/register-admin" element={<RegisterAdminPage  />} />
 
 
               {/* 시설 관리 */}
