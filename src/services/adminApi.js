@@ -25,17 +25,15 @@ export const verifyOtp = (data) =>
 
 /**
  * 로그아웃
- * @param {{ refreshToken: string }}
  */
-export const adminLogout = (data) =>
-  post("/api/admin/account/logout", data);
+export const adminLogout = () =>
+  post("/api/admin/auth/logout"); 
 
 /**
  * Access 토큰 재발급
- * @param {{ refreshToken: string }}
  */
-export const adminRefresh = (data) =>
-  post("/api/admin/auth/refresh", data);
+export const adminRefresh = () =>
+  post("/api/admin/auth/refresh"); 
 
 /* ===========================
     Password

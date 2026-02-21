@@ -11,9 +11,9 @@ const API_BASE     = import.meta.env.DEV ? "" : RAW_API_BASE;
 /* =================================
    Axios Instance 생성
 ================================= */
-
 const api = axios.create({
   baseURL: API_BASE,
+  withCredentials: true, 
   headers : {
     "Content-Type": "application/json",
   },
@@ -37,16 +37,22 @@ export class ApiError extends Error {
 
 
 /* =================================
+   토큰 관리 변수 (메모리 저장)
+================================= */
+let memoryToken = null; 
+
+// AuthContext나 로그인 시점에 이 함수를 호출해서 토큰을 메모리에 저장합니다.
+export const setMemoryToken = (token) => {
+  memoryToken = token;
+};
+
+/* =================================
    Request Interceptor
 ================================= */
-
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (memoryToken) {
+    config.headers.Authorization = `Bearer ${memoryToken}`;
   }
-
   return config;
 });
 
@@ -68,23 +74,21 @@ function addRefreshSubscriber(callback) {
 }
 
 async function refreshAccessToken() {
-  const refreshToken = localStorage.getItem("refreshToken");
-  if (!refreshToken) return null;
-
   try {
     const response = await axios.post(
       `${API_BASE}/api/admin/auth/refresh`,
-      { refreshToken },
-      { validateStatus: () => true }
+      {}, 
+      { 
+        withCredentials: true, 
+        validateStatus: () => true 
+      }
     );
 
     if (response.status === 200) {
       const newAccessToken = response.data.accessToken;
-
-      localStorage.setItem("accessToken", newAccessToken);
+      setMemoryToken(newAccessToken); 
       return newAccessToken;
     }
-
     return null;
   } catch {
     return null;
@@ -148,9 +152,8 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
 
-        // 리프레시 실패 시 세션 만료 처리
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        // 리프레시 실패 시 
+        setMemoryToken(null); // 메모리 비움
         window.location.href = "/login";
 
         return Promise.reject(new ApiError(401, "Unauthorized", "세션이 만료되었습니다."));

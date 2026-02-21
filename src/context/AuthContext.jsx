@@ -1,55 +1,44 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { adminLogin } from "../services/adminApi";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { adminLogin, adminRefresh, adminLogout } from "../services/adminApi";
+import { setMemoryToken } from "../services/api"; 
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] =
-    useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 JWT 디코딩 함수 (한글 깨짐 방지 및 안전한 파싱)
+  // JWT 디코딩 함수 
   const parseJwt = (token) => {
     try {
       const base64Url = token.split(".")[1];
-      const base64 = base64Url
-        .replace(/-/g, "+")
-        .replace(/_/g, "/");
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       return JSON.parse(
         decodeURIComponent(
           atob(base64)
             .split("")
-            .map(function (c) {
-              return (
-                "%" +
-                (
-                  "00" +
-                  c.charCodeAt(0).toString(16)
-                ).slice(-2)
-              );
-            })
-            .join(""),
-        ),
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        )
       );
     } catch (e) {
-      console.error("JWT 파싱 에러:", e);
       return null;
     }
   };
 
-  // 🔥 토큰을 받아 유저 정보를 컨텍스트에 저장하는 함수
-  const setAuthFromToken = (accessToken) => {
+  //  인증 정보를 설정하는 통합 함수
+  const setAuth = useCallback((accessToken) => {
+    if (!accessToken) return null;
+
+    // 1. API 인터셉터가 사용할 메모리 토큰 업데이트
+    setMemoryToken(accessToken);
+
+    // 2. 토큰 파싱해서 유저 상태 저장
     const payload = parseJwt(accessToken);
     if (payload) {
       const userData = {
         loginId: payload.sub,
-        // 토큰의 auth 필드를 우선순위로 사용 (ROLE_SUPER_ADMIN 등)
         role: payload.auth || payload.role,
         apartmentId: payload.apartmentId,
       };
@@ -58,49 +47,63 @@ export function AuthProvider({ children }) {
       return userData;
     }
     return null;
-  };
-
-  // 🔥 1차 로그인 (ID/PW) - 현재 시나리오에서는 저장 로직은 Login.js에서 처리하므로 유연하게 유지
-  const login = async (loginId, password) => {
-    const tokenData = await adminLogin({
-      loginId,
-      password,
-    });
-    // OTP 사용 시 이 단계에서 바로 저장하지 않고 tokenData를 리턴하여 처리
-    return tokenData;
-  };
-
-  // 🔥 로그아웃
-  const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
-  // 🔥 앱 시작 시 혹은 새로고침 시 토큰 확인 (자동 로그인)
-  useEffect(() => {
-    const token = localStorage.getItem(
-      "accessToken",
-    );
-    if (token) {
-      setAuthFromToken(token);
-    }
-    setLoading(false);
   }, []);
+
+  //  로그인 요청 (ID/PW 단계)
+  const login = async (loginId, password) => {
+    // 백엔드가 이제 쿠키를 구워주므로, 프론트는 결과만 리턴받음
+    return await adminLogin({ loginId, password });
+  };
+
+  //  로그아웃
+  const logout = async () => {
+    try {
+      await adminLogout(); // 백엔드 쿠키 만료 요청
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      // 로컬 상태들 초기화
+      setMemoryToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
+  //  자동 로그인 (Silent Refresh)
+  const refreshAuth = useCallback(async () => {
+    try {
+      const data = await adminRefresh(); // 쿠키를 이용해 새 AccessToken 요청
+      if (data && data.accessToken) {
+        setAuth(data.accessToken);
+      }
+    } catch (error) {
+      // 토큰이 없거나 만료된 경우 아무것도 하지 않음 (로그인 페이지 유지)
+      console.log("세션 없음 혹은 만료");
+      setMemoryToken(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [setAuth]);
+
+  //  앱 구동 시 자동 로그인 시도
+  useEffect(() => {
+    refreshAuth();
+  }, [refreshAuth]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated,
+        loading,
         login,
         logout,
-        loading,
-        setAuthFromToken, // Login.js에서 OTP 인증 성공 후 호출할 함수
+        setAuth, //  OTP 검증 성공 시 이 함수를 호출해서 토큰을 넣어주세요!
+        refreshAuth,
       }}
     >
-      {children}
+      {/* 초기 로딩 중에는 하위 컴포넌트를 렌더링하지 않아 깜빡임을 방지함 */}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
@@ -108,9 +111,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error(
-      "useAuth must be used within an AuthProvider",
-    );
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
