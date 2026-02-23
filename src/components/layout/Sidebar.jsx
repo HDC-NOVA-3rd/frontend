@@ -90,7 +90,7 @@ export default function Sidebar({
       submenu: [
         {
           label: "입주민 관리",
-          path: "/admin/resident/list",
+          path: "/admin/resident/manage",
         },
         {
           label: "세대 관리",

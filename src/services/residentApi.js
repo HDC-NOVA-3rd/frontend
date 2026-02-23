@@ -5,9 +5,10 @@ export function getResident(residentId) {
   return get(`/api/resident/${residentId}`);
 }
 
-/** [관리자] 아파트 전체 입주민 목록 조회 */
-export function getResidentsByApartment() {
-  return get("/api/resident/apartment");
+/** [관리자] 아파트 전체 입주민 목록 조회 (필터 및 검색 포함) */
+// params 예시: { dongId: 1, searchTerm: "홍길동" }
+export function getResidentsByApartment(params = {}) {
+  return get("/api/resident/apartment", { params });
 }
 
 /** [관리자] 입주민 등록 */

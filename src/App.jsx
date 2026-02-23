@@ -12,7 +12,7 @@ import Layout from "./components/layout/Layout";
 
 /* 입주민 관련 */
 import ResidentDashboard from "./pages/Resident/ResidentDashboard";
-import ResidentList from "./pages/Resident/ResidentList";
+import ResidentManagePage from "./pages/Resident/ResidentManagePage";
 import HouseholdList from "./pages/Resident/HouseholdList";
 
 /* 공지사항 관련 */
@@ -59,7 +59,7 @@ function App() {
             <Routes>
               {/* 입주민 */}
               <Route path="resident/dashboard" element={<ResidentDashboard />} />
-              <Route path="resident/list" element={<ResidentList />} />
+              <Route path="resident/manage" element={<ResidentManagePage />} />
               <Route path="household/list" element={<HouseholdList />} />
 
               {/* 공지사항 */}
