@@ -32,6 +32,6 @@ export function deleteResidentsByHo(hoId) {
 }
 
 /** [회원가입용] 입주민 정보 검증 (토큰 불필요) */
-export function verifyResident(data) {
-  return post("/api/resident/verify", data);
-}
+// export function verifyResident(data) {
+//   return post("/api/resident/verify", data);
+// }

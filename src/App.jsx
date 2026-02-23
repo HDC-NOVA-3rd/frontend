@@ -13,7 +13,7 @@ import Layout from "./components/layout/Layout";
 /* 입주민 관련 */
 import ResidentDashboard from "./pages/Resident/ResidentDashboard";
 import ResidentManagePage from "./pages/Resident/ResidentManagePage";
-import HouseholdList from "./pages/Resident/HouseholdList";
+import HouseholdManagePage from "./pages/Resident/HouseholdManagePage";
 
 /* 공지사항 관련 */
 import NoticesList from "./pages/Notices/NoticesList";
@@ -60,7 +60,7 @@ function App() {
               {/* 입주민 */}
               <Route path="resident/dashboard" element={<ResidentDashboard />} />
               <Route path="resident/manage" element={<ResidentManagePage />} />
-              <Route path="household/list" element={<HouseholdList />} />
+              <Route path="household/list" element={<HouseholdManagePage />} />
 
               {/* 공지사항 */}
               <Route path="notices" element={<NoticesList />} />
