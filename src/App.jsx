@@ -32,7 +32,7 @@ import ComplaintStatus from "./pages/Complaints/ComplaintStatus";
 import ComplaintStatistics from "./pages/Complaints/Statistics";
 
 /* 관리비 관련 */
-import ManagementFeeList from "./pages/Management/ManagementFeeList"; 
+import ManagementFeePage from "./pages/Management/ManagementFeePage"; 
 import BillListPage from "./pages/Bill/BillListPage"; 
 
 /* 계정 관련 */
@@ -82,7 +82,7 @@ function App() {
 
               {/* 관리비 */}
               <Route path="bills" element={<BillListPage />} />
-              <Route path="bills/items" element={<ManagementFeeList />} />
+              <Route path="bills/items" element={<ManagementFeePage />} />
               <Route path="bills/statistics" element={<div>관리비 통계 페이지</div>} />
 
               {/* 계정 설정 */}
