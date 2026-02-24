@@ -24,7 +24,6 @@ const PasswordChange = ({ loginId }) => {
     e.preventDefault();
     try {
       const data = {
-        loginId: formData.loginId,
         currentPassword: formData.currentPassword
       };
       await requestChangePassword(data);
@@ -64,10 +63,7 @@ const PasswordChange = ({ loginId }) => {
       {step === 1 ? (
         /* 1단계: 본인 확인 */
         <form onSubmit={handleRequest} className="pw-form">
-          <div className="input-group">
-            <label>아이디</label>
-            <input name="loginId" value={formData.loginId} readOnly />
-          </div>
+
           <div className="input-group">
             <label>현재 비밀번호</label>
             <input 

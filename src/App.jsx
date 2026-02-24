@@ -12,8 +12,8 @@ import Layout from "./components/layout/Layout";
 
 /* 입주민 관련 */
 import ResidentDashboard from "./pages/Resident/ResidentDashboard";
-import ResidentList from "./pages/Resident/ResidentList";
-import HouseholdList from "./pages/Resident/HouseholdList";
+import ResidentManagePage from "./pages/Resident/ResidentManagePage";
+import HouseholdManagePage from "./pages/Household/HouseholdManagePage";
 
 /* 공지사항 관련 */
 import NoticesList from "./pages/Notices/NoticesList";
@@ -32,7 +32,7 @@ import ComplaintStatus from "./pages/Complaints/ComplaintStatus";
 import ComplaintStatistics from "./pages/Complaints/Statistics";
 
 /* 관리비 관련 */
-import ManagementFeeList from "./pages/Management/ManagementFeeList"; 
+import ManagementFeePage from "./pages/Management/ManagementFeePage"; 
 import BillListPage from "./pages/Bill/BillListPage"; 
 
 /* 계정 관련 */
@@ -59,8 +59,8 @@ function App() {
             <Routes>
               {/* 입주민 */}
               <Route path="resident/dashboard" element={<ResidentDashboard />} />
-              <Route path="resident/list" element={<ResidentList />} />
-              <Route path="household/list" element={<HouseholdList />} />
+              <Route path="resident/manage" element={<ResidentManagePage />} />
+              <Route path="household/list" element={<HouseholdManagePage />} />
 
               {/* 공지사항 */}
               <Route path="notices" element={<NoticesList />} />
@@ -68,33 +68,30 @@ function App() {
               <Route path="notices/:noticeId/edit" element={<NoticeEdit />} />
               <Route path="notices/log" element={<NoticeLog />} />
 
-              {/* 안전 / 화재 모니터링 */}
+              {/* 안전 / 화재 모니터링 (Sidebar에 정의된 서브메뉴들 대응) */}
               <Route path="safety" element={<FireMonitoringDashboard />} />
+              <Route path="safety/status" element={<div>안전 상태 페이지</div>} />
+              <Route path="safety/events" element={<div>이벤트 로그 페이지</div>} />
+              <Route path="safety/sensors" element={<div>센서 로그 페이지</div>} />
 
               {/* 민원 관리 */}
               <Route path="complaint/list" element={<ComplaintsList />} />
-              <Route path="complaint/answer" element={<ComplaintAnswer />} />
               <Route path="complaint/status" element={<ComplaintStatus />} />
               <Route path="complaint/log" element={<ComplaintLog />} />
               <Route path="complaint/statistics" element={<ComplaintStatistics />} />
-              <Route path="complaint" element={<Navigate to="list" replace />} />
 
               {/* 관리비 */}
-              <Route path="bills/items" element={<ManagementFeeList />} />
               <Route path="bills" element={<BillListPage />} />
+              <Route path="bills/items" element={<ManagementFeePage />} />
+              <Route path="bills/statistics" element={<div>관리비 통계 페이지</div>} />
 
               {/* 계정 설정 */}
-              <Route path="account/password-change" element={<PasswordChange loginId={window.loginId} />} />
               <Route path="account" element={<ProfilePage />} />
+              <Route path="account/password-change" element={<PasswordChange />} />
               <Route path="settings/apartment" element={<ApartmentPage />} />
-              <Route path="settings/register-admin" element={<RegisterAdminPage  />} />
+              <Route path="settings/register-admin" element={<RegisterAdminPage />} />
 
-
-              {/* 시설 관리 */}
-              <Route path="facilities" element={<div>시설 관리 페이지 (구현 예정)</div>} />
-
-              {/* 관리자 404 */}
-              <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>} />
+              <Route path="*" element={<Navigate to="household/list" replace />} />
             </Routes>
           </Layout>} />
 

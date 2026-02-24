@@ -9,10 +9,12 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getMyAdminInfo();
-        setProfile(response.data); // 백엔드 응답 구조에 따라 수정 (예: response.data)
-      } catch (error) {
-        console.error("내 정보 불러오기 실패:", error);
+        const profile = await getMyAdminInfo(); 
+        console.log(profile);
+        setProfile(profile);
+      } catch (err) {
+        console.error(err);
+        setProfile(null);
       } finally {
         setLoading(false);
       }

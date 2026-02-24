@@ -1,0 +1,130 @@
+/* 기본 배경 및 폰트 설정 */
+.manage-page-container {
+  padding: 40px;
+  max-width: 1300px; /* 대시보드 느낌을 위해 넓게 설정 */
+  margin: 0 auto;
+  background-color: #f8f9fc;
+  min-height: 100vh;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+}
+
+/* 헤더 영역 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 35px;
+}
+.title-area h2 { font-size: 1.9rem; font-weight: 800; margin: 0; color: #1a1f36; letter-spacing: -0.5px; }
+.title-area p { margin: 8px 0 0; color: #697386; font-size: 1rem; }
+
+.header-btns { display: flex; gap: 12px; }
+
+/* 공통 카드 스타일 및 그림자 통일 */
+.stat-card, .recent-card, .main-content-card {
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #edf2f7;
+}
+
+/* 대시보드 레이아웃 */
+.dashboard-section { 
+  display: grid; 
+  grid-template-columns: 2.5fr 1fr; 
+  gap: 24px; 
+  margin-bottom: 30px; 
+}
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* 스탯 카드 */
+.stat-card {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 6px; height: 100%;
+}
+.stat-card.blue::before { background: #3b82f6; }
+.stat-card.green::before { background: #10b981; }
+.stat-card.orange::before { background: #f59e0b; }
+
+.stat-card .label { color: #64748b; font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+.stat-card .value { font-size: 2.2rem; font-weight: 800; color: #1e293b; }
+.stat-card .value span { font-size: 1rem; font-weight: 500; color: #94a3b8; margin-left: 6px; }
+
+/* 최근 등록 카드 */
+.recent-card { padding: 24px; }
+.recent-card h4 { margin: 0 0 16px 0; font-size: 0.95rem; color: #475569; display: flex; align-items: center; gap: 8px; }
+.recent-card h4::before { content: ""; width: 4px; height: 16px; background: #3b82f6; border-radius: 4px; }
+.recent-mini-item { 
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; 
+}
+.recent-mini-item:last-child { border-bottom: none; }
+.recent-mini-item span { color: #64748b; }
+.recent-mini-item strong { color: #1e293b; font-weight: 600; }
+
+/* 메인 리스트 카드 섹션 */
+.main-content-card { padding: 24px; }
+
+/* 제어바 */
+.control-bar { 
+  display: flex; justify-content: space-between; align-items: center; 
+  margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9;
+}
+.search-group { display: flex; gap: 12px; flex: 1; }
+.search-group select { 
+  padding: 11px 16px; border: 1px solid #e2e8f0; border-radius: 10px; 
+  outline: none; background: #fff; min-width: 140px; font-weight: 500;
+}
+.search-group input { 
+  max-width: 400px; flex: 1; padding: 11px 18px; 
+  border: 1px solid #e2e8f0; border-radius: 10px; outline: none; 
+}
+.search-group input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.list-info-text { font-size: 0.9rem; color: #64748b; }
+.list-info-text strong { color: #1e293b; }
+
+/* 테이블 스타일 */
+.table-container { border-radius: 12px; overflow: hidden; border: 1px solid #f1f5f9; }
+.main-table { width: 100%; border-collapse: collapse; background: white; }
+.main-table th { background: #f8fafc; padding: 16px; font-size: 0.85rem; color: #64748b; text-align: center; font-weight: 600; }
+.main-table td { padding: 16px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; color: #334155; }
+.main-table tr:hover { background-color: #fcfdfe; }
+.main-table .bold { font-weight: 700; color: #1e293b; }
+
+/* 버튼 디자인 */
+.btn-add { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+.btn-add:hover { background: #1d4ed8; transform: translateY(-1px); }
+.btn-outline { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+.btn-edit-sm { background: #eff6ff; color: #2563eb; border: none; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; margin-right: 6px; }
+.btn-delete-sm { background: #fef2f2; color: #dc2626; border: none; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+
+/* 페이지네이션 */
+.pagination-wrapper { display: flex; justify-content: center; gap: 8px; margin-top: 25px; }
+.pagination-wrapper button { padding: 10px 16px; border: 1px solid #e2e8f0; background: white; border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; color: #64748b; font-weight: 500; }
+.pagination-wrapper button.active { background: #2563eb; color: white; border-color: #2563eb; font-weight: 700; }
+.pagination-wrapper button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 모달 애니메이션 및 디자인 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+.modal-card { background: white; padding: 32px; border-radius: 24px; width: 440px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: modalFade 0.3s ease-out; }
+@keyframes modalFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.modal-card h3 { margin: 0 0 24px 0; font-size: 1.4rem; font-weight: 800; color: #1e293b; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #475569; }
+.form-group input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 0.95rem; }
+.form-group input:focus { border-color: #3b82f6; outline: none; }
+.modal-btns { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
+.btn-secondary { background: #f1f5f9; color: #475569; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+.btn-primary { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; }
