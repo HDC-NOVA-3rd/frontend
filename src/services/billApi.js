@@ -1,17 +1,19 @@
-/**
- * Bill (admin) API
- * Requires a valid admin access token in localStorage as `accessToken`.
+import { get } from "./api";
+
+/** * 고지서 목록 조회 (관리자) 
+ * @param {Object} params - { page, size, dongNo, hoNo, billMonth, onlyUnpaid }
  */
-
-import { get, post, put, del } from "./api";
-
-/** 고지서 목록 조회 (관리자) */
-export function getBillList() {
-  return get("/api/bill"); // 관리자 → 단지 전체 고지서 조회
+export function getBillList(params) {
+  // get 함수가 두 번째 인자로 params를 받아 쿼리스트링으로 변환한다고 가정
+  return get("/api/bill", params); 
 }
 
-/** 개별 고지서 상세 조회 (관리자) */
+/** 고지서 상세 조회 */
 export function getBill(billId) {
   return get(`/api/bill/${billId}`);
 }
 
+/** 엑셀 데이터 조회 */
+export function getBillExcel(params) {
+  return get("/api/bill/excel", params);
+}
