@@ -13,7 +13,7 @@ import Layout from "./components/layout/Layout";
 /* 입주민 관련 */
 import ResidentDashboard from "./pages/Resident/ResidentDashboard";
 import ResidentManagePage from "./pages/Resident/ResidentManagePage";
-import HouseholdManagePage from "./pages/Resident/HouseholdManagePage";
+import HouseholdManagePage from "./pages/Household/HouseholdManagePage";
 
 /* 공지사항 관련 */
 import NoticesList from "./pages/Notices/NoticesList";
