@@ -1222,3 +1222,64 @@
 
 .status-toggle-btn:hover:not(.active) { background-color: #f1f3f5; }
 
+/* 대시보드 레이아웃 */
+.stats-dashboard {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.stat-card {
+  background: #fff;
+  padding: 15px 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  border-top: 4px solid #ddd;
+}
+
+.stat-title {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #333;
+}
+
+/* 상태별 포인트 컬러 */
+.stat-card.total { border-top-color: #333; }
+.stat-card.received { border-top-color: #ff9800; }
+.stat-card.assigned { border-top-color: #2196f3; }
+.stat-card.processing { border-top-color: #9c27b0; }
+.stat-card.completed { border-top-color: #4caf50; }
+.stat-card.avg { border-top-color: #607d8b; }
+
+/* 상태 배지 스타일 (Enum 매칭) */
+.status-badge.status-received { background: #fff3e0; color: #ef6c00; }
+.status-badge.status-assigned { background: #e3f2fd; color: #1565c0; }
+.status-badge.status-processing { background: #f3e5f5; color: #7b1fa2; }
+.status-badge.status-completed { background: #e8f5e9; color: #2e7d32; }
+
+@media (max-width: 1024px) {
+  .stats-dashboard {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.notices-btn.success { background-color: #4caf50; color: white; } /* 나에게 배정 */
+.notices-btn.warning { background-color: #ff9800; color: white; } /* 재배정 */
+.notices-btn.primary { background-color: #2196f3; color: white; } /* 답변 등록 */
+.notices-btn.danger { background-color: #f44336; color: white; }  /* 삭제 */
+
+/* 모달 내부 버튼 간격 */
+.notices-modal-actions {
+  padding-top: 10px;
+  justify-content: flex-end;
+}
