@@ -2,7 +2,7 @@ name: React App CI/CD
 
 on:
   push:
-    branches: [develop, main, cicd]
+    branches: [develop, main]
 
 jobs:
   build-and-deploy:
