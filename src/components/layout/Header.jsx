@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
@@ -7,7 +8,6 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { adminLogout } from "../../services/adminApi";
 import "./Header.css";
 
@@ -78,19 +78,16 @@ export default function Header({ onMenuToggle }) {
 
           {showDropdown && (
             <div className="user-dropdown">
-              <button className="dropdown-item">
+              <Link to="/admin/account" className="dropdown-item" onClick={() => setShowDropdown(false)}>
                 <User size={16} />
                 <span>내 계정 정보</span>
-              </button>
-              <button className="dropdown-item">
+              </Link>
+              <Link to="/admin/account/password-change" className="dropdown-item" onClick={() => setShowDropdown(false)}>
                 <Settings size={16} />
                 <span>비밀번호 변경</span>
-              </button>
+              </Link>
               <div className="dropdown-divider"></div>
-              <button
-                className="dropdown-item logout-btn"
-                onClick={handleLogout}
-              >
+              <button className="dropdown-item logout-btn" onClick={handleLogout}>
                 <LogOut size={16} />
                 <span>로그아웃</span>
               </button>
