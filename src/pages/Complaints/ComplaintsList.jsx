@@ -1,6 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { getComplaintsByApartment, deleteComplaint } from "../../services/complaintApi"; // API 임포트
+import { 
+  getComplaintsByApartment, 
+  changeComplaintStatus,
+  assignAdmin 
+} from "../../services/complaintApi"; 
 import ComplaintTabNav from "./ComplaintTabNav";
 import "./Complaints.css";
 
@@ -16,12 +20,12 @@ function formatDate(raw) {
     : new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 
-// 상태별 배지 컬러 설정
+// 백엔드 Enum 기준 상태 맵핑
 const STATUS_MAP = {
   RECEIVED: { label: "접수", class: "status-received" },
-  PROCESSING: { label: "처리중", class: "status-processing" },
+  ASSIGNED: { label: "배정", class: "status-assigned" },
+  IN_PROGRESS: { label: "처리중", class: "status-processing" },
   COMPLETED: { label: "완료", class: "status-completed" },
-  CANCELLED: { label: "취소", class: "status-cancelled" },
 };
 
 export default function ComplaintsList() {
@@ -32,18 +36,17 @@ export default function ComplaintsList() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
 
+  // 현재 로그인한 관리자 정보 (인증 로직에 따라 변경 가능)
+  const adminInfo = JSON.parse(localStorage.getItem("adminInfo") || '{"id": 1, "role": "ADMIN"}');
+  const currentAdminId = adminInfo.id;
+
   // 민원 목록 로드
-  // ComplaintsList.jsx 수정
   const loadComplaints = async () => {
     setError(null);
     setLoading(true);
     try {
       const res = await getComplaintsByApartment();
-      // axios를 사용한다면 실제 데이터는 res.data에 담겨서 옵니다.
-      // 만약 api.js에서 이미 res.data를 반환하게 처리했다면 res가 배열일 것입니다.
       const data = Array.isArray(res) ? res : (res?.data || []); 
-      
-      console.log("받은 데이터:", data); // 데이터가 들어오는지 콘솔로 꼭 확인하세요!
       setComplaints(data);
     } catch (err) {
       setError(err?.message || "민원 목록을 불러오지 못했습니다.");
@@ -52,24 +55,31 @@ export default function ComplaintsList() {
       setLoading(false);
     }
   };
-  // const loadComplaints = async () => {
-  //   setError(null);
-  //   setLoading(true);
-  //   try {
-  //     // active 파라미터는 필요에 따라 true/false 전달 (전체 조시는 undefined)
-  //     const res = await getComplaintsByApartment(); 
-  //     setComplaints(Array.isArray(res) ? res : []);
-  //   } catch (err) {
-  //     setError(err?.message || "민원 목록을 불러오지 못했습니다.");
-  //     setComplaints([]);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   useEffect(() => {
     void loadComplaints();
   }, []);
+
+  // 통계 집계 로직
+  const stats = useMemo(() => {
+    const byStatus = { RECEIVED: 0, ASSIGNED: 0, IN_PROGRESS: 0, COMPLETED: 0 };
+    let totalProcessMs = 0;
+    let completedCount = 0;
+
+    complaints.forEach((c) => {
+      if (byStatus[c.status] !== undefined) byStatus[c.status]++;
+      if (c.status === "COMPLETED" && c.createdAt && c.updatedAt) {
+        const ms = new Date(c.updatedAt) - new Date(c.createdAt);
+        if (ms >= 0) {
+          totalProcessMs += ms;
+          completedCount++;
+        }
+      }
+    });
+
+    const avgHours = completedCount > 0 ? (totalProcessMs / completedCount / (1000 * 60 * 60)) : 0;
+    return { total: complaints.length, byStatus, avgHours };
+  }, [complaints]);
 
   // 검색 필터링
   const filtered = useMemo(() => {
@@ -83,9 +93,51 @@ export default function ComplaintsList() {
     );
   }, [complaints, search]);
 
+  /* ================= 배정 처리 핸들러 ================= */
+  const handleAssign = async (complaintId, targetAdminId, isReassign = false) => {
+    try {
+      // API 호출: assignAdmin(민원ID, 내ID, 대상ID)
+      // 백엔드 로직상 내 ID(adminId)와 대상 ID(targetAdminId)가 같으면 본인 배정임
+      await assignAdmin(complaintId, currentAdminId, targetAdminId);
+      alert(isReassign ? "재배정이 완료되었습니다." : "배정이 완료되었습니다.");
+      loadComplaints();
+      setSelected(null);
+    } catch (err) {
+      alert("배정 실패: " + (err.response?.data?.message || err.message));
+    }
+  };
+
   return (
     <div className="notices-page">
       <ComplaintTabNav />
+
+      {/* --- 상단 통계 대시보드 --- */}
+      <div className="stats-dashboard">
+        <div className="stat-card total">
+          <div className="stat-title">전체 민원</div>
+          <div className="stat-value">{stats.total}</div>
+        </div>
+        <div className="stat-card received">
+          <div className="stat-title">신규 접수</div>
+          <div className="stat-value">{stats.byStatus.RECEIVED}</div>
+        </div>
+        <div className="stat-card assigned">
+          <div className="stat-title">담당 배정</div>
+          <div className="stat-value">{stats.byStatus.ASSIGNED}</div>
+        </div>
+        <div className="stat-card processing">
+          <div className="stat-title">처리 중</div>
+          <div className="stat-value">{stats.byStatus.IN_PROGRESS}</div>
+        </div>
+        <div className="stat-card completed">
+          <div className="stat-title">해결 완료</div>
+          <div className="stat-value">{stats.byStatus.COMPLETED}</div>
+        </div>
+        <div className="stat-card avg">
+          <div className="stat-title">평균 처리 시간</div>
+          <div className="stat-value">{stats.avgHours.toFixed(1)}h</div>
+        </div>
+      </div>
 
       <div className="notices-header">
         <div className="notices-header-icon">🛠️</div>
@@ -126,7 +178,6 @@ export default function ComplaintsList() {
             </thead>
             <tbody>
               {filtered.map((item) => (
-                //<tr key={item.complaintId} className="notices-board-row" onClick={() => setSelected(item)}>
                 <tr key={item.id} className="notices-board-row" onClick={() => setSelected(item)}>
                   <td>
                     <span className={`status-badge ${(STATUS_MAP[item.status] || {}).class}`}>
@@ -163,31 +214,61 @@ export default function ComplaintsList() {
               <span>👤 민원인: {selected.memberName}</span>
               <span>📅 {formatDate(selected.createdAt)}</span>
               <span>📍 상태: {(STATUS_MAP[selected.status] || {}).label}</span>
+              {selected.adminName && <span>👷 담당자: {selected.adminName}</span>}
             </div>
             <hr className="notices-divider" />
             <div className="notices-modal-content" style={{ whiteSpace: "pre-wrap" }}>
               {selected.content}
             </div>
-            <div className="notices-modal-actions">
-              <button
-                className="notices-btn primary"
-                onClick={() => navigate(`/admin/complaints/answer?id=${selected.id}`)}
-              >
-                ✏️ 답변 등록
-              </button>
-              <button
-                className="notices-btn danger"
-                onClick={async () => {
-                  if (!window.confirm("정말 이 민원을 삭제하시겠습니까?")) return;
-                  try {
-                    await deleteComplaint(selected.id);
-                    setSelected(null);
-                    loadComplaints();
-                  } catch (err) { alert("삭제 실패: " + err.message); }
-                }}
-              >
-                🗑️ 삭제
-              </button>
+            
+            <hr className="notices-divider" />
+            
+            {/* 상태별 조건부 액션 버튼 */}
+            <div className="notices-modal-actions" style={{ gap: "10px", flexWrap: "wrap" }}>
+              
+              {/* 1. 접수 단계: 나에게 배정 혹은 직접 배정 */}
+              {selected.status === "RECEIVED" && (
+                <>
+                  <button 
+                    className="notices-btn" 
+                    style={{ backgroundColor: "#4caf50", color: "#fff" }}
+                    onClick={() => handleAssign(selected.id, currentAdminId)}
+                  >
+                    🙋 나에게 배정
+                  </button>
+                  <button 
+                    className="notices-btn" 
+                    onClick={() => {
+                      const tid = window.prompt("배정할 관리자 ID를 입력하세요.");
+                      if(tid) handleAssign(selected.id, tid);
+                    }}
+                  >
+                    👤 직접 배정
+                  </button>
+                </>
+              )}
+
+              {/* 2. 배정됨/처리중 단계: 재배정 혹은 답변 등록 */}
+              {(selected.status === "ASSIGNED" || selected.status === "IN_PROGRESS") && (
+                <>
+                  <button 
+                    className="notices-btn" 
+                    style={{ backgroundColor: "#ff9800", color: "#fff" }}
+                    onClick={() => {
+                      const tid = window.prompt("재배정할 관리자 ID를 입력하세요.");
+                      if(tid) handleAssign(selected.id, tid, true);
+                    }}
+                  >
+                    🔄 담당 재배정
+                  </button>
+                  <button
+                    className="notices-btn primary"
+                    onClick={() => navigate(`/admin/complaints/answer?id=${selected.id}`)}
+                  >
+                    ✏️ 답변 등록
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
