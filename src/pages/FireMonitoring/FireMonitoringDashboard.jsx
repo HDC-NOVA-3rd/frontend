@@ -132,7 +132,7 @@ const getLatestByType = (sensors, type) => {
   const latest = sensors
     .filter((s) => normalizeSensorType(s.sensorType) === type)
     .sort((a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime())[0];
-  return latest ? Number(latest.value) : 0;
+  return latest ? Number(latest.value) : null;
 };
 
 const getSensorIcon = (sensorType, size) => {
@@ -977,8 +977,8 @@ function ZoneCard({ zone, isSelected, onSelect }) {
   const isDanger = zone.status === "DANGER";
   const zoneName = getZoneName(zone);
   const sensors = zone.sensors || [];
-  const gasLatest = zone.gasLatest || 0;
-  const heatLatest = zone.heatLatest || 0;
+  const gasLatest = zone.gasLatest;
+  const heatLatest = zone.heatLatest;
 
   return (
     <button
@@ -1007,7 +1007,7 @@ function ZoneCard({ zone, isSelected, onSelect }) {
           <span className="no-sensor">센서 없음</span>
         ) : (
           <>
-            {gasLatest > 0 && (
+            {gasLatest != null && (
               <div
                 className={`sensor-mini sensor-mini--gas ${gasLatest > GAS_DANGER_THRESHOLD ? "alert" : ""}`}
               >
@@ -1015,7 +1015,7 @@ function ZoneCard({ zone, isSelected, onSelect }) {
                 <span>{gasLatest.toFixed(0)}</span>
               </div>
             )}
-            {heatLatest > 0 && (
+            {heatLatest != null && (
               <div
                 className={`sensor-mini sensor-mini--heat ${heatLatest > HEAT_DANGER_THRESHOLD ? "alert" : ""}`}
               >
