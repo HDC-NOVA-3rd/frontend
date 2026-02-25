@@ -39,7 +39,6 @@ export default function Sidebar({ isOpen, onClose }) {
       icon: AlertTriangle,
       submenu: [
         { label: "화재감시", path: "/admin/safety" },
-        // App.js에 없는 경로는 일단 유지하되 필요시 App.js에 추가 필요
         { label: "안전 상태", path: "/admin/safety/status" },
         { label: "이벤트 로그", path: "/admin/safety/events" },
         { label: "센서 로그", path: "/admin/safety/sensors" },
@@ -86,7 +85,6 @@ export default function Sidebar({ isOpen, onClose }) {
       submenu: [
         { label: "내 계정 정보", path: "/admin/account" },
         { label: "비밀번호 변경", path: "/admin/account/password-change" },
-        { label: "담당 아파트 정보", path: "/admin/settings/apartment" },
         { label: "관리자 계정 생성", path: "/admin/settings/register-admin" },
       ],
     },
