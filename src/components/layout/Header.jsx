@@ -1,29 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Menu,
-  X,
-  LogOut,
-  Bell,
-  Settings,
-  User,
-} from "lucide-react";
+import { Menu, X, LogOut, Bell, Settings, User } from "lucide-react";
 import { adminLogout } from "../../services/adminApi";
 import "./Header.css";
 
 export default function Header({ onMenuToggle }) {
   const navigate = useNavigate();
-  const [showDropdown, setShowDropdown] =
-    useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = async () => {
-    if (!window.confirm("로그아웃 하시겠습니까?"))
-      return;
+    if (!window.confirm("로그아웃 하시겠습니까?")) return;
 
     try {
-      const token = localStorage.getItem(
-        "refreshToken",
-      );
+      const token = localStorage.getItem("refreshToken");
 
       if (token) {
         // 문자열(token)이 아니라 객체({ refreshToken: token })를 보내기
@@ -41,12 +30,9 @@ export default function Header({ onMenuToggle }) {
   };
 
   return (
-    <header className="header">
-      <div className="header-left">
-        <button
-          className="menu-toggle"
-          onClick={onMenuToggle}
-        >
+    <header className="admin-header">
+      <div className="admin-header-left">
+        <button className="menu-toggle" onClick={onMenuToggle}>
           <Menu size={24} />
         </button>
         <div className="header-logo">
@@ -54,35 +40,35 @@ export default function Header({ onMenuToggle }) {
         </div>
       </div>
 
-      <div className="header-right">
-        <button
-          className="header-icon-btn"
-          title="알림"
-        >
+      <div className="admin-header-right">
+        <button className="header-icon-btn" title="알림">
           <Bell size={20} />
-          <span className="badge">3</span>
+          <span className="header-notification-badge">3</span>
         </button>
 
         <div className="header-divider"></div>
 
         <div className="header-user">
-          <button
-            className="user-menu-btn"
-            onClick={() =>
-              setShowDropdown(!showDropdown)
-            }
-          >
+          <button className="user-menu-btn" onClick={() => setShowDropdown(!showDropdown)}>
             <User size={20} />
             <span>관리자</span>
           </button>
 
           {showDropdown && (
             <div className="user-dropdown">
-              <Link to="/admin/account" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+              <Link
+                to="/admin/account"
+                className="dropdown-item"
+                onClick={() => setShowDropdown(false)}
+              >
                 <User size={16} />
                 <span>내 계정 정보</span>
               </Link>
-              <Link to="/admin/account/password-change" className="dropdown-item" onClick={() => setShowDropdown(false)}>
+              <Link
+                to="/admin/account/password-change"
+                className="dropdown-item"
+                onClick={() => setShowDropdown(false)}
+              >
                 <Settings size={16} />
                 <span>비밀번호 변경</span>
               </Link>
