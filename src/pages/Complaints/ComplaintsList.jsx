@@ -6,7 +6,6 @@ import {
   assignAdmin 
 } from "../../services/complaintApi"; 
 import { getMyAdminInfo } from '../../services/adminApi'; // 내 정보 조회 API 추가
-import ComplaintTabNav from "./ComplaintTabNav";
 import "./Complaints.css";
 
 // 날짜 포맷팅 함수
@@ -115,9 +114,21 @@ export default function ComplaintsList() {
     }
   };
 
+  /* ================= 상태 직접 변경 핸들러 (추가됨) ================= */
+  const handleStatusChange = async (complaintId, newStatus) => {
+    try {
+      await changeComplaintStatus(complaintId, newStatus);
+      alert("상태가 변경되었습니다.");
+      loadData();
+      setSelected(null);
+    } catch (err) {
+      alert("상태 변경 실패: " + (err.response?.data?.message || err.message));
+    }
+  };
+
   return (
     <div className="notices-page">
-      <ComplaintTabNav />
+      {/* ComplaintTabNav 삭제됨 - 사이드바 절대경로 사용 권장 */}
 
       {/* --- 상단 통계 대시보드 --- */}
       <div className="stats-dashboard">
@@ -166,7 +177,7 @@ export default function ComplaintsList() {
             </thead>
             <tbody>
               {filtered.map((item) => (
-                <tr key={item.complaintId} className="notices-board-row" onClick={() => setSelected(item)}>
+                <tr key={item.complaintId} className="notices-board-row" onClick={() => setSelected(item)} style={{cursor: 'pointer'}}>
                   <td>
                     <span className={`status-badge ${(STATUS_MAP[item.status] || {}).class}`}>
                       {(STATUS_MAP[item.status] || { label: item.status }).label}
@@ -185,7 +196,7 @@ export default function ComplaintsList() {
         </div>
       </div>
 
-      {/* 민원 상세 모달 */}
+      {/* 민원 상세 및 관리 액션 통합 모달 */}
       {selected && (
         <div className="notices-modal-overlay" onClick={() => setSelected(null)}>
           <div className="notices-modal" onClick={(e) => e.stopPropagation()}>
@@ -196,56 +207,75 @@ export default function ComplaintsList() {
             <div className="notices-modal-meta">
               <span>👤 민원인: {selected.memberName}</span>
               <span>📅 {formatDate(selected.createdAt)}</span>
-              <span>📍 상태: {(STATUS_MAP[selected.status] || {}).label}</span>
+              <span>📍 현재상태: {(STATUS_MAP[selected.status] || {}).label}</span>
               {selected.adminName && <span>👷 담당자: {selected.adminName}</span>}
             </div>
             <hr className="notices-divider" />
-            <div className="notices-modal-content" style={{ whiteSpace: "pre-wrap" }}>{selected.content}</div>
+            <div className="notices-modal-content" style={{ whiteSpace: "pre-wrap", minHeight: "100px" }}>
+              {selected.content}
+            </div>
             <hr className="notices-divider" />
             
-            <div className="notices-modal-actions" style={{ gap: "10px", flexWrap: "wrap" }}>
-              {selected.status === "RECEIVED" && (
-                <>
-                  <button 
-                    className="notices-btn" 
-                    style={{ backgroundColor: "#4caf50", color: "#fff" }}
-                    // 내 정보를 사용하여 배정
-                    onClick={() => handleAssign(selected.complaintId, currentAdminId)}
-                  >
-                    🙋 나에게 배정
-                  </button>
-                  <button 
-                    className="notices-btn" 
-                    onClick={() => {
-                      const tid = window.prompt("배정할 관리자 ID를 입력하세요.");
-                      if(tid) handleAssign(selected.complaintId, tid);
-                    }}
-                  >
-                    👤 직접 배정
-                  </button>
-                </>
-              )}
+            <div className="modal-controls" style={{marginTop: '10px'}}>
+              <h4 style={{marginBottom: '10px'}}>🛠️ 관리 액션</h4>
+              <div className="notices-modal-actions" style={{ gap: "10px", flexWrap: "wrap", display: 'flex', alignItems: 'center' }}>
+                
+                {/* 1. 배정 관련 버튼 */}
+                {selected.status === "RECEIVED" && (
+                  <>
+                    <button 
+                      className="notices-btn" 
+                      style={{ backgroundColor: "#4caf50", color: "#fff" }}
+                      onClick={() => handleAssign(selected.complaintId, currentAdminId)}
+                    >
+                      🙋 나에게 배정
+                    </button>
+                    <button 
+                      className="notices-btn" 
+                      onClick={() => {
+                        const tid = window.prompt("배정할 관리자 ID를 입력하세요.");
+                        if(tid) handleAssign(selected.complaintId, tid);
+                      }}
+                    >
+                      👤 직접 배정
+                    </button>
+                  </>
+                )}
 
-              {(selected.status === "ASSIGNED" || selected.status === "IN_PROGRESS") && (
-                <>
-                  <button 
-                    className="notices-btn" 
-                    style={{ backgroundColor: "#ff9800", color: "#fff" }}
-                    onClick={() => {
-                      const tid = window.prompt("재배정할 관리자 ID를 입력하세요.");
-                      if(tid) handleAssign(selected.complaintId, tid, true);
-                    }}
-                  >
-                    🔄 담당 재배정
-                  </button>
-                  <button
-                    className="notices-btn primary"
-                    onClick={() => navigate(`/admin/complaints/answer?id=${selected.complaintId}`)}
-                  >
-                    ✏️ 답변 등록
-                  </button>
-                </>
-              )}
+                {/* 2. 상태 변경 셀렉트 박스 (페이지 이동 없이 즉시 변경) */}
+                <select 
+                  className="notices-search-input"
+                  style={{ width: 'auto', padding: '5px 10px' }}
+                  value={selected.status}
+                  onChange={(e) => handleStatusChange(selected.complaintId, e.target.value)}
+                >
+                  {Object.keys(STATUS_MAP).map(key => (
+                    <option key={key} value={key}>{STATUS_MAP[key].label}</option>
+                  ))}
+                </select>
+
+                {/* 3. 답변 등록 및 재배정 */}
+                {(selected.status === "ASSIGNED" || selected.status === "IN_PROGRESS") && (
+                  <>
+                    <button 
+                      className="notices-btn" 
+                      style={{ backgroundColor: "#ff9800", color: "#fff" }}
+                      onClick={() => {
+                        const tid = window.prompt("재배정할 관리자 ID를 입력하세요.");
+                        if(tid) handleAssign(selected.complaintId, tid, true);
+                      }}
+                    >
+                      🔄 담당 재배정
+                    </button>
+                    <button
+                      className="notices-btn primary"
+                      onClick={() => navigate(`/admin/complaints/answer?id=${selected.complaintId}`)}
+                    >
+                      ✏️ 답변 등록
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

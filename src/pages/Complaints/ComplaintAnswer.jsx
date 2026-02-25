@@ -5,7 +5,6 @@ import {
   createComplaintAnswer, 
   changeComplaintStatus 
 } from "../../services/complaintApi";
-import ComplaintTabNav from "./ComplaintTabNav";
 import "./Complaints.css";
 
 export default function ComplaintAnswer() {
@@ -66,7 +65,7 @@ export default function ComplaintAnswer() {
 
   return (
     <div className="notices-page">
-      <ComplaintTabNav />
+
 
       <div className="notices-header">
         <div className="notices-header-icon">✏️</div>

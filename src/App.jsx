@@ -11,7 +11,6 @@ import PasswordResetNewPassword from "./pages/Auth/PasswordResetNewPassword";
 import Layout from "./components/layout/Layout";
 
 /* 입주민 관련 */
-import ResidentDashboard from "./pages/Resident/ResidentDashboard";
 import ResidentManagePage from "./pages/Resident/ResidentManagePage";
 import HouseholdManagePage from "./pages/Household/HouseholdManagePage";
 
@@ -22,14 +21,12 @@ import NoticeEdit from "./pages/Notices/NoticeEdit";
 import NoticeLog from "./pages/Notices/NoticeLog";
 
 /* 안전 / 모니터링 */
-import { FireMonitoringDashboard } from "./pages";
+import  FireMonitoringDashboard from "./pages/FireMonitoring/FireMonitoringDashboard";
 
 /* 민원 관련 */
 import ComplaintsList from "./pages/Complaints/ComplaintsList";
 import ComplaintAnswer from "./pages/Complaints/ComplaintAnswer";
 import ComplaintLog from "./pages/Complaints/ComplaintLog";
-import ComplaintStatus from "./pages/Complaints/ComplaintStatus";
-import ComplaintStatistics from "./pages/Complaints/Statistics";
 
 /* 관리비 관련 */
 import ManagementFeePage from "./pages/Management/ManagementFeePage"; 
@@ -38,7 +35,6 @@ import BillListPage from "./pages/Bill/BillListPage";
 /* 계정 관련 */
 import PasswordChange from "./pages/Account/PasswordChange";
 import ProfilePage from "./pages/Account/ProfilePage";
-import ApartmentPage from "./pages/Account/ApartmentPage";
 import RegisterAdminPage from "./pages/Account/RegisterAdminPage";
 
 import "./App.css";
@@ -58,7 +54,6 @@ function App() {
           <Route path="/admin/*" element={<Layout>
             <Routes>
               {/* 입주민 */}
-              <Route path="resident/dashboard" element={<ResidentDashboard />} />
               <Route path="resident/manage" element={<ResidentManagePage />} />
               <Route path="household/list" element={<HouseholdManagePage />} />
 
@@ -68,27 +63,21 @@ function App() {
               <Route path="notices/:noticeId/edit" element={<NoticeEdit />} />
               <Route path="notices/log" element={<NoticeLog />} />
 
-              {/* 안전 / 화재 모니터링 (Sidebar에 정의된 서브메뉴들 대응) */}
+              {/* 안전 / 화재 모니터링 */}
               <Route path="safety" element={<FireMonitoringDashboard />} />
-              <Route path="safety/status" element={<div>안전 상태 페이지</div>} />
-              <Route path="safety/events" element={<div>이벤트 로그 페이지</div>} />
-              <Route path="safety/sensors" element={<div>센서 로그 페이지</div>} />
 
               {/* 민원 관리 */}
-              <Route path="complaint/list" element={<ComplaintsList />} />
-              <Route path="complaint/status" element={<ComplaintStatus />} />
-              <Route path="complaint/log" element={<ComplaintLog />} />
-              <Route path="complaint/statistics" element={<ComplaintStatistics />} />
+              <Route path="complaints/list" element={<ComplaintsList />} />
+              <Route path="complaints/log" element={<ComplaintLog />} />
+              <Route path="complaints/answer" element={<ComplaintAnswer />} />
 
               {/* 관리비 */}
               <Route path="bills" element={<BillListPage />} />
               <Route path="bills/items" element={<ManagementFeePage />} />
-              <Route path="bills/statistics" element={<div>관리비 통계 페이지</div>} />
 
               {/* 계정 설정 */}
               <Route path="account" element={<ProfilePage />} />
               <Route path="account/password-change" element={<PasswordChange />} />
-              <Route path="settings/apartment" element={<ApartmentPage />} />
               <Route path="settings/register-admin" element={<RegisterAdminPage />} />
 
               <Route path="*" element={<Navigate to="household/list" replace />} />

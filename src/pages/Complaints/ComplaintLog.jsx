@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getComplaintsByApartment } from "../../services/complaintApi";
-import ComplaintTabNav from "./ComplaintTabNav";
 import "./Complaints.css";
 
 // 날짜와 시간을 상세하게 표시하는 함수
@@ -25,8 +24,7 @@ export default function ComplaintLog() {
     setLoading(true);
     setError(null);
     try {
-      // 실제 프로젝트에서는 /api/complaint/logs 같은 이력 전용 API가 있다면 그것을 사용하세요.
-      // 여기서는 전체 목록을 가져와 최신순으로 정렬하여 표시하는 예시입니다.
+
       const res = await getComplaintsByApartment();
       const sortedData = Array.isArray(res) 
         ? res.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) 
@@ -45,7 +43,7 @@ export default function ComplaintLog() {
 
   return (
     <div className="notices-page">
-      <ComplaintTabNav />
+
 
       <div className="notices-header">
         <div className="notices-header-icon">📊</div>

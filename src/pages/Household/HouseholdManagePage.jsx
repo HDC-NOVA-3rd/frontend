@@ -143,8 +143,9 @@ const HouseholdManagePage = () => {
 
           <div className="info-grid">
             <div className="grid-item">
-              <span className="label">총 세대 수</span>
-              <span className="value">{apartment?.totalHouseholds || 0}세대</span>
+
+            <h3>{apartment?.apartmentName}</h3>
+            <p className="address">{apartment?.address}</p>
             </div>
           </div>
         </div>
