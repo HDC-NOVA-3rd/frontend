@@ -65,10 +65,16 @@ const formatDateTime = (isoString) => {
 
 const getZoneName = (item) => {
   if (item.zoneType === "household") {
-    return [item.dongNo, item.hoNo].filter(Boolean).join(" ") || item.hoNo || "세대 미지정";
+    const dong = item.dongNo ? `${item.dongNo}동` : "";
+    const ho = item.hoNo ? `${item.hoNo}호` : "";
+    return [dong, ho].filter(Boolean).join(" ") || item.hoNo || "세대 미지정";
   }
   if (item.zoneType === "facility") {
-    return item.spaceName || item.facilityName || "시설 미지정";
+    // spaceName이 없거나 "공간 미지정" 더미값이면 facilityName으로 표시
+    if (!item.spaceName || item.spaceName === "공간 미지정") {
+      return item.facilityName || "시설 미지정";
+    }
+    return item.spaceName;
   }
   return item.dongNo || item.facilityName || "알 수 없음";
 };
@@ -290,11 +296,12 @@ export function FireMonitoringDashboard() {
         const alertCount = sensors.filter((s) => isSensorAlert(s)).length;
         const sensorReasons = getSensorAlertReasons(sensors);
         const hasSensors = sensors.length > 0;
-        const status = sensorReasons.length > 0
-          ? "DANGER"
-          : hasSensors
-            ? "SAFE"
-            : matchedStatus?.status || "SAFE";
+        const status =
+          sensorReasons.length > 0
+            ? "DANGER"
+            : hasSensors
+              ? "SAFE"
+              : matchedStatus?.status || "UNKNOWN"; // 센서 없으면 '미연결' 처리
         const mergedReasons =
           sensorReasons.length > 0
             ? sensorReasons
@@ -359,11 +366,12 @@ export function FireMonitoringDashboard() {
         const alertCount = sensors.filter((s) => isSensorAlert(s)).length;
         const sensorReasons = getSensorAlertReasons(sensors);
         const hasSensors = sensors.length > 0;
-        const status = sensorReasons.length > 0
-          ? "DANGER"
-          : hasSensors
-            ? "SAFE"
-            : matchedStatus?.status || "SAFE";
+        const status =
+          sensorReasons.length > 0
+            ? "DANGER"
+            : hasSensors
+              ? "SAFE"
+              : matchedStatus?.status || "UNKNOWN"; // 센서 없으면 '미연결' 처리
         const mergedReasons =
           sensorReasons.length > 0
             ? sensorReasons
@@ -400,7 +408,10 @@ export function FireMonitoringDashboard() {
       .sort((a, b) => getZoneName(a).localeCompare(getZoneName(b), "ko-KR"));
   }, [sensorLogs, statusByFacility, facilityUnits]);
 
-  const allZones = useMemo(() => [...householdZones, ...facilityZones], [householdZones, facilityZones]);
+  const allZones = useMemo(
+    () => [...householdZones, ...facilityZones],
+    [householdZones, facilityZones],
+  );
   const dangerZones = useMemo(
     () => allZones.filter((zone) => zone.status === "DANGER" && zone.hasSensor),
     [allZones],
@@ -502,7 +513,10 @@ export function FireMonitoringDashboard() {
       const groupKey =
         selectedZone?.zoneType === "household"
           ? sensor.sensorType || "기타 센서"
-          : sensor.spaceName || selectedZone?.spaceName || "공간 미지정";
+          : sensor.spaceName ||
+            selectedZone?.facilityName ||
+            selectedZone?.spaceName ||
+            "공간 미지정";
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
@@ -834,7 +848,11 @@ export function FireMonitoringDashboard() {
 
             <div className="drawer-sensors">
               <h4>
-                {selectedZone.zoneType === "household" ? <DoorOpen size={16} /> : <Layers size={16} />}
+                {selectedZone.zoneType === "household" ? (
+                  <DoorOpen size={16} />
+                ) : (
+                  <Layers size={16} />
+                )}
                 {selectedZone.zoneType === "household" ? "세대 센서 현황" : "시설 센서 현황"}
                 <span className="sensor-count">({selectedZoneSensors.length}개)</span>
               </h4>
@@ -968,7 +986,7 @@ function ZoneCard({ zone, isSelected, onSelect }) {
       className={`zone-card zone-card--${zone.status.toLowerCase()} ${isSelected ? "selected" : ""}`}
       onClick={onSelect}
       aria-pressed={isSelected}
-      aria-label={`${zoneName} ${zone.status === "DANGER" ? "위험" : "정상"} 상세 열기`}
+      aria-label={`${zoneName} ${zone.status === "DANGER" ? "위험" : zone.status === "UNKNOWN" ? "미연결" : "정상"} 상세 열기`}
     >
       <div className="zone-card__header">
         <span className="zone-card__name">{zoneName}</span>
@@ -1017,7 +1035,7 @@ function ZoneCard({ zone, isSelected, onSelect }) {
 
       <div className="zone-card__footer">
         <span className={`status-text status-text--${zone.status.toLowerCase()}`}>
-          {zone.status === "DANGER" ? "위험" : "정상"}
+          {zone.status === "DANGER" ? "위험" : zone.status === "UNKNOWN" ? "미연결" : "정상"}
         </span>
         <span className="reason-tag">
           {!zone.hasSensor
