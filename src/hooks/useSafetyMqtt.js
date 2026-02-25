@@ -17,7 +17,7 @@ const MQTT_TOPIC = "hdc/frontend/safety/update";
  */
 export function useSafetyMqtt(apartmentId, options = {}) {
   const {
-    brokerUrl = import.meta.env.VITE_MQTT_BROKER_URL || "ws://223.171.136.185:9001",
+    brokerUrl = import.meta.env.VITE_MQTT_BROKER_URL || "wss://devhns3.labs-smart.com/mqtt",
     username = import.meta.env.VITE_MQTT_USERNAME || "",
     password = import.meta.env.VITE_MQTT_PASSWORD || "",
     enabled = true,
