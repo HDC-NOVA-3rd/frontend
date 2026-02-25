@@ -39,9 +39,6 @@ export default function Sidebar({ isOpen, onClose }) {
       icon: AlertTriangle,
       submenu: [
         { label: "화재감시", path: "/admin/safety" },
-        { label: "안전 상태", path: "/admin/safety/status" },
-        { label: "이벤트 로그", path: "/admin/safety/events" },
-        { label: "센서 로그", path: "/admin/safety/sensors" },
       ],
     },
     {
@@ -49,16 +46,15 @@ export default function Sidebar({ isOpen, onClose }) {
       icon: Users,
       submenu: [
         { label: "입주민 관리", path: "/admin/resident/manage" },
-        { label: "입주민 대시보드", path: "/admin/resident/dashboard" },
       ],
     },
     {
       label: "민원 현황",
       icon: FileText,
       submenu: [
-        { label: "민원 목록", path: "/admin/complaint/list" },
-        { label: "민원 통계", path: "/admin/complaint/statistics" },
-        { label: "처리 현황", path: "/admin/complaint/status" },
+        { label: "민원 목록", path: "/admin/complaints/list" }, 
+        { label: "변경 내역", path: "/admin/complaints/log" },
+        { label: "민원 답변", path: "/admin/complaints/answer" },
       ],
     },
     {
@@ -76,7 +72,6 @@ export default function Sidebar({ isOpen, onClose }) {
       submenu: [
         { label: "세대별 납부 현황", path: "/admin/bills" },
         { label: "관리비 세부 항목", path: "/admin/bills/items" },
-        { label: "관리비 통계", path: "/admin/bills/statistics" }
       ],
     },
     {

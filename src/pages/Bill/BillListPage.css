@@ -1,0 +1,131 @@
+.bill-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: #1e293b;
+}
+
+/* KPI */
+.bill-kpi-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.bill-kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.2rem;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.bill-kpi-card.danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* 필터 */
+.bill-filter-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.bill-filter-form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bill-filter-form input {
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+/* 버튼 */
+.primary-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.excel-btn {
+  background: #1d6f42;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+}
+
+/* 테이블 */
+.bill-table-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bill-table th,
+.bill-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.status-paid {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.status-unpaid {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.detail-btn {
+  background: #f1f5f9;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+/* 로딩 */
+.loading-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

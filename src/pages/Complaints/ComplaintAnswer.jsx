@@ -5,7 +5,6 @@ import {
   createComplaintAnswer, 
   changeComplaintStatus 
 } from "../../services/complaintApi";
-import ComplaintTabNav from "./ComplaintTabNav";
 import "./Complaints.css";
 
 export default function ComplaintAnswer() {
@@ -48,7 +47,7 @@ export default function ComplaintAnswer() {
     setLoading(true);
     try {
       // 답변 등록 API 호출
-      await createComplaintAnswer(complaintId, { content: answer });
+      await createComplaintAnswer(complaintId, { resultContent: answer });
       
       // 답변 등록 후 상태를 '완료(COMPLETED)'로 변경할지 선택 (기획에 따라 조절)
       if (window.confirm("답변이 등록되었습니다. 민원 상태를 '완료'로 변경하시겠습니까?")) {
@@ -66,7 +65,7 @@ export default function ComplaintAnswer() {
 
   return (
     <div className="notices-page">
-      <ComplaintTabNav />
+
 
       <div className="notices-header">
         <div className="notices-header-icon">✏️</div>

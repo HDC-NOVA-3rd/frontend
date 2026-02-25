@@ -1,152 +1,170 @@
-.mgmt-container {
-  max-width: 1200px;
+/* Safety Dashboard의 기본 컬러 및 폰트 계승 */
+.mgmt-page {
+  padding: 1.5rem;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 20px;
-  background-color: #fcfcfd;
 }
 
-.main-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #111827;
-}
-
-/* KPI */
-.kpi-section {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.kpi-card {
-  flex: 1;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.kpi-label { display: block; color: #6b7280; font-size: 14px; margin-bottom: 8px; }
-.kpi-value { font-size: 28px; font-weight: 800; color: #111827; }
-.kpi-card.active .kpi-value { color: #2563eb; }
-.kpi-card.inactive .kpi-value { color: #9ca3af; }
-
-/* Table */
+/* Table Design */
 .table-wrapper {
   background: white;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  margin-top: 1rem;
 }
 
 .mgmt-table {
   width: 100%;
   border-collapse: collapse;
+  text-align: left;
 }
 
 .mgmt-table th {
-  background: #f9fafb;
-  padding: 16px;
-  text-align: left;
-  font-size: 13px;
+  background: #f8fafc;
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
-  color: #4b5563;
-  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .mgmt-table td {
-  padding: 18px 16px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 15px;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
 }
 
-/* 항목 제목 크게 수정 */
+.mgmt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.row-inactive {
+  background-color: #f8fafc;
+  opacity: 0.7;
+}
+
+/* Typography & Cells */
 .fee-name-cell {
-  font-size: 17px;
   font-weight: 700;
-  color: #111827;
-  white-space: nowrap; /* 줄바꿈 방지 */
+  color: #1e293b;
+  font-size: 1.05rem;
 }
 
-.font-semibold { font-weight: 600; }
-.text-muted { color: #6b7280; }
-.truncate { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* 상태 텍스트 전용 스타일 */
-.status-text {
-  font-weight: 600;
-  font-size: 14px;
+.text-primary {
+  color: #3b82f6;
 }
-.status-text.active { color: #059669; }
-.status-text.inactive { color: #9ca3af; }
 
-/* 관리 액션 버튼들 */
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+}
+
+/* Action Buttons Mini */
 .action-cell {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
-.btn-edit {
-  padding: 6px 12px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
+.btn-edit-mini, .btn-status-mini {
+  padding: 0.4rem 0.75rem;
   border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s;
+  transition: all 0.2s;
+  border: 1px solid #e2e8f0;
 }
 
-.btn-edit:hover { background: #e5e7eb; }
-
-.btn-status {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-weight: 500;
+.btn-edit-mini {
+  background: white;
+  color: #64748b;
 }
 
-.btn-status.deactivate { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
-.btn-status.restore { color: #2563eb; background: #eff6ff; border-color: #dbeafe; }
+.btn-edit-mini:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
 
-/* Modal */
+.btn-status-mini.deactivate {
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.btn-status-mini.restore {
+  background: #f0fdf4;
+  color: #22c55e;
+  border-color: #bbf7d0;
+}
+
+/* Modal & Form Elements */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
 }
 
-.modal-content {
-  background: white;
-  padding: 32px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 440px;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
-.confirm-desc { color: #4b5563; line-height: 1.6; margin-bottom: 24px; }
-
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.form-group input, .form-group textarea {
+.custom-input, .custom-textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+  transition: all 0.2s;
   box-sizing: border-box;
 }
 
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-.modal-actions.centered { justify-content: center; }
+.custom-input:focus, .custom-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
 
-.btn-primary { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.btn-save { background: #2563eb; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.btn-cancel { background: #f3f4f6; color: #4b5563; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.btn-danger { background: #dc2626; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+/* Re-using Safety Dashboard KPI Card Specifics */
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.kpi-card--primary::before { background: #3b82f6; }
+.kpi-card--success::before { background: #22c55e; }
+.kpi-card--danger::before { background: #ef4444; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mgmt-table th:nth-child(1),
+  .mgmt-table td:nth-child(1),
+  .mgmt-table th:nth-child(4),
+  .mgmt-table td:nth-child(4) {
+    display: none;
+  }
+  
+  .kpi-section {
+    grid-template-columns: 1fr;
+  }
+}
