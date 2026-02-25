@@ -11,9 +11,9 @@
   background: white;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  width: 520px; 
-  padding: 3.5rem 2.5rem; 
-  transition: width 0.3s ease; 
+  width: 520px;
+  padding: 3.5rem 2.5rem;
+  transition: width 0.3s ease;
 }
 
 .login-header {
