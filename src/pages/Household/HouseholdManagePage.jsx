@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import {
+  Users,
+  Search,
+  Building2,
+  MapPin,
+  UserMinus,
+  RefreshCw,
+  Loader2,
+  LayoutGrid,
+  Home
+} from "lucide-react";
+
 import { getResidentsByApartment, deleteResidentsByHo } from "../../services/residentApi";
-import { getMyApartmentInfo } from '../../services/adminApi';
+import { getMyApartmentInfo } from "../../services/adminApi";
 
 import "./HouseholdManagePage.css";
 
@@ -11,7 +23,9 @@ const HouseholdManagePage = () => {
   const [loading, setLoading] = useState(true);
   const [apartment, setApartment] = useState(null);
 
-  /** 데이터 로드 */
+  /** ===============================
+   * 데이터 로드
+   * =============================== */
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -26,61 +40,59 @@ const HouseholdManagePage = () => {
   }, []);
 
   useEffect(() => {
-    const fetchApartment = async () => {
+    const init = async () => {
       try {
         const response = await getMyApartmentInfo();
         setApartment(response);
+        await fetchData();
       } catch (error) {
-        console.error("아파트 정보 불러오기 실패:", error);
-      } finally {
-        // fetchData와 함께 관리되도록 여기서는 loading 해제 보류 가능
+        console.error("초기 데이터 로드 실패:", error);
       }
     };
-    fetchApartment();
-    fetchData();
+    init();
   }, [fetchData]);
 
-  /** 동 → 호 그룹화 */
+  /** ===============================
+   * 동 → 호 그룹화 + 필터
+   * =============================== */
   const groupedHouseholds = useMemo(() => {
     const groups = {};
 
     residents.forEach((res) => {
-      // DTO 수정으로 이제 hoId가 정상적으로 들어옵니다.
       const { dongNo, hoNo, hoId, name, residentId } = res;
-
       if (!dongNo || !hoNo) return;
 
-      // 검색 필터
-      if (
-        searchTerm &&
-        !name.includes(searchTerm) &&
-        !hoNo.includes(searchTerm)
-      )
-        return;
+      const matchesSearch =
+        !searchTerm ||
+        name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        hoNo.includes(searchTerm);
 
-      // 동 필터
-      if (selectedDong !== "all" && dongNo !== selectedDong) return;
+      const matchesDong =
+        selectedDong === "all" || dongNo === selectedDong;
+
+      if (!matchesSearch || !matchesDong) return;
 
       if (!groups[dongNo]) groups[dongNo] = {};
       if (!groups[dongNo][hoNo]) {
-        // 여기서 hoId를 저장하여 삭제 시 사용합니다.
         groups[dongNo][hoNo] = { hoId, residents: [] };
       }
 
       groups[dongNo][hoNo].residents.push({
         id: residentId,
-        name,
+        name
       });
     });
 
     return groups;
   }, [residents, searchTerm, selectedDong]);
 
-  /** 통계 */
+  /** ===============================
+   * 통계 계산 (🔥 동별 세대수 포함)
+   * =============================== */
   const stats = useMemo(() => {
     const dongList = [
       "all",
-      ...new Set(residents.map((res) => res.dongNo).filter(Boolean)),
+      ...new Set(residents.map((r) => r.dongNo).filter(Boolean))
     ].sort();
 
     const totalHo = Object.values(groupedHouseholds).reduce(
@@ -88,90 +100,126 @@ const HouseholdManagePage = () => {
       0
     );
 
-    return { dongList, totalHo };
+    // 🔥 동별 세대수 계산
+    const dongHoCount = {};
+    Object.keys(groupedHouseholds).forEach((dong) => {
+      dongHoCount[dong] = Object.keys(groupedHouseholds[dong]).length;
+    });
+
+    return { dongList, totalHo, dongHoCount };
   }, [residents, groupedHouseholds]);
 
-  /** 세대 비우기 */
+  /** ===============================
+   * 세대 비우기
+   * =============================== */
   const handleClearHo = async (hoId, dongNo, hoNo) => {
-    // 1. hoId 값 존재 여부 체크
     if (!hoId) {
-      console.error("hoId가 누락되었습니다. 백엔드 DTO를 확인하세요.");
-      alert("삭제를 위한 세대 ID 정보가 없습니다.");
+      alert("세대 ID 정보가 없어 삭제할 수 없습니다.");
       return;
     }
 
-    if (!window.confirm(`${dongNo}동 ${hoNo}호의 모든 입주민 정보를 삭제하시겠습니까?`))
+    if (!window.confirm(`${dongNo}동 ${hoNo}호의 모든 입주민을 퇴거 처리하시겠습니까?`))
       return;
 
     try {
-      setLoading(true); // 로딩 시작
-      
-      // 2. 삭제 API 호출 (백엔드 경로: /api/resident/ho/{hoId})
+      setLoading(true);
       await deleteResidentsByHo(hoId);
-      
-      alert("해당 세대가 비워졌습니다.");
-      
-      // 3. 목록 새로고침
-      await fetchData(); 
+      alert("퇴거 처리가 완료되었습니다.");
+      await fetchData();
     } catch (error) {
-      console.error("삭제 요청 에러:", error);
-      alert(error.message || "처리에 실패했습니다.");
+      console.error("삭제 실패:", error);
+      alert("처리에 실패했습니다.");
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div className="loading">로딩 중...</div>;
+  if (loading && residents.length === 0) {
+    return (
+      <div className="safety-dashboard--loading">
+        <Loader2 className="loading-spinner spin" size={40} />
+        <p>세대 및 입주민 정보를 불러오는 중입니다...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="manager-container">
-      {/* 📊 통계 영역 */}
-      <div className="info-container">
-        <div className="info-header">
-          <h2>담당 아파트 정보</h2>
+    <div className="safety-dashboard">
+
+      {/* ===============================
+         헤더
+      =============================== */}
+      <header className="section-header">
+        <h3><Users size={22} /> 입주민 및 세대 관리</h3>
+        <div className="header-actions">
+          <span className="last-updated">
+            {apartment?.apartmentName || "단지 정보 로딩 중"}
+          </span>
+          <button
+            className="refresh-btn"
+            onClick={fetchData}
+            disabled={loading}
+          >
+            <RefreshCw size={16} className={loading ? "spin" : ""} />
+          </button>
+        </div>
+      </header>
+
+      {/* ===============================
+         KPI 영역
+      =============================== */}
+      <section className="kpi-section">
+
+        {/* 단지 정보 */}
+        <div className="kpi-card kpi-card--primary">
+          <div className="kpi-icon"><Building2 size={20} /></div>
+          <span className="kpi-label">단지명</span>
+          <div className="kpi-data">
+            <span className="kpi-value">{apartment?.apartmentName || "-"}</span>
+          </div>
+          <div className="kpi-sub">
+            <MapPin size={12} /> {apartment?.address || "주소 정보 없음"}
+          </div>
         </div>
 
-        <div className="info-card apartment-card">
-          <div className="apartment-main">
-            <h3>{apartment?.apartmentName}</h3>
-            <p className="address">{apartment?.address}</p>
-          </div>
-
-          <hr />
-
-          <div className="info-grid">
-            <div className="grid-item">
-
-            <h3>{apartment?.apartmentName}</h3>
-            <p className="address">{apartment?.address}</p>
-            </div>
+        {/* 전체 세대 수 */}
+        <div className="kpi-card kpi-card--info">
+          <div className="kpi-icon"><LayoutGrid size={20} /></div>
+          <span className="kpi-label">관리 중인 세대 수</span>
+          <div className="kpi-data">
+            <span className="kpi-value">{stats.totalHo}</span>
+            <span className="kpi-sub">세대</span>
           </div>
         </div>
-      </div>
 
-      <div className="dashboard-top">
-        <section className="stats-grid">
-          <div className="stat-card blue-border">
-            <span className="label">관리 중인 세대 수</span>
-            <span className="value blue-text">
-              {stats.totalHo}
-              <span>세대</span>
-            </span>
+        {/* 전체 입주민 */}
+        <div className="kpi-card kpi-card--success">
+          <div className="kpi-icon"><Users size={20} /></div>
+          <span className="kpi-label">등록된 총 입주민</span>
+          <div className="kpi-data">
+            <span className="kpi-value">{residents.length}</span>
+            <span className="kpi-sub">명</span>
           </div>
+        </div>
 
-          <div className="stat-card orange-border">
-            <span className="label">등록된 총 입주민</span>
-            <span className="value orange-text">
-              {residents.length}
-              <span>명</span>
-            </span>
+        {/* 🔥 동별 세대 수 */}
+        <div className="kpi-card kpi-card--dong">
+          <span className="kpi-label">동별 세대 수</span>
+          <div className="dong-grid">
+            {Object.entries(stats.dongHoCount).map(([dong, count]) => (
+              <div key={dong} className="dong-item">
+                <span className="dong-name">{dong}동</span>
+                <span className="dong-count">{count}세대</span>
+              </div>
+            ))}
           </div>
-        </section>
-      </div>
+        </div>
 
-      {/* 🔍 필터 영역 */}
+      </section>
+
+      {/* ===============================
+         필터 영역
+      =============================== */}
       <section className="filter-bar">
         <div className="filter-group">
           <select
@@ -188,123 +236,74 @@ const HouseholdManagePage = () => {
               ))}
           </select>
 
-          <input
-            type="text"
-            placeholder="세대 번호 또는 이름 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <Search size={18} />
+            <input
+              type="text"
+              placeholder="세대 번호 또는 이름 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </section>
 
-      {/* 🏢 세대 목록 */}
-      <section className="list-section">
-        {Object.keys(groupedHouseholds)
-          .sort()
-          .map((dong) => (
-            <div key={dong} className="dong-group-section" style={{ marginBottom: "40px" }}>
-              <h3 className="dong-title">{dong}동 현황</h3>
+      {/* ===============================
+         세대 목록
+      =============================== */}
+      <main className="zone-grid">
+        {Object.keys(groupedHouseholds).sort().map((dong) => (
+          <div key={dong} className="zone-group">
+            <h3 className="zone-group__title">
+              <Home size={16} /> {dong}동 세대 현황
+            </h3>
 
-              <div
-                className="household-grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-                  gap: "20px",
-                  marginTop: "15px",
-                }}
-              >
-                {Object.keys(groupedHouseholds[dong])
-                  .sort()
-                  .map((ho) => {
-                    const item = groupedHouseholds[dong][ho];
+            <div className="zone-group__cards">
+              {Object.keys(groupedHouseholds[dong]).sort().map((ho) => {
+                const item = groupedHouseholds[dong][ho];
 
-                    return (
-                      <div
-                        key={ho}
-                        className="ho-card"
-                        style={{
-                          padding: "20px",
-                          borderRadius: "12px",
-                          backgroundColor: "#fff",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                          border: "1px solid #eee",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: "1.2rem",
-                              fontWeight: "bold",
-                              color: "#333",
-                            }}
-                          >
-                            {ho}호
+                return (
+                  <div key={ho} className="zone-card">
+                    <div className="zone-card__header">
+                      <span className="zone-card__name">{ho}호</span>
+                      <span className="status-text">
+                        {item.residents.length}명 거주
+                      </span>
+                    </div>
+
+                    <div className="zone-card__sensors">
+                      {item.residents.length > 0 ? (
+                        item.residents.map((r) => (
+                          <span key={r.id} className="resident-chip">
+                            {r.name}
                           </span>
+                        ))
+                      ) : (
+                        <span className="no-sensor">거주자 없음</span>
+                      )}
+                    </div>
 
-                          <span
-                            style={{
-                              color: "#666",
-                              fontSize: "0.9rem",
-                            }}
-                          >
-                            {item.residents.length}명 거주
-                          </span>
-                        </div>
-
-                        <div style={{ marginBottom: "15px", minHeight: "40px" }}>
-                          {item.residents.map((r) => (
-                            <span
-                              key={r.id}
-                              style={{
-                                display: "inline-block",
-                                padding: "4px 8px",
-                                backgroundColor: "#f0f4ff",
-                                color: "#4a6cf7",
-                                borderRadius: "4px",
-                                marginRight: "6px",
-                                fontSize: "0.85rem",
-                                marginBottom: "4px"
-                              }}
-                            >
-                              {r.name}
-                            </span>
-                          ))}
-                        </div>
-
-                        <button
-                          className="btn-delete"
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            fontSize: "0.8rem",
-                            cursor: "pointer"
-                          }}
-                          onClick={() =>
-                            handleClearHo(item.hoId, dong, ho)
-                          }
-                        >
-                          세대 비우기(퇴거)
-                        </button>
-                      </div>
-                    );
-                  })}
-              </div>
+                    <button
+                      className="action-btn action-btn--danger"
+                      onClick={() => handleClearHo(item.hoId, dong, ho)}
+                      disabled={loading}
+                    >
+                      <UserMinus size={14} /> 세대 비우기
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          </div>
+        ))}
 
         {Object.keys(groupedHouseholds).length === 0 && (
           <div className="empty-msg">
-            <p>해당하는 세대 정보가 없습니다.</p>
+            <p>검색 조건에 맞는 세대 정보가 없습니다.</p>
           </div>
         )}
-      </section>
+      </main>
+
     </div>
   );
 };

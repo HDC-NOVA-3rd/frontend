@@ -217,3 +217,108 @@
 .pagination button:hover:not(:disabled):not(.active) {
   background-color: #f0f0f0;
 }
+
+/* FireMonitoringDashboard.css의 스타일을 상속받으면서 필요한 부분만 추가 */
+
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filter-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.filter-group select {
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #1e293b;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input-wrapper input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 동 그룹 섹션 */
+.zone-group {
+  margin-bottom: 2rem;
+}
+
+/* 카드 내 버튼 스타일 보정 */
+.zone-card__footer .action-btn--lock {
+  background: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+  transition: all 0.2s;
+}
+
+.zone-card__footer .action-btn--lock:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+/* 로딩 애니메이션 */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.empty-msg {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .filter-group {
+    flex-direction: column;
+  }
+  .search-input-wrapper {
+    max-width: none;
+  }
+}
