@@ -41,8 +41,8 @@ export default function Header({ onMenuToggle }) {
   };
 
   return (
-    <header className="header">
-      <div className="header-left">
+    <header className="admin-header">
+      <div className="admin-header-left">
         <button
           className="menu-toggle"
           onClick={onMenuToggle}
@@ -54,13 +54,13 @@ export default function Header({ onMenuToggle }) {
         </div>
       </div>
 
-      <div className="header-right">
+      <div className="admin-header-right">
         <button
           className="header-icon-btn"
           title="알림"
         >
           <Bell size={20} />
-          <span className="badge">3</span>
+          <span className="header-notification-badge">3</span>
         </button>
 
         <div className="header-divider"></div>
