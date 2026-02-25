@@ -143,7 +143,7 @@ const getSensorIcon = (sensorType, size) => {
 
 // ========== Component ==========
 
-export function FireMonitoringDashboard() {
+export default function FireMonitoringDashboard() {
   const [selectedZone, setSelectedZone] = useState(null);
   const [householdUnits, setHouseholdUnits] = useState([]);
   const [facilityUnits, setFacilityUnits] = useState([]);
