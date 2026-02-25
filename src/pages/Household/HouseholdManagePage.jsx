@@ -11,7 +11,7 @@ const HouseholdManagePage = () => {
   const [loading, setLoading] = useState(true);
   const [apartment, setApartment] = useState(null);
 
-  /**  데이터 로드 */
+  /** 데이터 로드 */
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -26,25 +26,26 @@ const HouseholdManagePage = () => {
   }, []);
 
   useEffect(() => {
-        const fetchApartment = async () => {
+    const fetchApartment = async () => {
       try {
         const response = await getMyApartmentInfo();
-        setApartment(response);   // 🔥 여기만 수정
+        setApartment(response);
       } catch (error) {
         console.error("아파트 정보 불러오기 실패:", error);
       } finally {
-        setLoading(false);
+        // fetchData와 함께 관리되도록 여기서는 loading 해제 보류 가능
       }
     };
     fetchApartment();
     fetchData();
   }, [fetchData]);
 
-  /**  동 → 호 그룹화 */
+  /** 동 → 호 그룹화 */
   const groupedHouseholds = useMemo(() => {
     const groups = {};
 
     residents.forEach((res) => {
+      // DTO 수정으로 이제 hoId가 정상적으로 들어옵니다.
       const { dongNo, hoNo, hoId, name, residentId } = res;
 
       if (!dongNo || !hoNo) return;
@@ -62,6 +63,7 @@ const HouseholdManagePage = () => {
 
       if (!groups[dongNo]) groups[dongNo] = {};
       if (!groups[dongNo][hoNo]) {
+        // 여기서 hoId를 저장하여 삭제 시 사용합니다.
         groups[dongNo][hoNo] = { hoId, residents: [] };
       }
 
@@ -74,7 +76,7 @@ const HouseholdManagePage = () => {
     return groups;
   }, [residents, searchTerm, selectedDong]);
 
-  /**  통계 */
+  /** 통계 */
   const stats = useMemo(() => {
     const dongList = [
       "all",
@@ -89,17 +91,33 @@ const HouseholdManagePage = () => {
     return { dongList, totalHo };
   }, [residents, groupedHouseholds]);
 
-  /**  세대 비우기 */
+  /** 세대 비우기 */
   const handleClearHo = async (hoId, dongNo, hoNo) => {
+    // 1. hoId 값 존재 여부 체크
+    if (!hoId) {
+      console.error("hoId가 누락되었습니다. 백엔드 DTO를 확인하세요.");
+      alert("삭제를 위한 세대 ID 정보가 없습니다.");
+      return;
+    }
+
     if (!window.confirm(`${dongNo}동 ${hoNo}호의 모든 입주민 정보를 삭제하시겠습니까?`))
       return;
 
     try {
+      setLoading(true); // 로딩 시작
+      
+      // 2. 삭제 API 호출 (백엔드 경로: /api/resident/ho/{hoId})
       await deleteResidentsByHo(hoId);
+      
       alert("해당 세대가 비워졌습니다.");
-      fetchData();
+      
+      // 3. 목록 새로고침
+      await fetchData(); 
     } catch (error) {
-      alert("처리에 실패했습니다.");
+      console.error("삭제 요청 에러:", error);
+      alert(error.message || "처리에 실패했습니다.");
+    } finally {
+      setLoading(false); // 로딩 종료
     }
   };
 
@@ -108,29 +126,30 @@ const HouseholdManagePage = () => {
   }
 
   return (
-    
     <div className="manager-container">
       {/* 📊 통계 영역 */}
-          <div className="info-container">
-      <div className="info-header">
-        <h2>담당 아파트 정보</h2>
-      </div>
-
-      <div className="info-card apartment-card">
-        <div className="apartment-main">
-          <h3>{apartment.apartmentName}</h3>
-          <p className="address">{apartment.address}</p>
+      <div className="info-container">
+        <div className="info-header">
+          <h2>담당 아파트 정보</h2>
         </div>
 
-        <hr />
+        <div className="info-card apartment-card">
+          <div className="apartment-main">
+            <h3>{apartment?.apartmentName}</h3>
+            <p className="address">{apartment?.address}</p>
+          </div>
 
-        <div className="info-grid">
-          <div className="grid-item">
-            <span className="label">총 세대 수</span>
+          <hr />
+
+          <div className="info-grid">
+            <div className="grid-item">
+              <span className="label">총 세대 수</span>
+              <span className="value">{apartment?.totalHouseholds || 0}세대</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
       <div className="dashboard-top">
         <section className="stats-grid">
           <div className="stat-card blue-border">
@@ -250,6 +269,7 @@ const HouseholdManagePage = () => {
                                 borderRadius: "4px",
                                 marginRight: "6px",
                                 fontSize: "0.85rem",
+                                marginBottom: "4px"
                               }}
                             >
                               {r.name}
@@ -263,6 +283,7 @@ const HouseholdManagePage = () => {
                             width: "100%",
                             padding: "8px",
                             fontSize: "0.8rem",
+                            cursor: "pointer"
                           }}
                           onClick={() =>
                             handleClearHo(item.hoId, dong, ho)

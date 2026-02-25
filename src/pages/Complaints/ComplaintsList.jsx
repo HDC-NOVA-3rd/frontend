@@ -5,6 +5,7 @@ import {
   changeComplaintStatus,
   assignAdmin 
 } from "../../services/complaintApi"; 
+import { getMyAdminInfo } from '../../services/adminApi'; // 내 정보 조회 API 추가
 import ComplaintTabNav from "./ComplaintTabNav";
 import "./Complaints.css";
 
@@ -20,7 +21,6 @@ function formatDate(raw) {
     : new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 
-// 백엔드 Enum 기준 상태 맵핑
 const STATUS_MAP = {
   RECEIVED: { label: "접수", class: "status-received" },
   ASSIGNED: { label: "배정", class: "status-assigned" },
@@ -36,31 +36,35 @@ export default function ComplaintsList() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
 
-  // 현재 로그인한 관리자 정보 (인증 로직에 따라 변경 가능)
-  const adminInfo = JSON.parse(localStorage.getItem("adminInfo") || '{"id": 1, "role": "ADMIN"}');
-  const currentAdminId = adminInfo.id;
+  // --- 추가: 서버에서 가져온 실제 관리자 ID 상태 ---
+  const [currentAdminId, setCurrentAdminId] = useState(null);
 
-  // 민원 목록 로드
-  const loadComplaints = async () => {
+  // 데이터 통합 로드 (관리자 정보 + 민원 목록)
+  const loadData = async () => {
     setError(null);
     setLoading(true);
     try {
+      // 1. 내 정보 가져오기 (본인 배정 검증용)
+      const adminRes = await getMyAdminInfo();
+      // 백엔드 AdminInfoResponse 구조에 맞춰 ID 추출 (보통 data.id 혹은 res.id)
+      const myId = adminRes?.id || adminRes?.data?.id;
+      setCurrentAdminId(myId);
+
+      // 2. 민원 목록 가져오기
       const res = await getComplaintsByApartment();
       const data = Array.isArray(res) ? res : (res?.data || []); 
       setComplaints(data);
     } catch (err) {
-      setError(err?.message || "민원 목록을 불러오지 못했습니다.");
-      setComplaints([]);
+      setError(err?.message || "데이터를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    void loadComplaints();
+    void loadData();
   }, []);
 
-  // 통계 집계 로직
   const stats = useMemo(() => {
     const byStatus = { RECEIVED: 0, ASSIGNED: 0, IN_PROGRESS: 0, COMPLETED: 0 };
     let totalProcessMs = 0;
@@ -81,7 +85,6 @@ export default function ComplaintsList() {
     return { total: complaints.length, byStatus, avgHours };
   }, [complaints]);
 
-  // 검색 필터링
   const filtered = useMemo(() => {
     if (!search.trim()) return complaints;
     const q = search.toLowerCase();
@@ -95,14 +98,19 @@ export default function ComplaintsList() {
 
   /* ================= 배정 처리 핸들러 ================= */
   const handleAssign = async (complaintId, targetAdminId, isReassign = false) => {
+    if (!currentAdminId) {
+      alert("관리자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
     try {
-      // API 호출: assignAdmin(민원ID, 내ID, 대상ID)
-      // 백엔드 로직상 내 ID(adminId)와 대상 ID(targetAdminId)가 같으면 본인 배정임
+      // API 호출 시 currentAdminId(내 ID)를 서버로 전달
       await assignAdmin(complaintId, currentAdminId, targetAdminId);
       alert(isReassign ? "재배정이 완료되었습니다." : "배정이 완료되었습니다.");
-      loadComplaints();
+      loadData(); // 목록 및 내 정보 새로고침
       setSelected(null);
     } catch (err) {
+      // 여기서 IllegalStateException 메시지가 출력됩니다.
       alert("배정 실패: " + (err.response?.data?.message || err.message));
     }
   };
@@ -113,30 +121,12 @@ export default function ComplaintsList() {
 
       {/* --- 상단 통계 대시보드 --- */}
       <div className="stats-dashboard">
-        <div className="stat-card total">
-          <div className="stat-title">전체 민원</div>
-          <div className="stat-value">{stats.total}</div>
-        </div>
-        <div className="stat-card received">
-          <div className="stat-title">신규 접수</div>
-          <div className="stat-value">{stats.byStatus.RECEIVED}</div>
-        </div>
-        <div className="stat-card assigned">
-          <div className="stat-title">담당 배정</div>
-          <div className="stat-value">{stats.byStatus.ASSIGNED}</div>
-        </div>
-        <div className="stat-card processing">
-          <div className="stat-title">처리 중</div>
-          <div className="stat-value">{stats.byStatus.IN_PROGRESS}</div>
-        </div>
-        <div className="stat-card completed">
-          <div className="stat-title">해결 완료</div>
-          <div className="stat-value">{stats.byStatus.COMPLETED}</div>
-        </div>
-        <div className="stat-card avg">
-          <div className="stat-title">평균 처리 시간</div>
-          <div className="stat-value">{stats.avgHours.toFixed(1)}h</div>
-        </div>
+        <div className="stat-card total"><div className="stat-title">전체 민원</div><div className="stat-value">{stats.total}</div></div>
+        <div className="stat-card received"><div className="stat-title">신규 접수</div><div className="stat-value">{stats.byStatus.RECEIVED}</div></div>
+        <div className="stat-card assigned"><div className="stat-title">담당 배정</div><div className="stat-value">{stats.byStatus.ASSIGNED}</div></div>
+        <div className="stat-card processing"><div className="stat-title">처리 중</div><div className="stat-value">{stats.byStatus.IN_PROGRESS}</div></div>
+        <div className="stat-card completed"><div className="stat-title">해결 완료</div><div className="stat-value">{stats.byStatus.COMPLETED}</div></div>
+        <div className="stat-card avg"><div className="stat-title">평균 처리 시간</div><div className="stat-value">{stats.avgHours.toFixed(1)}h</div></div>
       </div>
 
       <div className="notices-header">
@@ -156,12 +146,10 @@ export default function ComplaintsList() {
             placeholder="제목, 민원인, 내용 검색..."
             disabled={loading}
           />
-          <button className="notices-btn" type="button" onClick={loadComplaints} disabled={loading}>
+          <button className="notices-btn" type="button" onClick={loadData} disabled={loading}>
             {loading ? <><span className="btn-spinner" /> 로딩</> : <>🔄 새로고침</>}
           </button>
-          <div className="notices-meta">
-            총 <strong>{filtered.length}</strong>건
-          </div>
+          <div className="notices-meta">총 <strong>{filtered.length}</strong>건</div>
         </div>
 
         {error && <div className="notices-status error">❌ {error}</div>}
@@ -178,26 +166,21 @@ export default function ComplaintsList() {
             </thead>
             <tbody>
               {filtered.map((item) => (
-                <tr key={item.id} className="notices-board-row" onClick={() => setSelected(item)}>
+                <tr key={item.complaintId} className="notices-board-row" onClick={() => setSelected(item)}>
                   <td>
                     <span className={`status-badge ${(STATUS_MAP[item.status] || {}).class}`}>
                       {(STATUS_MAP[item.status] || { label: item.status }).label}
                     </span>
                   </td>
-                  <td className="notices-board-title-cell">
-                    <span className="notices-board-title-text">{item.title}</span>
-                  </td>
+                  <td className="notices-board-title-cell"><span className="notices-board-title-text">{item.title}</span></td>
                   <td className="notices-board-author">{item.memberName ?? "입주민"}</td>
                   <td className="notices-board-date">{formatDate(item.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          
           {filtered.length === 0 && !loading && (
-            <div className="notices-empty-visual">
-              <div className="notices-empty-title">민원 내역이 없습니다.</div>
-            </div>
+            <div className="notices-empty-visual"><div className="notices-empty-title">민원 내역이 없습니다.</div></div>
           )}
         </div>
       </div>
@@ -217,22 +200,17 @@ export default function ComplaintsList() {
               {selected.adminName && <span>👷 담당자: {selected.adminName}</span>}
             </div>
             <hr className="notices-divider" />
-            <div className="notices-modal-content" style={{ whiteSpace: "pre-wrap" }}>
-              {selected.content}
-            </div>
-            
+            <div className="notices-modal-content" style={{ whiteSpace: "pre-wrap" }}>{selected.content}</div>
             <hr className="notices-divider" />
             
-            {/* 상태별 조건부 액션 버튼 */}
             <div className="notices-modal-actions" style={{ gap: "10px", flexWrap: "wrap" }}>
-              
-              {/* 1. 접수 단계: 나에게 배정 혹은 직접 배정 */}
               {selected.status === "RECEIVED" && (
                 <>
                   <button 
                     className="notices-btn" 
                     style={{ backgroundColor: "#4caf50", color: "#fff" }}
-                    onClick={() => handleAssign(selected.id, currentAdminId)}
+                    // 내 정보를 사용하여 배정
+                    onClick={() => handleAssign(selected.complaintId, currentAdminId)}
                   >
                     🙋 나에게 배정
                   </button>
@@ -240,7 +218,7 @@ export default function ComplaintsList() {
                     className="notices-btn" 
                     onClick={() => {
                       const tid = window.prompt("배정할 관리자 ID를 입력하세요.");
-                      if(tid) handleAssign(selected.id, tid);
+                      if(tid) handleAssign(selected.complaintId, tid);
                     }}
                   >
                     👤 직접 배정
@@ -248,7 +226,6 @@ export default function ComplaintsList() {
                 </>
               )}
 
-              {/* 2. 배정됨/처리중 단계: 재배정 혹은 답변 등록 */}
               {(selected.status === "ASSIGNED" || selected.status === "IN_PROGRESS") && (
                 <>
                   <button 
@@ -256,14 +233,14 @@ export default function ComplaintsList() {
                     style={{ backgroundColor: "#ff9800", color: "#fff" }}
                     onClick={() => {
                       const tid = window.prompt("재배정할 관리자 ID를 입력하세요.");
-                      if(tid) handleAssign(selected.id, tid, true);
+                      if(tid) handleAssign(selected.complaintId, tid, true);
                     }}
                   >
                     🔄 담당 재배정
                   </button>
                   <button
                     className="notices-btn primary"
-                    onClick={() => navigate(`/admin/complaints/answer?id=${selected.id}`)}
+                    onClick={() => navigate(`/admin/complaints/answer?id=${selected.complaintId}`)}
                   >
                     ✏️ 답변 등록
                   </button>

@@ -102,7 +102,8 @@ async function refreshAccessToken() {
 
 api.interceptors.response.use(
   (response) => {
-    if (response.status === 204) return null;
+    // 백엔드에서 200 OK이면서 데이터가 없는 경우(ResponseEntity.ok().build()) 에러 방지
+    if (response.status === 204 || !response.data) return response; 
     return response;
   },
 
@@ -194,7 +195,7 @@ export async function patch(url, data, config = {}) {
 
 export async function del(url, config = {}) {
   const response = await api.delete(url, config);
-  return response?.data ?? null;
+  return response !== undefined; 
 }
 
 

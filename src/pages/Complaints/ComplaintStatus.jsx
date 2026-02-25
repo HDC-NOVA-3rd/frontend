@@ -11,7 +11,7 @@ import "./Complaints.css";
 // 상태 옵션 정의
 const STATUS_OPTIONS = [
   { value: "RECEIVED", label: "접수" },
-  { value: "PROCESSING", label: "처리중" },
+  { value: "IN_PROGRESS", label: "처리중" },
   { value: "COMPLETED", label: "해결 완료" },
   { value: "CANCELLED", label: "취소" },
 ];
@@ -114,7 +114,7 @@ export default function ComplaintStatus() {
                 <div className="input-with-btn">
                   <select 
                     className="notices-search-input"
-                    defaultValue={complaint?.assignedAdminId || ""}
+                    defaultValue={complaint?.adminId || ""}
                     onChange={(e) => handleAssign(e.target.value)}
                     disabled={updating}
                   >
