@@ -298,6 +298,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
+  align-items: start; /* 카드 높이 개별 적용 - 배드민턴 코트 등 높이 늘어남 방지 */
 }
 
 /* ===== Zone Card ===== */
@@ -306,6 +307,7 @@
   border-radius: 12px;
   padding: 1rem;
   border: 1px solid #e2e8f0;
+  box-sizing: border-box; /* border 추가 시 레이아웃 틀어짐 방지 */
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -339,6 +341,18 @@
 
 .zone-card--danger:hover {
   border-color: #f87171;
+}
+
+/* 미연결/센서 없음 상태 - 회색 카드 */
+.zone-card--unknown {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  opacity: 0.85;
+}
+
+.zone-card--unknown:hover {
+  border-color: #94a3b8;
+  opacity: 1;
 }
 
 .zone-card__header {
@@ -441,6 +455,9 @@
 }
 .status-text--danger {
   color: #dc2626;
+}
+.status-text--unknown {
+  color: #94a3b8; /* 미연결 - 회색 */
 }
 
 .reason-tag {
