@@ -2338,3 +2338,51 @@
   border-color: #3b82f6;
   outline: none;
 }
+/* ── Filter Bar 수정: 요소들을 양 끝으로 배치 ──────────────── */
+.notices-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 검색창과 버튼들 사이 간격을 벌림 */
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px; /* 하단 테이블과의 간격 */
+}
+
+/* 검색창 감싸는 영역을 더 넓게 설정 */
+.search-input-wrapper {
+  position: relative;
+  flex: 1; /* 남는 공간을 다 차지하게 함 */
+  max-width: 500px; /* 너무 길어지지 않게 제한 */
+  display: flex;
+  align-items: center;
+}
+
+/* 아이콘 위치 조정 */
+.search-input-wrapper svg {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none; /* 아이콘이 클릭 방해 안 하게 함 */
+}
+
+/* 인풋 필드 스타일 (배경 돋보기 이미지 제거 버전) */
+.notices-search-input {
+  width: 100%;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px 10px 38px; /* 왼쪽 패딩을 늘려 아이콘 공간 확보 */
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  background: #fff; /* 기존 background url 제거 */
+}
+
+/* 우측 버튼 그룹 (새로고침, 통계요약) */
+.notices-filter-bar .notices-btn {
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  padding: 10px 16px;
+  height: 40px; /* 인풋과 높이 통일 */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

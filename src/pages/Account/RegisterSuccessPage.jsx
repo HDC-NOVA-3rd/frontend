@@ -1,5 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+
 import "./RegisterAdminPage.css";
 
 const RegisterSuccessPage = () => {

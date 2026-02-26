@@ -6,7 +6,10 @@ import {
   CheckCircle2, 
   XCircle,
   X,
-  RefreshCw
+  RefreshCw,
+  Edit2,
+  Trash2,
+  RotateCcw
 } from "lucide-react";
 import { 
   getManagementFees, 
@@ -24,7 +27,7 @@ const ManagementFeePage = () => {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 드로어 상태로 명칭 변경
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [targetFee, setTargetFee] = useState(null);
 
@@ -68,7 +71,7 @@ const ManagementFeePage = () => {
   const openDrawer = (fee = null) => {
     if (fee) {
       setEditingId(fee.id);
-      setFormData({ name: fee.name, price: fee.price, description: fee.description });
+      setFormData({ name: fee.name, price: fee.price, description: fee.description || '' });
     } else {
       setEditingId(null);
       setFormData({ name: '', price: '', description: '' });
@@ -78,8 +81,10 @@ const ManagementFeePage = () => {
 
   const closeDrawer = () => {
     setIsDrawerOpen(false);
-    setEditingId(null);
-    setFormData({ name: '', price: '', description: '' });
+    setTimeout(() => {
+      setEditingId(null);
+      setFormData({ name: '', price: '', description: '' });
+    }, 300);
   };
 
   const handleSubmit = async (e) => {
@@ -121,150 +126,157 @@ const ManagementFeePage = () => {
   };
 
   return (
-    <div className={`safety-dashboard mgmt-page ${loading ? 'safety-dashboard--loading' : ''}`}>
-
+    <div className="bill-dashboard management-fee-page">
+      
       {/* 1. 상단 KPI 섹션 */}
-      <section className="kpi-section">
-        <div className="kpi-card kpi-card--warning" style={{ borderLeft: '4px solid #f59e0b' }}>
-          <span className="kpi-label">세대별 관리비 합계</span>
-          <div className="kpi-data">
-            <span className="kpi-value" style={{ color: '#f59e0b' }}>{totalBillAmount.toLocaleString()}</span>
-            <span className="kpi-sub">원</span>
+      <section className="bill-kpi-section">
+        <div className="bill-kpi-card" style={{ borderTopColor: '#f59e0b' }}>
+          <div className="kpi-label">세대별 관리비 총 합계</div>
+          <div className="kpi-value" style={{ color: '#f59e0b' }}>
+            {totalBillAmount.toLocaleString()}<small style={{fontSize: '1rem', marginLeft: '4px'}}>원</small>
           </div>
         </div>
-        <div className="kpi-card kpi-card--primary">
-          <span className="kpi-label">전체 항목</span>
-          <div className="kpi-data">
-            <span className="kpi-value">{stats.total}</span>
-            <span className="kpi-sub">건</span>
-          </div>
+        <div className="bill-kpi-card" style={{ borderTopColor: '#3b82f6' }}>
+          <div className="kpi-label">전체 항목 수</div>
+          <div className="kpi-value">{stats.total}<small style={{fontSize: '1rem', marginLeft: '4px'}}>건</small></div>
         </div>
-        <div className="kpi-card kpi-card--success">
-          <span className="kpi-label">활성 항목</span>
-          <div className="kpi-data">
-            <span className="kpi-value">{stats.active}</span>
-            <span className="kpi-sub">사용중</span>
-          </div>
+        <div className="bill-kpi-card" style={{ borderTopColor: '#10b981' }}>
+          <div className="kpi-label">활성(사용중)</div>
+          <div className="kpi-value">{stats.active}<small style={{fontSize: '1rem', marginLeft: '4px'}}>개</small></div>
         </div>
-        <div className="kpi-card kpi-card--danger">
-          <span className="kpi-label">비활성 항목</span>
-          <div className="kpi-data">
-            <span className="kpi-value">{stats.inactive}</span>
-            <span className="kpi-sub">미사용</span>
-          </div>
+        <div className="bill-kpi-card danger">
+          <div className="kpi-label">비활성(미사용)</div>
+          <div className="kpi-value">{stats.inactive}<small style={{fontSize: '1rem', marginLeft: '4px'}}>개</small></div>
         </div>
       </section>
 
-      {/* 2. 섹션 헤더 */}
-      <div className="section-header">
-        <h3>
-          <Settings2 size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-          관리비 항목 설정
-        </h3>
-        <div className="header-actions">
-           <button className="action-btn action-btn--unlock" onClick={() => openDrawer()}>
-             <Plus size={16} /> 항목 추가
-           </button>
-           <button className={`refresh-btn ${loading ? 'refreshing' : ''}`} onClick={fetchFees}>
-             <RefreshCw size={16} />
-           </button>
+      {/* 2. 섹션 헤더 및 컨트롤러 */}
+      <div className="bill-filter-card">
+        <div className="bill-filter-form">
+          <div className="input-group">
+            <h3 style={{ display: 'flex', alignItems: 'center', margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>
+              <Settings2 size={20} style={{ marginRight: '8px', color: '#64748b' }} />
+              관리비 항목 설정
+            </h3>
+          </div>
+          
+          <div className="filter-right-wrapper">
+            <button className={`reset-btn ${loading ? 'spin' : ''}`} onClick={fetchFees} title="새로고침">
+              <RefreshCw size={18} />
+            </button>
+            <button className="excel-btn" onClick={() => openDrawer()}>
+              <Plus size={18} /> 항목 추가
+            </button>
+          </div>
         </div>
       </div>
       
       {/* 3. 테이블 영역 */}
-      <div className="table-wrapper">
-        <table className="mgmt-table">
-          <thead>
-            <tr>
-              <th style={{ width: '80px' }}>ID</th>
-              <th style={{ minWidth: '180px' }}>항목명</th>
-              <th style={{ width: '150px' }}>단가</th>
-              <th>설명</th>
-              <th style={{ width: '120px' }}>상태</th>
-              <th style={{ width: '180px' }}>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fees.map(fee => (
-              <tr key={fee.id} className={!fee.active ? 'row-inactive' : ''}>
-                <td className="text-muted font-mono">{fee.id}</td>
-                <td className="fee-name-cell">{fee.name}</td>
-                <td className="font-semibold text-primary">{fee.price?.toLocaleString()}원</td>
-                <td className="text-muted truncate">{fee.description || '-'}</td>
-                <td>
-                  <span className={`status-badge ${fee.active ? 'status-badge--safe' : 'status-badge--unknown'}`}>
-                    {fee.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                    {fee.active ? "활성화" : "비활성화"}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-cell">
-                    <button className="btn-edit-mini" onClick={() => openDrawer(fee)}>수정</button>
-                    <button 
-                      className={`btn-status-mini ${fee.active ? 'deactivate' : 'restore'}`} 
-                      onClick={() => handleStatusClick(fee)}
-                    >
-                      {fee.active ? "비활성" : "복구"}
-                    </button>
-                  </div>
-                </td>
+      <div className="bill-table-card">
+        <div className="table-responsive">
+          <table className="bill-table">
+            <thead>
+              <tr>
+                <th style={{ width: '80px' }}>ID</th>
+                <th style={{ minWidth: '180px' }}>항목명</th>
+                <th style={{ width: '150px' }}>단가</th>
+                <th>설명</th>
+                <th style={{ width: '120px' }}>상태</th>
+                <th style={{ width: '100px' }}>편집</th>
+                <th style={{ width: '100px' }}>상태 관리</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {fees.length > 0 ? (
+                fees.map(fee => (
+                  <tr key={fee.id} className={!fee.active ? 'row-inactive' : 'row-hover'}>
+                    <td className="font-mono" style={{color: '#94a3b8'}}>{fee.id}</td>
+                    <td><strong>{fee.name}</strong></td>
+                    <td className="text-primary" style={{fontWeight: 700}}>{fee.price?.toLocaleString()}원</td>
+                    <td className="text-muted" style={{textAlign: 'left'}}>{fee.description || '-'}</td>
+                    <td>
+                      <span className={`status-badge ${fee.active ? 'status-paid' : 'status-unpaid'}`} style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}>
+                        {fee.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                        {fee.active ? "사용중" : "비활성"}
+                      </span>
+                    </td>
+                    {/* 관리 컬럼 분리 1: 수정 */}
+                    <td>
+                      <button className="sm-detail-btn" onClick={() => openDrawer(fee)} style={{ width: '100%', padding: '6px 0' }}>
+                        <Edit2 size={14} style={{marginRight: '4px'}}/> 편집
+                      </button>
+                    </td>
+                    {/* 관리 컬럼 분리 2: 비활성/복구 */}
+                    <td>
+                      <button 
+                        className={`sm-detail-btn ${fee.active ? 'btn-danger-outline' : 'btn-success-outline'}`}
+                        onClick={() => handleStatusClick(fee)}
+                        style={{ width: '100%', padding: '6px 0' }}
+                      >
+                        {fee.active ? <><Trash2 size={14} /> 비활성</> : <><RotateCcw size={14} /> 복구</>}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr><td colSpan="7" className="no-data">등록된 관리비 항목이 없습니다.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 4. 우측 드로어 (Drawer) */}
-      <div className={`modal-overlay ${isDrawerOpen ? 'active' : ''}`} onClick={closeDrawer} 
-           style={{ display: isDrawerOpen ? 'block' : 'none' }}>
-        <div className={`modal-content zone-detail-drawer ${isDrawerOpen ? 'open' : ''}`} 
-             onClick={e => e.stopPropagation()}
-             style={{ position: 'fixed', right: 0, top: 0, height: '100%', borderRadius: 0, width: '400px' }}>
-          
-          <div className="drawer-header">
-            <h3>{editingId ? "항목 수정" : "새 항목 등록"}</h3>
-            <button className="close-btn" onClick={closeDrawer}>
-              <X size={24} />
-            </button>
-          </div>
+      <div className={`side-drawer ${isDrawerOpen ? 'open' : ''}`}>
+        <div className="drawer-header">
+          <h3>{editingId ? "📄 항목 정보 수정" : "➕ 새 항목 등록"}</h3>
+          <button className="drawer-close" onClick={closeDrawer}><X size={24} /></button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="drawer-sensors">
-            <div className="form-group">
-              <label className="kpi-label">항목명</label>
-              <input className="custom-input" name="name" value={formData.name} onChange={handleChange} required placeholder="항목 이름을 입력하세요" />
-            </div>
-            <div className="form-group">
-              <label className="kpi-label">단가 (원)</label>
-              <input className="custom-input" name="price" type="number" value={formData.price} onChange={handleChange} required placeholder="0" />
-            </div>
-            <div className="form-group">
-              <label className="kpi-label">설명</label>
-              <textarea className="custom-textarea" name="description" value={formData.description} onChange={handleChange} rows="6" placeholder="상세 설명을 입력하세요" />
+        <div className="drawer-body">
+          <form onSubmit={handleSubmit} className="drawer-content">
+            <div className="detail-info-card">
+              <div className="form-group" style={{marginBottom: '20px'}}>
+                <label className="kpi-label">항목명</label>
+                <input className="text-input" style={{width: '100%'}} name="name" value={formData.name} onChange={handleChange} required placeholder="예: 일반관리비, 전기료" />
+              </div>
+              <div className="form-group" style={{marginBottom: '20px'}}>
+                <label className="kpi-label">단가 (원)</label>
+                <input className="text-input" style={{width: '100%'}} name="price" type="number" value={formData.price} onChange={handleChange} required placeholder="0" />
+              </div>
+              <div className="form-group">
+                <label className="kpi-label">상세 설명</label>
+                <textarea 
+                  className="text-input" 
+                  style={{width: '100%', height: '120px', padding: '12px', resize: 'none'}} 
+                  name="description" 
+                  value={formData.description} 
+                  onChange={handleChange} 
+                  placeholder="항목에 대한 설명을 입력하세요" 
+                />
+              </div>
             </div>
             
             <div className="drawer-actions">
-              <div className="drawer-action-row">
-                <button type="button" className="action-btn" onClick={closeDrawer}>취소</button>
-                <button type="submit" className="action-btn action-btn--unlock" style={{background: '#3b82f6', color: 'white'}}>저장하기</button>
-              </div>
+              <button type="button" className="close-action-btn" onClick={closeDrawer} style={{flex: 1, background: '#f1f5f9', color: '#64748b'}}>취소</button>
+              <button type="submit" className="excel-btn" style={{flex: 2, justifyContent: 'center'}}>저장하기</button>
             </div>
           </form>
         </div>
       </div>
+      {isDrawerOpen && <div className="drawer-backdrop" onClick={closeDrawer}></div>}
 
-      {/* 5. 비활성화 확인 모달 (중앙 알림창 유지) */}
+      {/* 5. 비활성화 확인 모달 */}
       {isConfirmOpen && (
-        <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="modal-content critical-alert-banner" style={{position: 'relative', gridTemplateColumns: '1fr', width: '360px'}}>
-             <div className="critical-alert-banner__content">
-                <AlertCircle size={32} color="#ef4444" style={{ marginBottom: '12px' }} />
-                <strong>정말 비활성화하시겠습니까?</strong>
-                <p><strong>{targetFee?.name}</strong> 항목을 비활성화하면 관리비 정산에서 제외됩니다.</p>
-             </div>
-             <div className="drawer-action-row" style={{marginTop: '1.5rem'}}>
-                <button className="action-btn cancel-btn" onClick={() => setIsConfirmOpen(false)}>취소</button>
-                <button className="action-btn action-btn--lock" onClick={() => toggleStatus(targetFee.id, true)}>비활성화</button>
-             </div>
+        <div className="drawer-backdrop" style={{zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <div className="bill-filter-card" style={{width: '380px', textAlign: 'center', padding: '32px'}}>
+            <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '16px' }} />
+            <h4 style={{fontSize: '1.2rem', marginBottom: '8px'}}>정말 비활성화하시겠습니까?</h4>
+            <p style={{color: '#64748b', marginBottom: '24px'}}><strong>{targetFee?.name}</strong> 항목을 비활성화하면<br/>이후 발생하는 고지서 항목에서 제외됩니다.</p>
+            <div className="button-group" style={{justifyContent: 'center'}}>
+              <button className="reset-btn" style={{width: 'auto', padding: '0 20px'}} onClick={() => setIsConfirmOpen(false)}>취소</button>
+              <button className="excel-btn" style={{background: '#ef4444'}} onClick={() => toggleStatus(targetFee.id, true)}>비활성화 실행</button>
+            </div>
           </div>
         </div>
       )}

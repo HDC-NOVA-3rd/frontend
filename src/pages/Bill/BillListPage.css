@@ -393,3 +393,205 @@
   display: flex;
   gap: 8px;
 }
+
+/* 필터 카드 레이아웃 */
+.bill-filter-card {
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap; /* 가로 고정 */
+}
+
+/* 입력 그룹 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input-wrapper select {
+  padding-left: 36px; /* 아이콘 공간 */
+}
+
+.input-group select, 
+.input-group .text-input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #334155;
+  background-color: #ffffff;
+}
+
+.input-group .text-input {
+  width: 100px; /* 동/호 입력창 너비 조절 */
+}
+
+/* 체크박스 스타일 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* 요약 바 & 버튼 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.summary-sep {
+  color: #e2e8f0;
+}
+
+/* 버튼 스타일 */
+.button-group {
+  display: flex;
+  gap: 6px;
+}
+
+.reset-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.excel-btn {
+  height: 40px;
+  padding: 0 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 반응형: 화면이 아주 작아질 때만 세로로 */
+@media (max-width: 1200px) {
+  .bill-filter-form {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .filter-right-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+/* ── 필터 라인 수평 정렬 최종 수정 ── */
+
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center !important; /* 부모에서 자식들을 세로 중앙 정렬 */
+  gap: 16px;
+}
+
+/* 왼쪽/오른쪽 그룹 내부 정렬 */
+.input-group, 
+.filter-right-wrapper,
+.button-group {
+  display: flex;
+  align-items: center !important;
+  vertical-align: middle;
+}
+
+/* 모든 입력 요소와 버튼의 높이를 40px로 강제 통일 */
+.input-group select, 
+.input-group .text-input, 
+.search-summary-inline, 
+.reset-btn, 
+.excel-btn {
+  height: 40px !important;
+  box-sizing: border-box !important; /* 테두리 포함 높이 계산 */
+  margin: 0 !important; /* 보이지 않는 마진 제거 */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 버튼 내부 아이콘 위치 보정 */
+.reset-btn svg, 
+.excel-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* 텍스트가 있는 엑셀 버튼 패딩 조정 */
+.excel-btn {
+  padding: 0 16px !important;
+  line-height: 1 !important; /* 줄간격 때문에 밀리는 현상 방지 */
+}
+
+/* 인라인 요약바 패딩 및 라인 높이 조정 */
+.search-summary-inline {
+  padding: 0 16px !important;
+  line-height: 40px; 
+}
+
+/* 체크박스 라벨 정렬 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  height: 40px; /* 라벨 전체 높이도 일치 */
+  margin-top: 0;
+  margin-bottom: 0;
+}

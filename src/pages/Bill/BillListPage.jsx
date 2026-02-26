@@ -10,15 +10,14 @@ import {
   Loader2,
   X,
   RotateCcw,
-  BarChart3
 } from "lucide-react";
 import "./BillListPage.css";
-import { getBillList, getBill, getBillExcel } from "../../services/billApi";
+import { getBill, getBillExcel } from "../../services/billApi";
 import * as XLSX from "xlsx";
 
 const BillListPage = () => {
   // --- 상태 관리 ---
-  const [allBills, setAllBills] = useState([]); // 서버에서 가져온 전체 원본 데이터
+  const [allBills, setAllBills] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [selectedBill, setSelectedBill] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -40,7 +39,6 @@ const BillListPage = () => {
   const fetchBills = useCallback(async () => {
     setLoading(true);
     try {
-      // 통계 계산을 위해 전체 데이터를 한 번에 가져옴
       const res = await getBillExcel(); 
       setAllBills(res || []);
     } catch (error) {
@@ -54,7 +52,7 @@ const BillListPage = () => {
     fetchBills();
   }, [fetchBills]);
 
-  // --- 1. 단지 전체 통계 (상단 고정 KPI용) ---
+  // --- 1. 단지 전체 통계 (상단 고정 KPI) ---
   const totalStats = useMemo(() => {
     return allBills.reduce(
       (acc, bill) => {
@@ -85,7 +83,7 @@ const BillListPage = () => {
     });
   }, [allBills, searchCond]);
 
-  // --- 3. 검색 결과 요약 통계 (필터 내 인라인 표시용) ---
+  // --- 3. 검색 결과 요약 통계 ---
   const searchStats = useMemo(() => {
     return filteredBills.reduce(
       (acc, bill) => {
@@ -151,7 +149,7 @@ const BillListPage = () => {
   return (
     <div className="bill-dashboard">
       
-      {/* 1. 단지 전체 현황 (상단 고정 KPI) */}
+      {/* 1. 단지 전체 현황 (KPI) */}
       <div className="bill-kpi-section global-stats">
         <div className="bill-kpi-card">
           <FileText size={20} className="icon-blue" />
@@ -183,29 +181,55 @@ const BillListPage = () => {
         </div>
       </div>
 
-
-
-      {/* 2. 검색 필터 및 요약 섹션 */}
+      {/* 2. 검색 필터 섹션 */}
       <div className="bill-filter-card">
         <div className="bill-filter-form">
           {/* 필터 입력부 */}
           <div className="input-group">
-            <select value={searchCond.year} onChange={(e) => {setSearchCond({...searchCond, year: e.target.value}); setPage(0);}}>
-              <option value="">전체 연도</option>
-              <option value="2026">2026년</option>
-              <option value="2025">2025년</option>
-              <option value="2024">2024년</option>
-            </select>
-            <select value={searchCond.month} onChange={(e) => {setSearchCond({...searchCond, month: e.target.value}); setPage(0);}}>
+            <div className="search-input-wrapper">
+              <Search size={16} className="search-icon" />
+              <select 
+                value={searchCond.year} 
+                onChange={(e) => {setSearchCond({...searchCond, year: e.target.value}); setPage(0);}}
+              >
+                <option value="">전체 연도</option>
+                <option value="2026">2026년</option>
+                <option value="2025">2025년</option>
+                <option value="2024">2024년</option>
+              </select>
+            </div>
+            
+            <select 
+              value={searchCond.month} 
+              onChange={(e) => {setSearchCond({...searchCond, month: e.target.value}); setPage(0);}}
+            >
               <option value="">전체 월</option>
               {Array.from({length: 12}, (_, i) => (
                 <option key={i+1} value={String(i+1).padStart(2, '0')}>{i+1}월</option>
               ))}
             </select>
-            <input type="text" placeholder="동" value={searchCond.dongNo} onChange={(e) => {setSearchCond({...searchCond, dongNo: e.target.value}); setPage(0);}} />
-            <input type="text" placeholder="호" value={searchCond.hoNo} onChange={(e) => {setSearchCond({...searchCond, hoNo: e.target.value}); setPage(0);}} />
+
+            <input 
+              type="text" 
+              placeholder="동" 
+              className="text-input"
+              value={searchCond.dongNo} 
+              onChange={(e) => {setSearchCond({...searchCond, dongNo: e.target.value}); setPage(0);}} 
+            />
+            <input 
+              type="text" 
+              placeholder="호" 
+              className="text-input"
+              value={searchCond.hoNo} 
+              onChange={(e) => {setSearchCond({...searchCond, hoNo: e.target.value}); setPage(0);}} 
+            />
+            
             <label className="checkbox-label">
-              <input type="checkbox" checked={searchCond.onlyUnpaid} onChange={(e) => {setSearchCond({...searchCond, onlyUnpaid: e.target.checked}); setPage(0);}} />
+              <input 
+                type="checkbox" 
+                checked={searchCond.onlyUnpaid} 
+                onChange={(e) => {setSearchCond({...searchCond, onlyUnpaid: e.target.checked}); setPage(0);}} 
+              />
               <span>미납자만</span>
             </label>
           </div>
@@ -223,8 +247,12 @@ const BillListPage = () => {
             </div>
             
             <div className="button-group">
-              <button type="button" className="reset-btn" onClick={handleReset}><RotateCcw size={16} /> 초기화</button>
-              <button type="button" className="excel-btn" onClick={handleExcelDownload}><Download size={16} /> 엑셀</button>
+              <button type="button" className="reset-btn" onClick={handleReset} title="필터 초기화">
+                <RotateCcw size={18} />
+              </button>
+              <button type="button" className="excel-btn" onClick={handleExcelDownload}>
+                <Download size={16} /> 엑셀 다운로드
+              </button>
             </div>
           </div>
         </div>
@@ -252,7 +280,7 @@ const BillListPage = () => {
                         <td>{month}월</td>
                         <td>{bill.dongName}동</td>
                         <td>{bill.hoName}호</td>
-                        <td>{bill.totalPrice.toLocaleString()}원</td>
+                        <td><strong>{bill.totalPrice.toLocaleString()}원</strong></td>
                         <td>
                           <span className={`status-badge ${bill.status === "PAID" ? "status-paid" : "status-unpaid"}`}>
                             {bill.status === "PAID" ? "완납" : "미납"}
@@ -281,7 +309,7 @@ const BillListPage = () => {
         </div>
       </div>
 
-      {/* 5. 사이드 Drawer (상세 내역) */}
+      {/* 5. 사이드 Drawer */}
       <div className={`side-drawer ${isDrawerOpen ? "open" : ""}`}>
         <div className="drawer-header">
           <h3>📄 고지서 상세 내역</h3>
@@ -295,7 +323,9 @@ const BillListPage = () => {
                 <div className="detail-row"><span className="label">대상</span><span className="value">{selectedBill.dongName}동 {selectedBill.hoName}호</span></div>
                 <div className="detail-row">
                   <span className="label">납부상태</span>
-                  <span className={`value status-text ${selectedBill.status === "PAID" ? "paid" : "unpaid"}`}>{selectedBill.status === "PAID" ? "완납" : "미납"}</span>
+                  <span className={`value status-text ${selectedBill.status === "PAID" ? "paid" : "unpaid"}`}>
+                    {selectedBill.status === "PAID" ? "완납" : "미납"}
+                  </span>
                 </div>
                 <div className="detail-row"><span className="label">납부기한</span><span className="value">{selectedBill.dueDate}</span></div>
               </div>
@@ -315,7 +345,9 @@ const BillListPage = () => {
                   <tr><th>합계</th><th className="text-right total-price">{selectedBill.totalPrice?.toLocaleString()}원</th></tr>
                 </tfoot>
               </table>
-              <div className="drawer-actions"><button className="notices-btn full-width" onClick={closeDrawer}>닫기</button></div>
+              <div className="drawer-actions">
+                <button className="close-action-btn" onClick={closeDrawer}>닫기</button>
+              </div>
             </div>
           ) : (
             <div className="drawer-loading"><Loader2 className="spin" /></div>

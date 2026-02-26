@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
   };
 
   const menuItems = [
-    { label: "대시보드", icon: BarChart3, path: "/admin/settings/overall-statistics", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "대시보드", icon: BarChart3, path: "/admin/settings/dashboard", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "세대 현황", icon: Home, path: "/admin/household/list", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "공지사항", icon: Bell, path: "/admin/notice/list", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "민원 관리", icon: MessageSquare, path: "/admin/complaint/list", roles: ["SUPER_ADMIN", "MANAGER"] },

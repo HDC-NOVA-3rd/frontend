@@ -145,3 +145,170 @@
   font-size: 50px;
   margin-bottom: 20px;
 }
+.admin-reg-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8fafc; /* 조금 더 밝고 깨끗한 배경 */
+  padding: 20px;
+}
+
+.admin-reg-box {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 16px; /* 더 둥글게 */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 480px;
+}
+
+.admin-reg-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.admin-reg-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 8px;
+}
+
+.admin-reg-subtitle {
+  font-size: 14px;
+  color: #718096;
+  line-height: 1.5;
+}
+
+.apt-name-highlight {
+  color: #4a90e2;
+  font-weight: 700;
+}
+
+.admin-reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-reg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-reg-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-left: 2px;
+}
+
+.admin-reg-input {
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #2d3748;
+  transition: all 0.2s;
+}
+
+.admin-reg-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.admin-reg-input-error {
+  border-color: #feb2b2 !important;
+  background-color: #fffafb;
+}
+
+/* 비밀번호 필드 관련 */
+.admin-reg-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-reg-password-wrapper .admin-reg-input {
+  width: 100%;
+  padding-right: 45px; /* 아이콘 버튼 자리 */
+}
+
+.admin-reg-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a0aec0; /* 기본 아이콘 색상 - 차분한 회색 */
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.admin-reg-toggle-btn:hover {
+  color: #4a90e2; /* 호버 시 파란색 */
+}
+
+/* 강도 바 (빨강 지양, 부드러운 색상) */
+.admin-reg-strength-bar {
+  height: 4px;
+  background: #edf2f7;
+  border-radius: 10px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.admin-reg-strength-fill {
+  height: 100%;
+  width: 0;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.strength-1 { width: 25%; background-color: #fc8181; } /* 연한 레드 */
+.strength-2 { width: 50%; background-color: #f6ad55; } /* 오렌지 */
+.strength-3 { width: 75%; background-color: #68d391; } /* 그린 */
+.strength-4 { width: 100%; background-color: #4299e1; } /* 블루 */
+
+/* 에러 메시지 */
+.admin-reg-error-msg {
+  color: #c53030;
+  font-size: 13px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.admin-reg-submit-btn {
+  background-color: #4a90e2;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.admin-reg-submit-btn:hover {
+  background-color: #357abd;
+}
+
+.admin-reg-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.admin-reg-submit-btn:disabled {
+  background-color: #cbd5e0;
+  cursor: not-allowed;
+}

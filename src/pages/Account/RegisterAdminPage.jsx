@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createAdmin, getMyApartmentInfo } from "../../services/adminApi";
+import { Eye, EyeOff } from "lucide-react"; 
+
 import "./RegisterAdminPage.css";
 
 const RegisterAdminPage = () => {
   const navigate = useNavigate();
 
-  // 1. 폼 데이터 상태
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,13 +18,11 @@ const RegisterAdminPage = () => {
     birthDate: "",
   });
 
-  // 2. 추가 UI 상태 (아파트 정보, 로딩, 에러 등)
   const [aptInfo, setAptInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // 3. 아파트 정보 로드 (사이드바와 동일한 로직)
   useEffect(() => {
     const fetchAptData = async () => {
       try {
@@ -36,7 +35,6 @@ const RegisterAdminPage = () => {
     fetchAptData();
   }, []);
 
-  // 전화번호 자동 하이픈 로직
   const formatPhoneNumber = (value) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length <= 3) return numbers;
@@ -91,7 +89,6 @@ const RegisterAdminPage = () => {
         <div className="admin-reg-header">
           <h2 className="admin-reg-title">관리자 계정 생성</h2>
           <p className="admin-reg-subtitle">
-            {/* 아파트 이름이 있으면 해당 이름을, 없으면 기본 문구 표시 */}
             {aptInfo?.apartmentName ? (
               <>
                 <strong className="apt-name-highlight">{aptInfo.apartmentName}</strong>의 신규 관리자를 등록합니다.
@@ -121,9 +118,21 @@ const RegisterAdminPage = () => {
           <div className="admin-reg-group">
             <label className="admin-reg-label">비밀번호</label>
             <div className="admin-reg-password-wrapper">
-              <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className="admin-reg-input" required />
-              <button type="button" className="admin-reg-toggle-btn" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? "🙈" : "👁️"}
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                className="admin-reg-input" 
+                required 
+              />
+              <button 
+                type="button" 
+                className="admin-reg-toggle-btn" 
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             {formData.password && (
@@ -135,8 +144,16 @@ const RegisterAdminPage = () => {
 
           <div className="admin-reg-group">
             <label className="admin-reg-label">비밀번호 확인</label>
-            <input type={showPassword ? "text" : "password"} name="passwordConfirm" value={formData.passwordConfirm} onChange={handleChange} 
-                   className={`admin-reg-input ${isPasswordMismatch ? "admin-reg-input-error" : ""}`} required />
+            <div className="admin-reg-password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="passwordConfirm" 
+                value={formData.passwordConfirm} 
+                onChange={handleChange} 
+                className={`admin-reg-input ${isPasswordMismatch ? "admin-reg-input-error" : ""}`} 
+                required 
+              />
+            </div>
           </div>
 
           <div className="admin-reg-group">
@@ -150,7 +167,9 @@ const RegisterAdminPage = () => {
           </div>
 
           {(error || isPasswordMismatch) && (
-            <div className="admin-reg-error-msg">{error || "비밀번호가 일치하지 않습니다."}</div>
+            <div className="admin-reg-error-msg">
+              {error || "비밀번호가 일치하지 않습니다."}
+            </div>
           )}
 
           <button type="submit" disabled={loading} className="admin-reg-submit-btn">
