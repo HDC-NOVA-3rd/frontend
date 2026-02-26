@@ -3,7 +3,8 @@ import {
   getComplaintsByApartment, 
   changeComplaintStatus,
   assignAdmin,
-  createComplaintAnswer       
+  createComplaintAnswer,
+  getComplaintDetailForAdmin 
 } from "../../services/complaintApi"; 
 import { getMyAdminInfo } from '../../services/adminApi'; 
 import "./ComplaintsList.css";
@@ -24,7 +25,7 @@ const formatFullDate = (raw) => {
   if (!raw) return "-";
   return new Intl.DateTimeFormat("ko-KR", {
     year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour: "2-digit", minute: "2-digit",
   }).format(new Date(raw));
 };
 
@@ -40,14 +41,11 @@ export default function ComplaintsList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState(null);
   const [currentAdminId, setCurrentAdminId] = useState(null);
-  
-  // 새 상태: 탭 필터
   const [currentTab, setCurrentTab] = useState("ALL");
 
-  // Drawer 제어: 'ANSWER'(답변) | 'LOG'(전체로그) | null
   const [drawerType, setDrawerType] = useState(null); 
+  const [selectedDetail, setSelectedDetail] = useState(null);
   const [answer, setAnswer] = useState("");
 
   /** --- 데이터 로드 --- */
@@ -59,10 +57,8 @@ export default function ComplaintsList() {
         getMyAdminInfo(),
         getComplaintsByApartment()
       ]);
-      
       const myId = adminRes?.id || adminRes?.data?.id;
       setCurrentAdminId(myId);
-
       const data = Array.isArray(complaintRes) ? complaintRes : (complaintRes?.data || []);
       setComplaints(data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } catch (err) {
@@ -74,56 +70,61 @@ export default function ComplaintsList() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  /** --- 인라인 처리 핸들러 --- */
-  const handleAssignMe = async (e, complaintId) => {
-    e.stopPropagation(); // 행 클릭(상세보기) 방지
-    if (!currentAdminId) return alert("관리자 정보를 확인 중입니다.");
+  /** --- 상세 정보 로드 --- */
+  const handleShowDetail = async (complaintId) => {
     try {
-      await assignAdmin(complaintId, currentAdminId, currentAdminId);
-      alert("담당자로 배정되었습니다.");
-      loadData();
-    } catch (err) { alert("배정 처리 실패"); }
+      const res = await getComplaintDetailForAdmin(complaintId);
+      const detail = res?.data || res;
+      setSelectedDetail(detail);
+      setDrawerType('DETAIL');
+      // 기존 답변이 있으면 입력란에 채워줌 (여러 번 수정 가능)
+      setAnswer(detail.answer?.resultContent || ""); 
+    } catch (err) {
+      alert("상세 정보를 가져오는 데 실패했습니다.");
+    }
   };
 
-  // 다음 상태로 변경 핸들러
+  /** --- 인라인 상태 변경 (목록에서 클릭 시) --- */
   const handleNextStatus = async (e, item) => {
     e.stopPropagation();
     const nextStatus = STATUS_MAP[item.status]?.next;
     if (!nextStatus) return;
-
     try {
       if (nextStatus === "ASSIGNED") {
-        // 배정 단계일 때는 배정 API 호출
-        await assignAdmin(item.complaintId, currentAdminId, currentAdminId);
+        await assignAdmin(item.complaintId, currentAdminId);
       } else {
         await changeComplaintStatus(item.complaintId, nextStatus);
       }
       loadData();
+      if (selectedDetail?.complaintId === item.complaintId) handleShowDetail(item.complaintId);
     } catch (err) {
       alert("상태 변경 중 오류가 발생했습니다.");
     }
   };
 
-  const handleOpenAnswer = (e, item) => {
-    e.stopPropagation();
-    setSelected(item);
-    setDrawerType('ANSWER');
-  };
-
-  /** --- 답변 제출 --- */
-  const handleAnswerSubmit = async (e) => {
-    e.preventDefault();
+  /** --- 답변 등록/수정 전용 --- */
+  const handleAnswerSubmit = async () => {
     if (!answer.trim()) return alert("답변 내용을 입력하세요.");
     try {
-      await createComplaintAnswer(selected.complaintId, { resultContent: answer });
-      if (window.confirm("답변이 등록되었습니다. 상태를 '완료'로 변경하시겠습니까?")) {
-        await changeComplaintStatus(selected.complaintId, "COMPLETED");
-      }
-      setDrawerType(null);
-      setAnswer("");
-      setSelected(null);
+      await createComplaintAnswer(selectedDetail.complaintId, { resultContent: answer });
+      alert("답변이 성공적으로 저장되었습니다.");
+      handleShowDetail(selectedDetail.complaintId); // 최신 답변 반영을 위해 상세 재조회
+    } catch (err) { 
+      alert("답변 등록 중 오류가 발생했습니다."); 
+    }
+  };
+
+  /** --- 민원 완료 처리 전용 --- */
+  const handleCompleteComplaint = async () => {
+    if (!window.confirm("민원 처리를 확정 완료하시겠습니까? 완료 후에는 상태 변경이 어렵습니다.")) return;
+    try {
+      await changeComplaintStatus(selectedDetail.complaintId, "COMPLETED");
+      alert("완료 처리되었습니다.");
       loadData();
-    } catch (err) { alert("답변 등록 중 오류가 발생했습니다."); }
+      handleShowDetail(selectedDetail.complaintId);
+    } catch (err) {
+      alert("완료 처리 중 오류가 발생했습니다.");
+    }
   };
 
   /** --- 통계 및 필터 --- */
@@ -140,15 +141,6 @@ export default function ComplaintsList() {
     return { total: complaints.length, byStatus, avgHours: doneCnt > 0 ? (totalMs / doneCnt / 3600000) : 0 };
   }, [complaints]);
 
-  // 탭별 건수 계산
-  const counts = useMemo(() => ({
-    ALL: complaints.length,
-    RECEIVED: complaints.filter(c => c.status === "RECEIVED").length,
-    ASSIGNED: complaints.filter(c => c.status === "ASSIGNED").length,
-    IN_PROGRESS: complaints.filter(c => c.status === "IN_PROGRESS").length,
-    COMPLETED: complaints.filter(c => c.status === "COMPLETED").length,
-  }), [complaints]);
-
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return complaints.filter(c => {
@@ -160,16 +152,6 @@ export default function ComplaintsList() {
 
   return (
     <div className="notices-page">
-
-      {/* 0. 헤더
-      <header className="notices-header">
-        <div className="notices-header-text">
-          <h2 className="notices-title">민원 통합 관리</h2>
-          <p className="notices-subtitle">민원 접수부터 처리 이력까지 한눈에 관리합니다.</p>
-        </div>
-
-      </header> */}
-
       {/* 1. 통계 대시보드 */}
       <div className="stats-dashboard">
         <div className="stat-card total"><div className="stat-title">전체</div><div className="stat-value">{stats.total}</div></div>
@@ -182,32 +164,22 @@ export default function ComplaintsList() {
         <div className="stat-card avg"><div className="stat-title">평균소요</div><div className="stat-value">{stats.avgHours.toFixed(1)}h</div></div>
       </div>
 
-      {/* 3. 리스트 카드 */}
+      {/* 2. 리스트 카드 */}
       <div className="notices-card">
-        {/* 상태 필터 탭 추가 */}
         <div className="filter-tabs">
           <button className={`tab-item ${currentTab === "ALL" ? "active" : ""}`} onClick={() => setCurrentTab("ALL")}>
-            전체 <span className="tab-count">{counts.ALL}</span>
+            전체 <span className="tab-count">{complaints.length}</span>
           </button>
           <div className="tab-divider" />
           {Object.entries(STATUS_MAP).map(([key, info]) => (
-            <button 
-              key={key} 
-              className={`tab-item ${currentTab === key ? "active" : ""}`} 
-              onClick={() => setCurrentTab(key)}
-            >
-              {info.label} <span className="tab-count">{counts[key]}</span>
+            <button key={key} className={`tab-item ${currentTab === key ? "active" : ""}`} onClick={() => setCurrentTab(key)}>
+              {info.label} <span className="tab-count">{stats.byStatus[key]}</span>
             </button>
           ))}
         </div>
 
         <div className="notices-filter-bar">
-          <input 
-            className="notices-search-input" 
-            value={search} 
-            onChange={(e) => setSearch(e.target.value)} 
-            placeholder="민원 번호 또는 제목으로 검색..." 
-          />
+          <input className="notices-search-input" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="민원 번호 또는 제목으로 검색..." />
           <button className="notices-btn" onClick={loadData}>🔄 새로고침</button>
           <button className="notices-btn log-btn" onClick={() => setDrawerType('LOG')}>📊 전체 변경 내역</button>
         </div>
@@ -216,43 +188,31 @@ export default function ComplaintsList() {
           <table className="notices-table">
             <thead>
               <tr>
-                <th style={{ width: "80px" }}>번호</th>
-                <th style={{ width: "100px" }}>민원 상태</th>
-                <th>민원 제목</th>
-                <th style={{ width: "120px" }}>접수 일시</th>
-                <th style={{ width: "200px" }}>민원 관리</th>
+                <th style={{ width: "70px" }}>번호</th>
+                <th style={{ width: "90px" }}>상태</th>
+                <th style={{ width: "180px" }}>민원 제목</th>
+                <th>민원 내용</th>
+                <th style={{ width: "110px" }}>접수 일시</th>
+                <th style={{ width: "140px" }}>상태 변경</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((item) => {
                 const statusInfo = STATUS_MAP[item.status];
                 return (
-                  <tr key={item.complaintId} onClick={() => setSelected(item)} className="row-hover">
+                  <tr key={item.complaintId} onClick={() => handleShowDetail(item.complaintId)} className="row-hover">
                     <td>{item.complaintId}</td>
-                    <td>
-                      <span className={`status-badge ${statusInfo?.class}`}>
-                        {statusInfo?.label}
-                      </span>
-                    </td>
-                    <td className="text-left">{item.title}</td>
+                    <td><span className={`status-badge ${statusInfo?.class}`}>{statusInfo?.label}</span></td>
+                    <td className="text-left"><strong>{item.title}</strong></td>
+                    <td className="text-left text-ellipsis">{item.content}</td>
                     <td>{formatDate(item.createdAt)}</td>
                     <td>
-                      {/* 인라인 관리 영역: 버튼식으로 변경 */}
                       <div className="inline-actions" onClick={(e) => e.stopPropagation()}>
                         {statusInfo?.next ? (
-                          <div className="action-group">
-                            <button className="notices-btn sm primary-outline" onClick={(e) => handleNextStatus(e, item)}>
-                              {statusInfo.nextLabel}
-                            </button>
-                            {(item.status === "ASSIGNED" || item.status === "IN_PROGRESS") && (
-                              <button className="notices-btn sm" onClick={(e) => handleOpenAnswer(e, item)}>
-                                ✏️ 답변
-                              </button>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-done">처리 완료</span>
-                        )}
+                          <button className="notices-btn sm primary-outline" onClick={(e) => handleNextStatus(e, item)}>
+                            {statusInfo.nextLabel}
+                          </button>
+                        ) : <span className="text-done">처리 완료</span>}
                       </div>
                     </td>
                   </tr>
@@ -260,48 +220,84 @@ export default function ComplaintsList() {
               })}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="empty-state">해당하는 민원 내역이 없습니다.</div>}
         </div>
       </div>
 
-      {/* 4. 사이드 Drawer */}
-      <div className={`side-drawer ${drawerType ? "open" : ""}`}>
+      {/* 3. 사이드 Drawer */}
+      <div className={`side-drawer ${drawerType ? "open" : ""}`} style={{ width: drawerType === 'DETAIL' ? '550px' : '400px' }}>
         <div className="drawer-header">
-          <h3>{drawerType === 'ANSWER' ? "✏️ 민원 답변 등록" : "📊 시스템 변경 내역"}</h3>
-          <button className="drawer-close" onClick={() => { setDrawerType(null); setSelected(null); }}>✕</button>
+          <h3>{drawerType === 'DETAIL' ? "🔍 민원 상세 및 답변 관리" : "📊 최근 민원 요약"}</h3>
+          <button className="drawer-close" onClick={() => { setDrawerType(null); setSelectedDetail(null); }}>✕</button>
         </div>
+        
         <div className="drawer-body">
-          {drawerType === 'ANSWER' ? (
-            <div className="drawer-content">
-              <div className="info-summary">
-                <p><strong>민원 제목:</strong> {selected?.title}</p>
-                <p className="summary-content">{selected?.content}</p>
-              </div>
-              <textarea 
-                className="answer-textarea" 
-                value={answer} 
-                onChange={(e) => setAnswer(e.target.value)} 
-                placeholder="공식 답변을 작성하세요..."
-              />
-              <button className="notices-btn primary full-width" onClick={handleAnswerSubmit}>답변 저장 및 완료</button>
+          {drawerType === 'DETAIL' && selectedDetail ? (
+            <div className="detail-container">
+              <section className="detail-section">
+                <div className="detail-row">
+                  <span className="badge-type">{selectedDetail.type}</span>
+                  <span className={`status-badge ${STATUS_MAP[selectedDetail.status]?.class}`}>
+                    {STATUS_MAP[selectedDetail.status]?.label}
+                  </span>
+                </div>
+                <h2 className="detail-title">{selectedDetail.title}</h2>
+                <div className="detail-meta">No. {selectedDetail.complaintId} | {formatFullDate(selectedDetail.createdAt)}</div>
+                <div className="detail-content-box">{selectedDetail.content}</div>
+              </section>
+
+              <hr className="drawer-divider" />
+
+              <section className="detail-section">
+                <h4>👨‍💼 관리자 답변 처리</h4>
+                {selectedDetail.answer && (
+                  <div className="answer-box">
+                    <div className="answer-info">최종 작성: {selectedDetail.adminName} ({formatFullDate(selectedDetail.answer.createdAt)})</div>
+                    <div className="answer-text">{selectedDetail.answer.resultContent}</div>
+                  </div>
+                )}
+
+                {selectedDetail.status !== 'COMPLETED' ? (
+                  <div className="answer-form">
+                    <textarea 
+                      className="answer-textarea" 
+                      value={answer} 
+                      onChange={(e) => setAnswer(e.target.value)} 
+                      placeholder="입주민에게 전달할 답변을 입력하세요 (수정 가능)..."
+                    />
+                    <div className="drawer-actions">
+                      <button className="notices-btn primary-outline flex-1" onClick={handleAnswerSubmit}>
+                        {selectedDetail.answer ? "답변 수정" : "답변 등록"}
+                      </button>
+                      <button className="notices-btn primary flex-1" onClick={handleCompleteComplaint}>
+                        처리 완료 확정
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="completion-badge">✅ 처리가 완료된 민원입니다.</div>
+                )}
+              </section>
+
+              <section className="detail-section">
+                <h4>⭐ 입주민 리뷰</h4>
+                {selectedDetail.hasReview ? (
+                  <div className="review-box">입주민이 만족도 리뷰를 남겼습니다.</div>
+                ) : (
+                  <div className="empty-box">등록된 리뷰가 없습니다.</div>
+                )}
+              </section>
             </div>
           ) : (
             <div className="log-timeline">
-              {complaints.map((log, index) => (
-                <div key={log.complaintId || index} className="log-item">
-                  <div className="log-marker">
-                    <div className="log-dot" />
-                    {index !== complaints.length - 1 && <div className="log-line" />}
-                  </div>
+              {complaints.slice(0, 10).map((log, index) => (
+                <div key={index} className="log-item">
+                  <div className="log-marker"><div className="log-dot" /></div>
                   <div className="log-content">
                     <div className="log-header">
                       <span className={`status-badge ${STATUS_MAP[log.status]?.class}`}>{log.status}</span>
-                      <span className="log-time">{formatFullDate(log.createdAt)}</span>
+                      <span className="log-time">{formatDate(log.createdAt)}</span>
                     </div>
-                    <div className="log-body">
-                      <p className="log-message"><strong>[{log.complaintId}]</strong>번 민원이 업데이트되었습니다.</p>
-                      <span className="log-id">#{log.status} #{log.type}</span>
-                    </div>
+                    <p className="log-message">{log.title}</p>
                   </div>
                 </div>
               ))}
@@ -309,26 +305,6 @@ export default function ComplaintsList() {
           )}
         </div>
       </div>
-
-      {/* 5. 상세 정보 모달 (행 클릭 시) */}
-      {selected && !drawerType && (
-        <div className="notices-modal-overlay" onClick={() => setSelected(null)}>
-          <div className="notices-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="notices-modal-header">
-              <h3 className="notices-modal-title">{selected.title}</h3>
-              <button className="notices-modal-close" onClick={() => setSelected(null)}>✕</button>
-            </div>
-            <div className="notices-modal-content">
-              <div className="modal-inner-info">
-                <span><strong>접수 일시:</strong> {formatFullDate(selected.createdAt)}</span>
-              </div>
-              <div className="content-box" style={{background: '#f8fafc', padding: '15px', borderRadius: '8px', minHeight: '100px'}}>
-                {selected.content}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

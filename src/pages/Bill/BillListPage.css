@@ -280,3 +280,116 @@
     right: -100%;
   }
 }
+/* 필터 폼 레이아웃 수정 */
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between; /* 왼쪽 입력창과 오른쪽 요약/버튼 분리 */
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap; /* 화면이 좁아지면 줄바꿈 */
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* 오른쪽 섹션 (요약 + 버튼) */
+.filter-right-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-grow: 1;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+/* 인라인 요약 바 스타일 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.summary-item strong {
+  color: #1e293b;
+}
+
+.summary-item.text-red {
+  color: #ef4444;
+}
+
+.summary-item.text-red strong {
+  color: #b91c1c;
+}
+
+.summary-sep {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+/* 필터 폼의 전체 레이아웃 */
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between; /* 왼쪽 입력과 오른쪽 요약/버튼을 양끝으로 배치 */
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap; /* 화면 좁을 때 대응 */
+}
+
+/* 필터 입력 영역 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 요약 + 버튼 영역 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 인라인 요약 바 스타일 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.summary-item strong {
+  color: #1e293b;
+  margin-left: 2px;
+}
+
+.summary-sep {
+  color: #cbd5e1;
+  font-weight: 300;
+}
+
+.text-red {
+  color: #ef4444 !important;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}

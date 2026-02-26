@@ -253,3 +253,226 @@
     min-width: 100%; /* 모바일은 스크롤보다 컬럼 숨기기 위주 */
   }
 }
+/* 1. 페이지 쉘 및 기본 설정 */
+.mgmt-page {
+  padding: 1.5rem;
+  max-width: 1600px; 
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 2. KPI 섹션: 그리드 배치 최적화 */
+.kpi-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  position: relative;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.kpi-card--primary::before { background: #3b82f6; }
+.kpi-card--success::before { background: #22c55e; }
+.kpi-card--danger::before { background: #ef4444; }
+.kpi-card--warning::before { background: #f59e0b; }
+
+/* 3. 테이블 디자인 */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 900px;
+}
+
+.mgmt-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mgmt-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.row-inactive {
+  background-color: #f8fafc;
+  color: #94a3b8;
+}
+
+.fee-name-cell {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* 4. 공통 오버레이 (Drawer & Modal 공용) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 5. 우측 드로어 (Drawer) 상세 설정 */
+.zone-detail-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 420px;
+  background: white;
+  box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawer-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-sensors {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 6. 중앙 확인 모달 (Confirm Modal) 상세 설정 */
+.critical-alert-banner {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* 7. 폼 요소 스타일 */
+.custom-input, .custom-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  box-sizing: border-box;
+}
+
+.custom-input:focus, .custom-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.drawer-actions {
+  padding: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.drawer-action-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* 8. 버튼 및 배지 */
+.action-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.action-btn--unlock { background: #3b82f6; color: white; border: none; }
+.action-btn--lock { background: #ef4444; color: white; border: none; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge--safe { background: #f0fdf4; color: #16a34a; }
+.status-badge--unknown { background: #f1f5f9; color: #64748b; }
+
+/* 9. 반응형 조절 */
+@media (max-width: 1024px) {
+  .kpi-section { grid-template-columns: repeat(2, 1fr); }
+  .zone-detail-drawer { width: 100%; max-width: 400px; }
+}
+
+@media (max-width: 768px) {
+  .mgmt-table th:nth-child(1), .mgmt-table td:nth-child(1),
+  .mgmt-table th:nth-child(4), .mgmt-table td:nth-child(4) {
+    display: none;
+  }
+  .kpi-section { grid-template-columns: 1fr; }
+  .mgmt-table { min-width: 100%; }
+}

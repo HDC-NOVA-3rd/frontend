@@ -287,7 +287,7 @@ const ResidentManagePage = () => {
           <div className="drawer-footer">
             <button type="button" className="btn-secondary" onClick={closeDrawer}>취소</button>
             <button type="submit" className="btn-primary">
-              {editingResident ? "수정 저장" : "등록 완료"}
+              {editingResident ? "저장" : "등록 완료"}
             </button>
           </div>
         </form>

@@ -2129,3 +2129,212 @@
   gap: 15px;
   width: 100%;
 }
+/* 테이블 내용 요약 (말줄임) */
+.text-ellipsis {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* 사이드 Drawer 크기 확장 및 레이아웃 */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -600px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.open { right: 0; }
+
+.drawer-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 상세 섹션 스타일 */
+.detail-container { display: flex; flex-direction: column; gap: 20px; }
+
+.detail-section h4 {
+  font-size: 1rem;
+  color: #334155;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.detail-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 10px 0;
+  color: #0f172a;
+}
+
+.detail-meta { font-size: 0.85rem; color: #94a3b8; margin-bottom: 15px; }
+
+.detail-content-box {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  line-height: 1.6;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  white-space: pre-wrap;
+}
+
+.drawer-divider { border: 0; border-top: 1px dashed #e2e8f0; margin: 10px 0; }
+
+/* 답변/리뷰 박스 */
+.answer-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.answer-info { font-size: 0.8rem; color: #166534; margin-bottom: 5px; }
+.answer-text { color: #14532d; font-weight: 500; }
+
+.review-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.empty-box {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* 답변 입력 폼 */
+.answer-form { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.answer-textarea {
+  width: 100%;
+  height: 120px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  resize: none;
+  font-size: 0.95rem;
+}
+.answer-textarea:focus { border-color: #3b82f6; outline: none; }
+
+.badge-type {
+  background: #3b82f6;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 8px;
+}
+/* 버튼 가로 배열을 위한 스타일 */
+.drawer-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.primary-outline {
+  background: #fff;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+}
+
+.primary-outline:hover {
+  background: #eff6ff;
+}
+
+.completion-badge {
+  text-align: center;
+  padding: 15px;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  margin-top: 10px;
+}
+/* 텍스트 말줄임 및 테이블 보정 */
+.text-ellipsis {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* Drawer 내부 액션 버튼 배치 */
+.drawer-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.flex-1 { flex: 1; }
+
+.primary-outline {
+  background: #fff !important;
+  border: 1px solid #3b82f6 !important;
+  color: #3b82f6 !important;
+}
+
+.primary-outline:hover { background: #eff6ff !important; }
+
+/* 답변/완료 관련 컴포넌트 */
+.answer-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.answer-info { font-size: 0.75rem; color: #166534; margin-bottom: 4px; }
+.answer-text { color: #14532d; font-weight: 500; white-space: pre-wrap; }
+
+.completion-badge {
+  text-align: center;
+  padding: 20px;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.answer-textarea {
+  width: 100%;
+  height: 120px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  resize: none;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.answer-textarea:focus {
+  border-color: #3b82f6;
+  outline: none;
+}

@@ -47,3 +47,30 @@
     padding-top: 74px;
   }
 }
+.layout-main {
+  /* 기존 260px 유지 */
+  margin-left: 260px; 
+  
+  /* [수정] 패딩을 확 줄입니다 (84px -> 20px) */
+  padding: 20px;
+  padding-top: 20px; 
+
+  /* [수정] 마진 탑을 제거하거나 최소화합니다 (70px -> 0) */
+  margin-top: 0; 
+  
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-grow: 1;
+  background-color: #f8fafc;
+  
+  /* 전체 높이 계산식 수정 */
+  min-height: 100vh; 
+}
+
+/* 모바일 대응도 함께 수정 */
+@media (max-width: 768px) {
+  .layout-main, .layout-main.collapsed {
+    margin-left: 0;
+    /* 모바일에서도 상단 여백을 줄임 */
+    padding-top: 15px; 
+  }
+}

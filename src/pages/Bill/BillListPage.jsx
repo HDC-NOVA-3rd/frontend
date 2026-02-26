@@ -85,7 +85,7 @@ const BillListPage = () => {
     });
   }, [allBills, searchCond]);
 
-  // --- 3. 검색 결과 요약 통계 (필터 아래 요약바용) ---
+  // --- 3. 검색 결과 요약 통계 (필터 내 인라인 표시용) ---
   const searchStats = useMemo(() => {
     return filteredBills.reduce(
       (acc, bill) => {
@@ -152,7 +152,6 @@ const BillListPage = () => {
     <div className="bill-dashboard">
       
       {/* 1. 단지 전체 현황 (상단 고정 KPI) */}
-
       <div className="bill-kpi-section global-stats">
         <div className="bill-kpi-card">
           <FileText size={20} className="icon-blue" />
@@ -184,11 +183,12 @@ const BillListPage = () => {
         </div>
       </div>
 
-      <hr className="divider" />
 
-      {/* 2. 검색 필터 섹션 */}
+
+      {/* 2. 검색 필터 및 요약 섹션 */}
       <div className="bill-filter-card">
         <div className="bill-filter-form">
+          {/* 필터 입력부 */}
           <div className="input-group">
             <select value={searchCond.year} onChange={(e) => {setSearchCond({...searchCond, year: e.target.value}); setPage(0);}}>
               <option value="">전체 연도</option>
@@ -209,22 +209,25 @@ const BillListPage = () => {
               <span>미납자만</span>
             </label>
           </div>
-          <div className="button-group">
-            <button type="button" className="reset-btn" onClick={handleReset}><RotateCcw size={16} /> 초기화</button>
-            <button type="button" className="excel-btn" onClick={handleExcelDownload}><Download size={16} /> 엑셀</button>
+
+          {/* 인라인 요약 및 버튼 그룹 */}
+          <div className="filter-right-wrapper">
+            <div className="search-summary-inline">
+              <div className="summary-item">검색 <strong>{searchStats.count.toLocaleString()}</strong>건</div>
+              <div className="summary-sep">|</div>
+              <div className="summary-item text-red">미납 <strong>{searchStats.unpaidCount.toLocaleString()}</strong>건</div>
+              <div className="summary-sep">|</div>
+              <div className="summary-item">총액 <strong>{searchStats.amount.toLocaleString()}</strong>원</div>
+              <div className="summary-sep">|</div>
+              <div className="summary-item text-red">미납합계 <strong>{searchStats.unpaidAmount.toLocaleString()}</strong>원</div>
+            </div>
+            
+            <div className="button-group">
+              <button type="button" className="reset-btn" onClick={handleReset}><RotateCcw size={16} /> 초기화</button>
+              <button type="button" className="excel-btn" onClick={handleExcelDownload}><Download size={16} /> 엑셀</button>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* 3. 검색 결과 요약 (필터 아래 요약바) */}
-      <div className="search-summary-bar">
-        <div className="summary-item">검색 결과 <strong>{searchStats.count.toLocaleString()}</strong>건</div>
-        <div className="summary-item separator">|</div>
-        <div className="summary-item text-red">미납 <strong>{searchStats.unpaidCount.toLocaleString()}</strong>건</div>
-        <div className="summary-item separator">|</div>
-        <div className="summary-item">검색 총액 <strong>{searchStats.amount.toLocaleString()}</strong>원</div>
-        <div className="summary-item separator">|</div>
-        <div className="summary-item text-red">미납 합계 <strong>{searchStats.unpaidAmount.toLocaleString()}</strong>원</div>
       </div>
 
       {/* 4. 테이블 섹션 */}

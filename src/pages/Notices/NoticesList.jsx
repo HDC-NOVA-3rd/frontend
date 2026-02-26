@@ -231,26 +231,33 @@ export default function NoticesList() {
           <table className="bill-table">
             <thead>
               <tr>
-                <th style={{width: '80px'}}>번호</th>
-                <th>제목</th>
-                <th style={{width: '200px'}}>등록일</th>
-                <th style={{width: '120px'}}>관리</th>
+                <th style={{ width: '60px' }}>번호</th>
+                <th style={{ width: '200px' }}>제목</th>
+                <th>공지 내용</th>
+                <th style={{ width: '120px' }}>작성자</th>
+                <th style={{ width: '120px' }}>등록일</th>
+                <th style={{ width: '100px' }}>관리</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="4" className="no-data">로딩 중...</td></tr>
+                <tr><td colSpan="6" className="no-data">로딩 중...</td></tr>
               ) : filteredNotices.length > 0 ? (
                 filteredNotices.map((n, idx) => (
                   <tr key={n.noticeId} className="row-hover" onClick={() => openDrawer("view", n.noticeId)}>
                     <td>{notices.length - idx}</td>
-                    <td style={{textAlign: 'left', fontWeight: '600'}}>{n.title}</td>
+                    <td className="cell-title">{n.title}</td>
+                    <td className="cell-content">{n.content}</td>
+                    <td>{n.authorName}</td>
                     <td>{n.createdAt ? new Date(n.createdAt).toLocaleDateString() : "-"}</td>
-                    <td><button className="sm-detail-btn">상세보기</button></td>
+                    <td>
+                      {/* '상세보기'에서 '확인여부'로 텍스트 변경 */}
+                      <button className="sm-detail-btn">확인여부</button>
+                    </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="4" className="no-data">등록된 공지가 없습니다.</td></tr>
+                <tr><td colSpan="6" className="no-data">등록된 공지가 없습니다.</td></tr>
               )}
             </tbody>
           </table>

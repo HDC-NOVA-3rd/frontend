@@ -13,6 +13,8 @@ import {
   Filler
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
+// 아이콘 라이브러리 추가
+import { Users, MessageSquare, AlertCircle, Wallet, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 // API 서비스
 import { getResidentsByApartment } from "../../services/residentApi";
@@ -69,21 +71,18 @@ const Statistics = () => {
   const stats = useMemo(() => {
     const { residents, bills, complaints } = data;
 
-    // [계산] 입주 세대수
     const householdCount = new Set(residents.map(r => `${r.dongNo}-${r.hoNo}`)).size;
-
-    // [계산] 관리비 미납 및 월별 합산 로직
     const unpaidBills = bills.filter(b => b.status !== "PAID");
     const totalUnpaidAmount = unpaidBills.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
-    // 월별 관리비 청구액 합산 { "2024-01": 5000000, ... }
+    // 월별 관리비 합산
     const monthlyBillMap = bills.reduce((acc, b) => {
-      const month = b.billMonth; // "YYYY-MM" 형식 가정
+      const month = b.billMonth; 
       acc[month] = (acc[month] || 0) + b.totalPrice;
       return acc;
     }, {});
 
-    // [계산] 민원 현황 및 월별 추이
+    // 민원 통계
     const compStatusStats = complaints.reduce((acc, c) => {
       acc[c.status] = (acc[c.status] || 0) + 1;
       return acc;
@@ -96,7 +95,6 @@ const Statistics = () => {
       return acc;
     }, {});
 
-    // 정렬된 라벨 생성을 위해 최근 6개월 추출
     const last6Months = Array.from({ length: 6 }, (_, i) => {
       const d = new Date();
       d.setMonth(d.getMonth() - (5 - i));
@@ -115,9 +113,7 @@ const Statistics = () => {
     };
   }, [data]);
 
-  // --- 차트 구성 (UI 최적화) ---
-
-  // 1. 월별 민원 발생 추이 (Line - 그라데이션/커브 적용)
+  // --- 차트 설정 데이터 ---
   const complaintLineData = {
     labels: stats.last6Months,
     datasets: [{
@@ -138,7 +134,6 @@ const Statistics = () => {
     }]
   };
 
-  // 2. 월별 관리비 청구 추이 (Bar - 월별 합산 데이터 활용)
   const billBarData = {
     labels: Object.keys(stats.monthlyBillMap).sort().slice(-6),
     datasets: [{
@@ -146,11 +141,10 @@ const Statistics = () => {
       data: Object.keys(stats.monthlyBillMap).sort().slice(-6).map(k => stats.monthlyBillMap[k]),
       backgroundColor: '#6AD2FF',
       borderRadius: 8,
-      barPercentage: 0.6,
+      barPercentage: 0.5,
     }]
   };
 
-  // 3. 민원 처리 상태 (Doughnut)
   const doughnutData = {
     labels: ['접수', '배정', '처리중', '완료'],
     datasets: [{
@@ -169,25 +163,46 @@ const Statistics = () => {
   if (loading) return <div style={loadingStyle}>단지 데이터를 분석하고 있습니다...</div>;
 
   return (
-    <div style={{ padding: '30px', backgroundColor: '#F4F7FE', minHeight: '100vh' }}>
-      <header style={{ marginBottom: '30px' }}>
-        <h2 style={{ fontSize: '26px', fontWeight: '800', color: '#1B2559' }}>
-          {data.aptInfo?.apartmentName || "단지"} 데이터 대시보드
-        </h2>
-        <p style={{ color: '#A3AED0' }}>단지 관리 현황을 실시간으로 분석한 통계입니다.</p>
+    <div style={{ padding: '40px', backgroundColor: '#F4F7FE', minHeight: '100vh', fontFamily: 'Pretendard, sans-serif' }}>
+      
+      {/* 1. 상단 웰컴 및 헤더 섹션 (비어보임 해결) */}
+      <header style={headerContainer}>
+        <div>
+          <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1B2559', marginBottom: '8px' }}>
+            {data.aptInfo?.apartmentName || "단지"} 통합 대시보드 
+          </h2>
+          <p style={{ color: '#A3AED0', fontSize: '16px', fontWeight: '500' }}>
+            단지 내 주요 지표와 관리비 납부 현황을 한눈에 확인하세요.
+          </p>
+        </div>
+        <div style={updateBadge}>
+          <TrendingUp size={18} color="#01B574" style={{ marginRight: '8px' }} />
+          <span style={{ color: '#01B574', fontWeight: '700' }}>Live Status</span>
+        </div>
       </header>
 
-      {/* KPI 카드 섹션 */}
+      {/* 2. 아이콘 포함 KPI 카드 섹션 */}
       <div style={gridStyle(4)}>
-        <SummaryCard title="총 입주민" value={`${stats.residentCount}명`} sub={`${stats.householdCount}세대 거주`} color="#4318FF" />
-        <SummaryCard title="누적 민원" value={`${data.complaints.length}건`} sub={`미처리 ${stats.compStatusStats.RECEIVED || 0}건`} color="#01B574" />
-        <SummaryCard title="미납 고지" value={`${stats.unpaidCount}건`} sub="전체 미납 세대수" color="#EE5D50" />
-        <SummaryCard title="미납 총액" value={`${stats.totalUnpaidAmount.toLocaleString()}원`} sub="연체료 제외" color="#FFB547" />
+        <SummaryCard 
+          icon={<Users size={24} color="#4318FF" />} 
+          title="총 입주민" value={`${stats.residentCount}명`} sub={`${stats.householdCount}세대 거주`} color="#4318FF" bgColor="#E9E3FF" 
+        />
+        <SummaryCard 
+          icon={<MessageSquare size={24} color="#01B574" />} 
+          title="누적 민원" value={`${data.complaints.length}건`} sub={`미처리 ${stats.compStatusStats.RECEIVED || 0}건`} color="#01B574" bgColor="#E2FFF3" 
+        />
+        <SummaryCard 
+          icon={<AlertCircle size={24} color="#EE5D50" />} 
+          title="미납 고지" value={`${stats.unpaidCount}건`} sub="즉시 확인 필요" color="#EE5D50" bgColor="#FFEAEA" 
+        />
+        <SummaryCard 
+          icon={<Wallet size={24} color="#FFB547" />} 
+          title="미납 총액" value={`${stats.totalUnpaidAmount.toLocaleString()}원`} sub="연체료 제외" color="#FFB547" bgColor="#FFF5E6" 
+        />
       </div>
 
-      {/* 메인 차트 그리드 */}
+      {/* 3. 메인 차트 영역 */}
       <div style={{ ...gridStyle(2), marginTop: '30px' }}>
-        {/* 민원 추이 그래프 */}
         <div style={cardStyle}>
           <h3 style={cardTitleStyle}>월별 민원 발생 추이</h3>
           <div style={{ height: '300px' }}>
@@ -195,7 +210,6 @@ const Statistics = () => {
           </div>
         </div>
 
-        {/* 민원 상태 도넛 */}
         <div style={cardStyle}>
           <h3 style={cardTitleStyle}>민원 처리 현황</h3>
           <div style={{ height: '240px', position: 'relative' }}>
@@ -210,10 +224,10 @@ const Statistics = () => {
         </div>
       </div>
 
-      {/* 하단 관리비 합산 바 차트 */}
+      {/* 4. 하단 월별 관리비 합산 차트 */}
       <div style={{ ...cardStyle, marginTop: '30px' }}>
         <h3 style={cardTitleStyle}>최근 6개월 관리비 청구 현황 (단지 전체 합산)</h3>
-        <div style={{ height: '300px' }}>
+        <div style={{ height: '320px' }}>
           <Bar data={billBarData} options={chartOptions} />
         </div>
       </div>
@@ -221,23 +235,27 @@ const Statistics = () => {
   );
 };
 
-// --- 서브 컴포넌트 및 스타일 ---
+// --- 스타일 컴포넌트 및 헬퍼 ---
 
-const SummaryCard = ({ title, value, sub, color }) => (
-  <div style={cardStyle}>
-    <p style={{ color: '#A3AED0', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>{title}</p>
-    <h3 style={{ fontSize: '24px', fontWeight: '800', color: '#1B2559' }}>{value}</h3>
-    <p style={{ fontSize: '12px', color: color, fontWeight: '700', marginTop: '4px' }}>{sub}</p>
+const SummaryCard = ({ icon, title, value, sub, color, bgColor }) => (
+  <div style={statCardContainer}>
+    <div style={{ ...iconWrapper, backgroundColor: bgColor }}>{icon}</div>
+    <div style={{ marginLeft: '16px' }}>
+      <p style={{ color: '#A3AED0', fontSize: '14px', fontWeight: '600', marginBottom: '4px' }}>{title}</p>
+      <h3 style={{ fontSize: '24px', fontWeight: '800', color: '#1B2559', margin: 0 }}>{value}</h3>
+      <p style={{ fontSize: '12px', color: color, fontWeight: '700', marginTop: '4px' }}>{sub}</p>
+    </div>
   </div>
 );
 
 const LegendItem = ({ color, label }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
     <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: color }} />
-    <span style={{ fontSize: '12px', color: '#707EAE' }}>{label}</span>
+    <span style={{ fontSize: '12px', color: '#707EAE', fontWeight: '500' }}>{label}</span>
   </div>
 );
 
+// 차트 공통 옵션
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -248,36 +266,66 @@ const chartOptions = {
   }
 };
 
+// 레이아웃 스타일
+const headerContainer = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '40px',
+  padding: '10px 5px'
+};
+
+const updateBadge = {
+  display: 'flex',
+  alignItems: 'center',
+  backgroundColor: '#DFFFEA',
+  padding: '10px 20px',
+  borderRadius: '50px',
+};
+
 const gridStyle = (cols) => ({
   display: 'grid',
-  gridTemplateColumns: `repeat(auto-fit, minmax(240px, 1fr))`,
+  gridTemplateColumns: `repeat(${cols}, 1fr)`,
   gap: '24px',
 });
 
 const cardStyle = {
   backgroundColor: '#fff',
-  padding: '24px',
-  borderRadius: '20px',
+  padding: '30px',
+  borderRadius: '24px',
   boxShadow: '0px 18px 40px rgba(112, 144, 176, 0.12)',
 };
 
-const cardTitleStyle = { fontSize: '18px', fontWeight: '700', color: '#1B2559', marginBottom: '20px' };
+const statCardContainer = {
+  backgroundColor: '#fff',
+  padding: '25px',
+  borderRadius: '20px',
+  display: 'flex',
+  alignItems: 'center',
+  boxShadow: '0px 18px 40px rgba(112, 144, 176, 0.08)',
+};
+
+const iconWrapper = {
+  width: '56px',
+  height: '56px',
+  borderRadius: '16px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center'
+};
+
+const cardTitleStyle = { fontSize: '18px', fontWeight: '700', color: '#1B2559', marginBottom: '25px' };
 
 const legendContainer = {
   display: 'flex',
   justifyContent: 'center',
   gap: '15px',
-  marginTop: '20px'
+  marginTop: '25px'
 };
 
 const loadingStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '100vh',
-  fontSize: '18px',
-  color: '#4318FF',
-  fontWeight: 'bold'
+  display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh',
+  fontSize: '18px', color: '#4318FF', fontWeight: 'bold'
 };
 
 export default Statistics;
