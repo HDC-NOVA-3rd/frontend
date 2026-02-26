@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createAdmin } from "../../services/adminApi";
-import "./RegisterAdminPage.css"; // 아래 CSS 코드를 이 파일명으로 저장하세요.
+import { createAdmin, getMyApartmentInfo } from "../../services/adminApi";
+import "./RegisterAdminPage.css";
 
 const RegisterAdminPage = () => {
   const navigate = useNavigate();
 
+  // 1. 폼 데이터 상태
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,11 +17,26 @@ const RegisterAdminPage = () => {
     birthDate: "",
   });
 
+  // 2. 추가 UI 상태 (아파트 정보, 로딩, 에러 등)
+  const [aptInfo, setAptInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // 전화번호 자동 하이픈
+  // 3. 아파트 정보 로드 (사이드바와 동일한 로직)
+  useEffect(() => {
+    const fetchAptData = async () => {
+      try {
+        const res = await getMyApartmentInfo();
+        setAptInfo(res);
+      } catch (err) {
+        console.error("아파트 정보 로드 실패:", err);
+      }
+    };
+    fetchAptData();
+  }, []);
+
+  // 전화번호 자동 하이픈 로직
   const formatPhoneNumber = (value) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length <= 3) return numbers;
@@ -74,7 +90,16 @@ const RegisterAdminPage = () => {
       <div className="admin-reg-box">
         <div className="admin-reg-header">
           <h2 className="admin-reg-title">관리자 계정 생성</h2>
-          <p className="admin-reg-subtitle">SUPER_ADMIN 권한으로 신규 관리자를 등록합니다.</p>
+          <p className="admin-reg-subtitle">
+            {/* 아파트 이름이 있으면 해당 이름을, 없으면 기본 문구 표시 */}
+            {aptInfo?.apartmentName ? (
+              <>
+                <strong className="apt-name-highlight">{aptInfo.apartmentName}</strong>의 신규 관리자를 등록합니다.
+              </>
+            ) : (
+              "신규 관리자를 등록합니다."
+            )}
+          </p>
         </div>
 
         <form className="admin-reg-form" onSubmit={handleSubmit}>

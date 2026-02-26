@@ -1,35 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
-/* 페이지 컴포넌트 임포트 */
 import Login from "./pages/Auth/Login";
 import PasswordReset from "./pages/Auth/PasswordReset";
-
-
 import Layout from "./components/layout/Layout";
-
-/* 입주민 관련 */
 import ResidentManagePage from "./pages/Resident/ResidentManagePage";
 import HouseholdManagePage from "./pages/Household/HouseholdManagePage";
-
-/* 공지사항 관련 */
 import NoticesList from "./pages/Notices/NoticesList";
-
-/* 안전 / 모니터링 */
 import  FireMonitoringDashboard from "./pages/FireMonitoring/FireMonitoringDashboard";
-
-/* 민원 관련 */
 import ComplaintsList from "./pages/Complaints/ComplaintsList";
-
-
-/* 관리비 관련 */
 import ManagementFeePage from "./pages/Management/ManagementFeePage"; 
 import BillListPage from "./pages/Bill/BillListPage"; 
-
-/* 계정 관련 */
 import PasswordChange from "./pages/Account/PasswordChange";
 import ProfilePage from "./pages/Account/ProfilePage";
 import RegisterAdminPage from "./pages/Account/RegisterAdminPage";
+import Statistics from "./pages/Statistics/Statistics";
 
 import "./App.css";
 
@@ -68,7 +53,7 @@ function App() {
               <Route path="settings/register-admin" element={<RegisterAdminPage />} />
 
               {/* 통계 */}
-              <Route path="settings/settings/overall-statistics" element={<RegisterAdminPage />} />
+              <Route path="settings/settings/overall-statistics" element={<Statistics />} />
 
               <Route path="*" element={<Navigate to="household/list" replace />} />
             </Routes>
