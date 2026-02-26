@@ -439,3 +439,66 @@
   background: #e2e8f0;
   border-radius: 10px;
 }
+/* Sidebar.css에 추가 추천 스타일 */
+.admin-profile-summary {
+  padding: 15px;
+  border-bottom: 1px solid #eee; /* 구분선 */
+  margin-bottom: 10px;
+}
+
+.admin-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.admin-email {
+  font-size: 12px;
+  color: #666;
+}
+.admin-info-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.03); /* 약간의 배경색 */
+  border-radius: 8px;
+}
+
+.admin-profile-img img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.admin-email {
+  font-size: 11px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

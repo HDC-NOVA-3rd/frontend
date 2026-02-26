@@ -1,15 +1,37 @@
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Home, Bell, MessageSquare, Users, ShieldCheck, 
-  Receipt, Settings, KeyRound, UserPlus, LogOut, LayoutDashboard
+  Receipt, Settings, KeyRound, UserPlus, LogOut, LayoutDashboard, User
 } from "lucide-react";
-import { adminLogout } from "../../services/adminApi";
+import { adminLogout, getMyApartmentInfo, getMyAdminInfo } from "../../services/adminApi";
 import "./Sidebar.css";
 
 export default function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = localStorage.getItem("userRole") || "MANAGER";
+
+  // 상태 관리: 아파트 정보 및 내 정보
+  const [aptInfo, setAptInfo] = useState(null);
+  const [adminInfo, setAdminInfo] = useState(null);
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    const fetchSidebarData = async () => {
+      try {
+        const [aptRes, adminRes] = await Promise.all([
+          getMyApartmentInfo(),
+          getMyAdminInfo()
+        ]);
+        setAptInfo(aptRes.data);
+        setAdminInfo(adminRes.data);
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      }
+    };
+    fetchSidebarData();
+  }, []);
 
   const handleLogout = async () => {
     if (!window.confirm("로그아웃 하시겠습니까?")) return;
@@ -41,12 +63,14 @@ export default function Sidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* 모바일용 오버레이 */}
       <div className={`sidebar-overlay ${isOpen ? "show" : ""}`} onClick={onClose} />
       
       <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+        {/* 상단: 아파트 관리 시스템 제목 */}
         <div className="sidebar-header">
-          <h3 className="sidebar-logo">Admin Panel</h3>
+          <h3 className="sidebar-logo">
+            {aptInfo?.apartmentName ? `${aptInfo.apartmentName} 관리시스템` : "아파트 관리시스템"}
+          </h3>
         </div>
 
         <nav className="sidebar-nav">
@@ -54,7 +78,6 @@ export default function Sidebar({ isOpen, onClose }) {
             {filteredMenus.map((item, index) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-
               return (
                 <Link
                   key={index}
@@ -73,7 +96,24 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
         </nav>
 
+        {/* 하단: 내 정보 및 로그아웃 */}
         <div className="sidebar-footer">
+          {adminInfo && (
+            <div className="admin-info-section">
+              <div className="admin-profile-img">
+                {adminInfo.profileImg ? (
+                  <img src={adminInfo.profileImg} alt="Profile" />
+                ) : (
+                  <div className="profile-placeholder"><User size={24} /></div>
+                )}
+              </div>
+              <div className="admin-details">
+                <span className="admin-name">{adminInfo.name} 님</span>
+                <span className="admin-email">{adminInfo.email}</span>
+              </div>
+            </div>
+          )}
+          
           <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={18} />
             <span>로그아웃</span>
