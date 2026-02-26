@@ -160,6 +160,16 @@ export default function ComplaintsList() {
 
   return (
     <div className="notices-page">
+
+      {/* 0. 헤더
+      <header className="notices-header">
+        <div className="notices-header-text">
+          <h2 className="notices-title">민원 통합 관리</h2>
+          <p className="notices-subtitle">민원 접수부터 처리 이력까지 한눈에 관리합니다.</p>
+        </div>
+
+      </header> */}
+
       {/* 1. 통계 대시보드 */}
       <div className="stats-dashboard">
         <div className="stat-card total"><div className="stat-title">전체</div><div className="stat-value">{stats.total}</div></div>
@@ -170,15 +180,6 @@ export default function ComplaintsList() {
           </div>
         ))}
         <div className="stat-card avg"><div className="stat-title">평균소요</div><div className="stat-value">{stats.avgHours.toFixed(1)}h</div></div>
-      </div>
-
-      {/* 2. 헤더 */}
-      <div className="notices-header">
-        <div className="notices-header-text">
-          <h2 className="notices-title">민원 통합 관리</h2>
-          <p className="notices-subtitle">민원 접수부터 처리 이력까지 한눈에 관리합니다.</p>
-        </div>
-        <button className="notices-btn log-btn" onClick={() => setDrawerType('LOG')}>📊 전체 변경 내역</button>
       </div>
 
       {/* 3. 리스트 카드 */}
@@ -208,6 +209,7 @@ export default function ComplaintsList() {
             placeholder="민원 번호 또는 제목으로 검색..." 
           />
           <button className="notices-btn" onClick={loadData}>🔄 새로고침</button>
+          <button className="notices-btn log-btn" onClick={() => setDrawerType('LOG')}>📊 전체 변경 내역</button>
         </div>
 
         <div className="notices-table-wrap">
