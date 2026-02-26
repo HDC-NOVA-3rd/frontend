@@ -53,7 +53,7 @@ function App() {
               <Route path="settings/register-admin" element={<RegisterAdminPage />} />
 
               {/* 통계 */}
-              <Route path="settings/settings/overall-statistics" element={<Statistics />} />
+              <Route path="settings/overall-statistics" element={<Statistics />} />
 
               <Route path="*" element={<Navigate to="household/list" replace />} />
             </Routes>
