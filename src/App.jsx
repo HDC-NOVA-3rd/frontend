@@ -4,9 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 /* 페이지 컴포넌트 임포트 */
 import Login from "./pages/Auth/Login";
 import PasswordReset from "./pages/Auth/PasswordReset";
-import PasswordResetRequest from "./pages/Auth/PasswordResetRequest";
-import PasswordResetOtp from "./pages/Auth/PasswordResetOtp";
-import PasswordResetNewPassword from "./pages/Auth/PasswordResetNewPassword";
+
 
 import Layout from "./components/layout/Layout";
 
@@ -43,8 +41,6 @@ function App() {
           {/* ---------------------- 인증 관련 ---------------------- */}
           <Route path="/login" element={<Login />} />
           <Route path="/password-reset" element={<PasswordReset />} />
-          <Route path="/password-reset/otp" element={<PasswordResetOtp />} />
-          <Route path="/password-reset/new" element={<PasswordResetNewPassword />} />
 
           {/* ---------------------- 관리자 영역 ---------------------- */}
           <Route path="/admin/*" element={<Layout>
@@ -70,6 +66,9 @@ function App() {
               <Route path="account" element={<ProfilePage />} />
               <Route path="account/password-change" element={<PasswordChange />} />
               <Route path="settings/register-admin" element={<RegisterAdminPage />} />
+
+              {/* 통계 */}
+              <Route path="settings/settings/overall-statistics" element={<RegisterAdminPage />} />
 
               <Route path="*" element={<Navigate to="household/list" replace />} />
             </Routes>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createAdmin } from "../../services/adminApi";
-import "./RegisterAdminPage.css";
+import "./RegisterAdminPage.css"; // 아래 CSS 코드를 이 파일명으로 저장하세요.
 
 const RegisterAdminPage = () => {
   const navigate = useNavigate();
@@ -20,47 +20,24 @@ const RegisterAdminPage = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // 🛡 SUPER_ADMIN 접근 제한
-  // useEffect(() => {
-  //   const role = localStorage.getItem("role");
-  //   if (role !== "SUPER_ADMIN") {
-  //     alert("접근 권한이 없습니다.");
-  //     navigate("/admin");
-  //   }
-  // }, [navigate]);
-
   // 전화번호 자동 하이픈
   const formatPhoneNumber = (value) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 7)
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(
-      7,
-      11
-    )}`;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "phoneNumber") {
-      setFormData((prev) => ({
-        ...prev,
-        phoneNumber: formatPhoneNumber(value),
-      }));
+      setFormData((prev) => ({ ...prev, phoneNumber: formatPhoneNumber(value) }));
       return;
     }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
   };
 
-  // 🧠 비밀번호 강도 계산
   const calculateStrength = (password) => {
     let score = 0;
     if (password.length >= 8) score++;
@@ -74,160 +51,84 @@ const RegisterAdminPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (formData.password !== formData.passwordConfirm) {
       setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
     setLoading(true);
-
     try {
       await createAdmin(formData);
-
-      // 🔄 성공 페이지 이동
       navigate("/admin/register-success");
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "계정 생성 중 오류가 발생했습니다."
-      );
+      setError(err.response?.data?.message || "계정 생성 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const isPasswordMismatch =
-    formData.password &&
-    formData.passwordConfirm &&
-    formData.password !== formData.passwordConfirm;
+  const isPasswordMismatch = formData.password && formData.passwordConfirm && formData.password !== formData.passwordConfirm;
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <div className="login-header">
-          <h2 className="login-title">관리자 계정 생성</h2>
-          <p className="login-subtitle">
-            SUPER_ADMIN 권한으로 관리자를 등록합니다.
-          </p>
+    <div className="admin-reg-container">
+      <div className="admin-reg-box">
+        <div className="admin-reg-header">
+          <h2 className="admin-reg-title">관리자 계정 생성</h2>
+          <p className="admin-reg-subtitle">SUPER_ADMIN 권한으로 신규 관리자를 등록합니다.</p>
         </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">이름</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="form-input"
-              required
-            />
+        <form className="admin-reg-form" onSubmit={handleSubmit}>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">이름</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} className="admin-reg-input" required placeholder="실명을 입력하세요" />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">로그인 ID</label>
-            <input
-              type="text"
-              name="loginId"
-              value={formData.loginId}
-              onChange={handleChange}
-              className="form-input"
-              required
-            />
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">로그인 ID</label>
+            <input type="text" name="loginId" value={formData.loginId} onChange={handleChange} className="admin-reg-input" required placeholder="아이디를 입력하세요" />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">이메일</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="form-input"
-              required
-            />
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">이메일</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} className="admin-reg-input" required placeholder="example@domain.com" />
           </div>
 
-          {/* 👁 비밀번호 토글 */}
-          <div className="form-group">
-            <label className="form-label">비밀번호</label>
-            <div className="password-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="form-input"
-                required
-              />
-              <button
-                type="button"
-                className="toggle-btn"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                👁
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">비밀번호</label>
+            <div className="admin-reg-password-wrapper">
+              <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className="admin-reg-input" required />
+              <button type="button" className="admin-reg-toggle-btn" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
-
-            {/* 🧠 강도 바 */}
             {formData.password && (
-              <div className="strength-bar">
-                <div
-                  className={`strength strength-${passwordStrength}`}
-                ></div>
+              <div className="admin-reg-strength-bar">
+                <div className={`admin-reg-strength-fill strength-${passwordStrength}`}></div>
               </div>
             )}
           </div>
 
-          <div className="form-group">
-            <label className="form-label">비밀번호 확인</label>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="passwordConfirm"
-              value={formData.passwordConfirm}
-              onChange={handleChange}
-              className={`form-input ${
-                isPasswordMismatch ? "input-error" : ""
-              }`}
-              required
-            />
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">비밀번호 확인</label>
+            <input type={showPassword ? "text" : "password"} name="passwordConfirm" value={formData.passwordConfirm} onChange={handleChange} 
+                   className={`admin-reg-input ${isPasswordMismatch ? "admin-reg-input-error" : ""}`} required />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">전화번호</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="form-input"
-              required
-            />
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">전화번호</label>
+            <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="admin-reg-input" required placeholder="010-0000-0000" />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">생년월일</label>
-            <input
-              type="date"
-              name="birthDate"
-              value={formData.birthDate}
-              onChange={handleChange}
-              className="form-input"
-            />
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">생년월일</label>
+            <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className="admin-reg-input" />
           </div>
 
           {(error || isPasswordMismatch) && (
-            <div className="login-error">
-              {error || "비밀번호가 일치하지 않습니다."}
-            </div>
+            <div className="admin-reg-error-msg">{error || "비밀번호가 일치하지 않습니다."}</div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="login-button"
-          >
+          <button type="submit" disabled={loading} className="admin-reg-submit-btn">
             {loading ? "등록 중..." : "관리자 계정 생성"}
           </button>
         </form>
