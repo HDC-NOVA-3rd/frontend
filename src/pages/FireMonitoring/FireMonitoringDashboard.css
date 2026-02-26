@@ -1233,3 +1233,206 @@
 .api-error-banner svg {
   flex-shrink: 0;
 }
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  flex: 1;
+  min-height: 0;
+  align-items: start; 
+}
+/* ===== Side Section & Event Log Panel (스크롤 제거 + 고대비 버전) ===== */
+
+.event-log-panel {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1; /* 경계선을 더 진하게 */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  /* 스크롤 제거 및 내용물에 맞춤 */
+  overflow: visible; 
+  height: fit-content; 
+}
+
+.event-log__header {
+  padding: 1.25rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9; /* 구분선을 더 확실하게 */
+}
+
+.event-log__header h4 {
+  margin: 0;
+  color: #0f172a; /* 가장 어두운 남색으로 변경 (강한 가독성) */
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* 아이콘 색상 강화 */
+.event-log__header h4 svg {
+  color: #334155; 
+  stroke-width: 2.5px;
+}
+
+.event-log__list {
+  /* 스크롤 관련 설정 모두 제거 */
+  overflow: visible; 
+  padding: 0; 
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-item {
+  display: grid;
+  grid-template-columns: 75px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1rem; /* 간격을 넓혀서 시인성 확보 */
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+/* 시간 텍스트 진하게 */
+.event-item__time {
+  color: #475569; 
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+/* 구역 이름 및 상세 내용 */
+.event-item__zone {
+  color: #1e293b; /* 진한 색조 */
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.event-item__detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155; /* 연한 회색에서 진한 회색으로 변경 */
+  font-weight: 500;
+}
+
+/* 센서 값 강조 */
+.sensor-value {
+  font-weight: 800;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 태그 색상 명확화 */
+.manual-tag {
+  background: #334155;
+  color: #ffffff; /* 반전시켜서 확실히 보이게 */
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+/* 상태 배지(SAFE/DANGER) 명도 대비 강화 */
+.event-item__status {
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.event-item__status--danger {
+  background: #fee2e2;
+  color: #991b1b; /* 훨씬 진한 빨간색 */
+  border: 1px solid #fca5a5;
+}
+
+.event-item__status--safe {
+  background: #dcfce7;
+  color: #166534; /* 훨씬 진한 초록색 */
+  border: 1px solid #86efac;
+}
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  align-items: start; /* 이게 있어야 우측 패널이 바닥까지 안 늘어납니다 */
+}
+
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: auto; /* 높이를 자식 컨텐츠에 맡김 */
+}
+/* 센서 타입 공통 스타일 강화 */
+.sensor-type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px; /* 패딩을 늘려 배경색이 잘 보이게 함 */
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800; /* 아주 두껍게 */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* GAS (가스) - 선명한 초록색 계열 */
+.sensor-type--gas {
+  background: #dcfce7; /* 연한 초록 배경 */
+  color: #15803d;      /* 진한 초록 글자 - 가독성 확보 */
+  border: 1px solid #bbf7d0;
+}
+
+/* HEAT (열) - 선명한 주황/빨강 계열 */
+.sensor-type--heat {
+  background: #ffedd5; /* 연한 주황 배경 */
+  color: #c2410c;      /* 진한 주황 글자 - 가독성 확보 */
+  border: 1px solid #fed7aa;
+}
+
+/* 센서 아이콘 두께 조절 */
+.sensor-type svg {
+  stroke-width: 2.5px; /* 아이콘 선을 더 굵게 */
+}
+
+/* 센서 값(숫자)도 더 잘 보이게 */
+.sensor-value {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+.event-item__detail {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 요소 간 간격을 넓힘 */
+  margin-top: 4px;
+}
+
+.event-item__zone {
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.95rem; /* 구역 이름 살짝 키움 */
+}
+
+/* 시간 텍스트가 센서 정보에 밀리지 않게 조정 */
+.event-item__time {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}

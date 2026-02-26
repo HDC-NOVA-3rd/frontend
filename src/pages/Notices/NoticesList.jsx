@@ -1,244 +1,352 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { getNoticeList, deleteNotice } from "../../services/noticeApi";
-import NoticeTabNav from "./NoticeTabNav";
-import "./Notices.css";
+import {
+  getNoticeList,
+  getNotice,
+  createNotice,
+  updateNotice,
+  deleteNotice,
+  getNoticeLogs,
+} from "../../services/noticeApi";
+import { 
+  Bell, 
+  Search, 
+  Plus, 
+  RotateCcw, 
+  ChevronRight, 
+  X, 
+  FileText, 
+  Send,
+  History,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
+import "./NoticesList.css";
 
-function formatDate(raw) {
-  if (!raw) return "-";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return raw;
-  const now = new Date();
-  const isToday =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  if (isToday) {
-    return new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit" }).format(d);
-  }
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
-}
-
-function timeAgo(raw) {
-  if (!raw) return "";
-  const diff = Date.now() - new Date(raw).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return "방금 전";
-  if (min < 60) return `${min}분 전`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}시간 전`;
-  const day = Math.floor(hr / 24);
-  if (day < 7) return `${day}일 전`;
-  return "";
-}
+const TITLE_MAX = 100;
+const CONTENT_MAX = 2000;
 
 export default function NoticesList() {
-  const navigate = useNavigate();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState(null);
+  
+  // KPI 통계 상태
+  const [stats, setStats] = useState({ totalSent: 0, readCount: 0, unreadCount: 0 });
 
-  const loadNotices = async () => {
-    setError(null);
+  // Drawer 관련 상태
+  const [drawerMode, setDrawerMode] = useState(null); 
+  const [selectedNotice, setSelectedNotice] = useState(null);
+  const [drawerTab, setDrawerTab] = useState("content"); 
+  const [drawerLoading, setDrawerLoading] = useState(false);
+  
+  const [formValues, setFormValues] = useState({ title: "", content: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  
+  const [logs, setLogs] = useState([]);
+  const [logLoading, setLogLoading] = useState(false);
+
+  // 데이터 로드 및 통계 계산
+  const loadData = async () => {
     setLoading(true);
     try {
-      const res = await getNoticeList();
-      setNotices(Array.isArray(res) ? res : []);
+      const [noticeRes, logRes] = await Promise.all([
+        getNoticeList(),
+        getNoticeLogs()
+      ]);
+      
+      const noticeList = Array.isArray(noticeRes) ? noticeRes : [];
+      const logList = Array.isArray(logRes) ? logRes : [];
+      
+      setNotices(noticeList);
+      
+      // 통계 계산
+      const read = logList.filter(l => l.read).length;
+      setStats({
+        totalSent: logList.length,
+        readCount: read,
+        unreadCount: logList.length - read
+      });
     } catch (err) {
-      setError(err?.message || "공지사항을 불러오지 못했습니다.");
-      setNotices([]);
+      setError("데이터를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    void loadNotices();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return notices;
+  const loadNoticeLogs = async (noticeId) => {
+    setLogLoading(true);
+    try {
+      const allLogs = await getNoticeLogs();
+      const filtered = allLogs.filter(log => log.noticeId === noticeId || log.title === selectedNotice?.title);
+      setLogs(filtered);
+    } catch (err) {
+      console.error("로그 로드 실패");
+    } finally {
+      setLogLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (drawerTab === "logs" && selectedNotice?.noticeId) {
+      loadNoticeLogs(selectedNotice.noticeId);
+    }
+  }, [drawerTab, selectedNotice]);
+
+  const openDrawer = async (mode, noticeId = null) => {
+    setError("");
+    setDrawerMode(mode);
+    setDrawerTab("content");
+    
+    if (mode === "create") {
+      setSelectedNotice(null);
+      setFormValues({ title: "", content: "" });
+      return;
+    }
+
+    if (noticeId) {
+      try {
+        setDrawerLoading(true);
+        const data = await getNotice(noticeId);
+        setSelectedNotice(data);
+        setFormValues({ title: data.title ?? "", content: data.content ?? "" });
+      } catch (err) {
+        setError("공지 정보를 불러오지 못했습니다.");
+      } finally {
+        setDrawerLoading(false);
+      }
+    }
+  };
+
+  const closeDrawer = () => {
+    if (saving) return;
+    setDrawerMode(null);
+    setSelectedNotice(null);
+    setLogs([]);
+    setError("");
+  };
+
+  const handleSave = async () => {
+    if (!formValues.title.trim() || !formValues.content.trim()) {
+      setError("제목과 내용을 입력해주세요.");
+      return;
+    }
+    try {
+      setSaving(true);
+      if (drawerMode === "create") await createNotice(formValues);
+      else await updateNotice(selectedNotice.noticeId, formValues);
+      await loadData();
+      closeDrawer();
+    } catch (err) {
+      setError("저장 중 오류가 발생했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedNotice || !window.confirm("정말 삭제하시겠습니까?")) return;
+    try {
+      setSaving(true);
+      await deleteNotice(selectedNotice.noticeId);
+      await loadData();
+      closeDrawer();
+    } catch (err) {
+      setError("삭제 중 오류가 발생했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const filteredNotices = useMemo(() => {
     const q = search.toLowerCase();
-    return notices.filter(
-      (n) =>
-        (n.title ?? "").toLowerCase().includes(q) ||
-        (n.authorName ?? "").toLowerCase().includes(q) ||
-        (n.content ?? "").toLowerCase().includes(q),
+    return notices.filter(n => 
+      (n.title ?? "").toLowerCase().includes(q) || 
+      (n.content ?? "").toLowerCase().includes(q)
     );
   }, [notices, search]);
 
   return (
-    <div className="notices-page">
-      <NoticeTabNav />
-
-      <div className="notices-header">
-        <div className="notices-header-icon">📢</div>
-        <div className="notices-header-text">
-          <h2 className="notices-title">공지사항</h2>
-          <p className="notices-subtitle">아파트 공지사항 게시판입니다.</p>
+    <div className="bill-dashboard">
+      
+      {/* KPI 섹션 - 확인/미확인 추가 */}
+      <div className="bill-kpi-section">
+        <div className="bill-kpi-card">
+          <FileText className="icon-blue" size={24} style={{color: '#3b82f6'}} />
+          <div>
+            <div className="kpi-label">전체 공지</div>
+            <div className="kpi-value">{notices.length}건</div>
+          </div>
+        </div>
+        <div className="bill-kpi-card">
+          <Send className="icon-green" size={24} style={{color: '#10b981'}} />
+          <div>
+            <div className="kpi-label">총 발송</div>
+            <div className="kpi-value">{stats.totalSent}회</div>
+          </div>
+        </div>
+        <div className="bill-kpi-card">
+          <CheckCircle size={24} style={{color: '#22c55e'}} />
+          <div>
+            <div className="kpi-label">확인 수</div>
+            <div className="kpi-value">{stats.readCount}건</div>
+          </div>
+        </div>
+        <div className="bill-kpi-card danger">
+          <AlertCircle size={24} style={{color: '#ef4444'}} />
+          <div>
+            <div className="kpi-label">미확인 수</div>
+            <div className="kpi-value">{stats.unreadCount}건</div>
+          </div>
         </div>
       </div>
 
-      <div className="notices-card">
-        {/* 상단 바 */}
-        <div className="notices-filter-bar">
-          <input
-            className="notices-search-input"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="제목, 작성자, 내용 검색..."
-            disabled={loading}
-          />
-          <button className="notices-btn" type="button" onClick={loadNotices} disabled={loading}>
-            {loading ? (
-              <>
-                <span className="btn-spinner" /> 로딩
-              </>
-            ) : (
-              <>🔄 새로고침</>
-            )}
-          </button>
-          <button
-            className="notices-btn primary"
-            type="button"
-            onClick={() => navigate("/admin/notices/create")}
-          >
-            ✏️ 공지 등록
-          </button>
-          <div className="notices-meta">
-            총 <strong>{filtered.length}</strong>건
+      {/* 검색 및 필터 바 */}
+      <div className="bill-filter-card">
+        <div className="bill-filter-form">
+          <div className="input-group">
+            <div className="search-wrapper" style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+              <Search size={18} style={{position: 'absolute', left: '12px', color: '#64748b'}} />
+              <input 
+                type="text" 
+                placeholder="공지 제목 또는 내용 검색..." 
+                value={search} 
+                onChange={(e) => setSearch(e.target.value)}
+                style={{paddingLeft: '40px', width: '300px'}}
+              />
+            </div>
+          </div>
+          <div className="button-group">
+            <button className="reset-btn" onClick={loadData}><RotateCcw size={16} /> 새로고침</button>
+            <button className="btn-add" onClick={() => openDrawer("create")}><Plus size={16} /> 새 공지 등록</button>
           </div>
         </div>
+      </div>
 
-        {error && (
-          <div className="notices-status error">
-            <span className="notices-status-icon">❌</span>
-            {error}
-          </div>
-        )}
-
-        {/* 로딩 스켈레톤 */}
-        {loading && notices.length === 0 && (
-          <div className="notices-board-skeleton">
-            {[...Array(6)].map((_, i) => (
-              <div className="notices-board-skeleton-row" key={i}>
-                <div className="notices-skeleton-cell" style={{ width: 48 }} />
-                <div className="notices-skeleton-cell" style={{ flex: 1 }} />
-                <div className="notices-skeleton-cell" style={{ width: 80 }} />
-                <div className="notices-skeleton-cell" style={{ width: 100 }} />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 게시판 테이블 */}
-        {(!loading || notices.length > 0) && (
-          <div className="notices-table-wrap">
-            <table className="notices-table notices-board-table">
-              <thead>
-                <tr>
-                  <th style={{ width: 64 }}>번호</th>
-                  <th>제목</th>
-                  <th style={{ width: 100 }}>작성자</th>
-                  <th style={{ width: 120 }}>등록일</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((notice, idx) => {
-                  const ago = timeAgo(notice.createdAt);
-                  const isNew =
-                    notice.createdAt &&
-                    Date.now() - new Date(notice.createdAt).getTime() < 86400000;
-                  return (
-                    <tr
-                      key={notice.noticeId}
-                      className="notices-board-row"
-                      onClick={() => setSelected(notice)}
-                    >
-                      <td className="notices-board-num">{filtered.length - idx}</td>
-                      <td className="notices-board-title-cell">
-                        <span className="notices-board-title-text">{notice.title}</span>
-                        {isNew && <span className="notices-new-badge">N</span>}
-                      </td>
-                      <td className="notices-board-author">{notice.authorName ?? "-"}</td>
-                      <td className="notices-board-date" title={notice.createdAt}>
-                        {formatDate(notice.createdAt)}
-                        {ago && <span className="notices-board-ago">{ago}</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {filtered.length === 0 && !loading && (
-                  <tr>
-                    <td colSpan={4}>
-                      <div className="notices-empty-visual">
-                        <div className="notices-empty-icon">📋</div>
-                        <div className="notices-empty-title">
-                          {search ? "검색 결과가 없습니다" : "등록된 공지가 없습니다"}
-                        </div>
-                        <div className="notices-empty-desc">
-                          {search
-                            ? "다른 검색어를 입력해 보세요."
-                            : "새 공지를 등록하면 이곳에 표시됩니다."}
-                        </div>
-                      </div>
+      {/* 리스트 테이블 */}
+      <div className="bill-table-card">
+        <div className="table-responsive">
+          <table className="bill-table">
+            <thead>
+              <tr>
+                <th style={{ width: '60px' }}>번호</th>
+                <th style={{ width: '200px' }}>제목</th>
+                <th>공지 내용</th>
+                <th style={{ width: '120px' }}>작성자</th>
+                <th style={{ width: '120px' }}>등록일</th>
+                <th style={{ width: '100px' }}>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="6" className="no-data">로딩 중...</td></tr>
+              ) : filteredNotices.length > 0 ? (
+                filteredNotices.map((n, idx) => (
+                  <tr key={n.noticeId} className="row-hover" onClick={() => openDrawer("view", n.noticeId)}>
+                    <td>{notices.length - idx}</td>
+                    <td className="cell-title">{n.title}</td>
+                    <td className="cell-content">{n.content}</td>
+                    <td>{n.authorName}</td>
+                    <td>{n.createdAt ? new Date(n.createdAt).toLocaleDateString() : "-"}</td>
+                    <td>
+                      {/* '상세보기'에서 '확인여부'로 텍스트 변경 */}
+                      <button className="sm-detail-btn">확인여부</button>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              ) : (
+                <tr><td colSpan="6" className="no-data">등록된 공지가 없습니다.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* 공지 상세 모달 */}
-      {selected && (
-        <div className="notices-modal-overlay" onClick={() => setSelected(null)}>
-          <div className="notices-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="notices-modal-header">
-              <h3 className="notices-modal-title">{selected.title}</h3>
-              <button className="notices-modal-close" onClick={() => setSelected(null)}>
-                ✕
-              </button>
-            </div>
-            <div className="notices-modal-meta">
-              <span>✍️ {selected.authorName ?? "관리자"}</span>
-              <span>📅 {formatDate(selected.createdAt)}</span>
-            </div>
-            <hr className="notices-divider" />
-            <div className="notices-modal-content">{selected.content}</div>
-            <div className="notices-modal-actions">
-              <button
-                className="notices-btn primary"
-                onClick={() => navigate(`/admin/notices/${selected.noticeId}/edit`)}
-              >
-                ✏️ 수정
-              </button>
-              <button
-                className="notices-btn danger"
-                onClick={async () => {
-                  if (!window.confirm("정말 이 공지를 삭제하시겠습니까?")) return;
-                  try {
-                    await deleteNotice(selected.noticeId);
-                    setSelected(null);
-                    void loadNotices();
-                  } catch (err) {
-                    setError(err?.message || "삭제에 실패했습니다.");
-                  }
-                }}
-              >
-                🗑️ 삭제
-              </button>
-            </div>
-          </div>
+      {/* Drawer 영역 (이전과 동일) */}
+      <div className={`side-drawer ${drawerMode ? "open" : ""}`}>
+        <div className="drawer-header">
+          <h3>{drawerMode === "create" ? "새 공지 작성" : "공지사항 상세"}</h3>
+          <button className="drawer-close" onClick={closeDrawer}><X size={24} /></button>
         </div>
-      )}
+
+        {drawerMode !== "create" && (
+          <div className="drawer-tabs">
+            <button className={drawerTab === "content" ? "active" : ""} onClick={() => setDrawerTab("content")}>
+              <FileText size={16} /> 내용 보기
+            </button>
+            <button className={drawerTab === "logs" ? "active" : ""} onClick={() => setDrawerTab("logs")}>
+              <History size={16} /> 발송 내역
+            </button>
+          </div>
+        )}
+
+        <div className="drawer-body">
+          {drawerLoading ? (
+            <div className="loading-box">로딩 중...</div>
+          ) : drawerTab === "content" ? (
+            <div className="drawer-content">
+              <div className="field">
+                <label>제목 ({formValues.title.length}/{TITLE_MAX})</label>
+                <input 
+                  disabled={drawerMode === "view"}
+                  value={formValues.title} 
+                  onChange={(e) => setFormValues({...formValues, title: e.target.value})}
+                  placeholder="제목을 입력하세요" 
+                />
+              </div>
+              <div className="field" style={{marginTop: '20px'}}>
+                <label>내용 ({formValues.content.length}/{CONTENT_MAX})</label>
+                <textarea 
+                  disabled={drawerMode === "view"}
+                  rows={15}
+                  value={formValues.content} 
+                  onChange={(e) => setFormValues({...formValues, content: e.target.value})}
+                  placeholder="공지 내용을 입력하세요" 
+                />
+              </div>
+              <div className="drawer-actions" style={{marginTop: '30px'}}>
+                {drawerMode === "view" ? (
+                  <>
+                    <button className="btn-primary" onClick={() => setDrawerMode("edit")}>수정하기</button>
+                    <button className="btn-delete-sm" onClick={handleDelete}>삭제</button>
+                  </>
+                ) : (
+                  <>
+                    <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? "저장 중..." : "저장 완료"}</button>
+                    <button className="btn-secondary" onClick={() => drawerMode === "edit" ? setDrawerMode("view") : closeDrawer()}>취소</button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="log-container">
+              <h4 className="section-title">최근 발송 이력</h4>
+              {logLoading ? (
+                <div>로그 로딩 중...</div>
+              ) : logs.length > 0 ? (
+                <div className="log-list">
+                  {logs.map(log => (
+                    <div key={log.id} className="log-item">
+                      <div className="log-info">
+                        <strong>수신: {log.recipientId}</strong>
+                        <span>{new Date(log.sentAt).toLocaleString()}</span>
+                      </div>
+                      <span className={`status-badge ${log.read ? "status-paid" : "status-unpaid"}`}>
+                        {log.read ? "읽음" : "미읽음"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-data">발송 내역이 없습니다.</div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      {drawerMode && <div className="drawer-backdrop" onClick={closeDrawer} />}
     </div>
   );
 }

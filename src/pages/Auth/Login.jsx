@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, ShieldCheck } from "lucide-react";
 import { adminLogin, verifyOtp } from "../../services/adminApi";
@@ -20,77 +20,47 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "otpCode") {
-      const onlyNums = value.replace(/[^0-9]/g, "");
-      setFormData((prev) => ({
-        ...prev,
-        [name]: onlyNums,
-      }));
-
-      if (onlyNums.length === 6) {
-        handleProcessLogin(true, onlyNums);
-      }
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-    setError("");
-  };
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    await handleProcessLogin(isOtpStep, formData.otpCode);
-  };
-
-  const handleProcessLogin = async (isOtp, currentOtpCode) => {
+  const handleProcessLogin = useCallback(async (isOtp, currentOtpCode) => {
     if (isLoading) return;
-    
     setError("");
     setIsLoading(true);
 
     try {
       if (!isOtp) {
-        // [1단계] ID/PW 로그인
-        await adminLogin({
-          loginId: formData.loginId,
-          password: formData.password,
-        });
+        await adminLogin({ loginId: formData.loginId, password: formData.password });
         setIsOtpStep(true);
       } else {
-        // [2단계] OTP 인증
-        const tokenData = await verifyOtp({
-          loginId: formData.loginId,
-          otpCode: currentOtpCode,
-        });
-
-        // 백엔드에서 리프레시 토큰은 이미 쿠키로 구워졌을 것이고,
-        // 액세스 토큰은 메모리 상태 관리를 위해 setAuth에 넘깁니다.
-        
-        if (tokenData && tokenData.accessToken) {
-          // AuthContext의 setAuth를 통해 메모리에 토큰 저장 및 유저 정보 설정
+        const tokenData = await verifyOtp({ loginId: formData.loginId, otpCode: currentOtpCode });
+        if (tokenData?.accessToken) {
           setAuth(tokenData.accessToken);
-
-          // 관리자 권한에 따른 페이지 리다이렉션
-          navigate("/admin/safety");
+          navigate("/admin/settings/dashboard", { replace: true });
         } else {
           throw new Error("인증 데이터가 올바르지 않습니다.");
         }
       }
     } catch (err) {
-      const msg = err.message || "인증에 실패했습니다.";
-      setError(msg);
-
-      if (isOtp) {
-        setFormData((prev) => ({ ...prev, otpCode: "" }));
-      }
+      setError(err.message || "인증에 실패했습니다.");
+      if (isOtp) setFormData((prev) => ({ ...prev, otpCode: "" }));
     } finally {
       setIsLoading(false);
     }
+  }, [formData, isLoading, navigate, setAuth]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "otpCode") {
+      const onlyNums = value.replace(/[^0-9]/g, "");
+      setFormData((prev) => ({ ...prev, [name]: onlyNums }));
+      if (onlyNums.length === 6) handleProcessLogin(true, onlyNums);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    if (error) setError(""); 
+  };
+
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    handleProcessLogin(isOtpStep, formData.otpCode);
   };
 
   return (
@@ -117,6 +87,8 @@ export default function Login() {
                   onChange={handleChange}
                   className="form-input"
                   required
+                  autoComplete="username"
+                  placeholder="아이디를 입력하세요"
                 />
               </div>
               <div className="form-group">
@@ -128,13 +100,15 @@ export default function Login() {
                   onChange={handleChange}
                   className="form-input"
                   required
+                  autoComplete="current-password"
+                  placeholder="비밀번호를 입력하세요"
                 />
               </div>
             </>
           ) : (
             <div className="form-group">
               <label className="form-label">인증번호 (OTP)</label>
-              <div className="otp-input-wrapper" style={{ position: "relative" }}>
+              <div className="otp-input-wrapper">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -146,16 +120,23 @@ export default function Login() {
                   maxLength={6}
                   required
                   autoFocus
-                  style={{ textAlign: "center", letterSpacing: "8px", fontSize: "1.2rem" }}
+                  style={{ 
+                    letterSpacing: "6px",
+                    fontSize: "1.2rem",
+                    fontWeight: "700",
+                    color: "#2b59a7",
+                    /* text-align: left와 width: 100%는 CSS 클래스에서 적용 */
+                  }}
                 />
                 <ShieldCheck
                   size={20}
                   className="otp-icon"
                   style={{
                     position: "absolute",
-                    right: "10px",
-                    top: "10px",
-                    color: "#6366f1",
+                    right: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#2b59a7",
                   }}
                 />
               </div>
@@ -174,18 +155,12 @@ export default function Login() {
           </button>
 
           {!isOtpStep && (
-            <div style={{ textAlign: "center", marginTop: "15px" }}>
+            <div className="footer-links">
               <button
                 type="button"
                 onClick={() => navigate("/password-reset")}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#6366f1",
-                  fontSize: "0.875rem",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
+                className="login-link-btn"
+                style={{ color: "#2b59a7" }}
               >
                 비밀번호를 잊으셨나요?
               </button>
@@ -193,21 +168,15 @@ export default function Login() {
           )}
 
           {isOtpStep && (
-            <button
-              type="button"
-              className="back-button"
-              onClick={() => setIsOtpStep(false)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#666",
-                marginTop: "10px",
-                cursor: "pointer",
-                width: "100%",
-              }}
-            >
-              이전으로 돌아가기
-            </button>
+            <div className="footer-links">
+              <button
+                type="button"
+                className="back-button"
+                onClick={() => setIsOtpStep(false)}
+              >
+                이전으로 돌아가기
+              </button>
+            </div>
           )}
         </form>
       </div>

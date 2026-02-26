@@ -1,176 +1,184 @@
-import React, { useState } from 'react';
-import { createAdmin } from '../../services/adminApi'; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { createAdmin, getMyApartmentInfo } from "../../services/adminApi";
+import { Eye, EyeOff } from "lucide-react"; 
 
-const RegisterAdminPage  = () => {
+import "./RegisterAdminPage.css";
+
+const RegisterAdminPage = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    loginId: '',
-    password: '',
-    passwordConfirm: '',
-    phoneNumber: '',
-    birthDate: '',
+    name: "",
+    email: "",
+    loginId: "",
+    password: "",
+    passwordConfirm: "",
+    phoneNumber: "",
+    birthDate: "",
   });
 
+  const [aptInfo, setAptInfo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  // 입력값 변경 핸들러
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  useEffect(() => {
+    const fetchAptData = async () => {
+      try {
+        const res = await getMyApartmentInfo();
+        setAptInfo(res);
+      } catch (err) {
+        console.error("아파트 정보 로드 실패:", err);
+      }
+    };
+    fetchAptData();
+  }, []);
+
+  const formatPhoneNumber = (value) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
   };
 
-  // 등록 제출 핸들러
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "phoneNumber") {
+      setFormData((prev) => ({ ...prev, phoneNumber: formatPhoneNumber(value) }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+  };
+
+  const calculateStrength = (password) => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
+  };
+
+  const passwordStrength = calculateStrength(formData.password);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // 프론트엔드 1차 검증: 비밀번호 일치 확인
     if (formData.password !== formData.passwordConfirm) {
-      alert("비밀번호가 일치하지 않습니다.");
+      setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    if (!window.confirm("새로운 관리자 계정을 생성하시겠습니까?")) return;
-
     setLoading(true);
     try {
-      // API 호출 (제공해주신 adminApi.js의 createAdmin 사용)
       await createAdmin(formData);
-      alert("관리자 계정이 성공적으로 생성되었습니다.");
-      
-      // 등록 후 폼 초기화
-      setFormData({
-        name: '',
-        email: '',
-        loginId: '',
-        password: '',
-        passwordConfirm: '',
-        phoneNumber: '',
-        birthDate: '',
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      // 백엔드 BusinessException 메시지가 있다면 출력
-      alert(error.response?.data?.message || "계정 생성 중 오류가 발생했습니다.");
+      navigate("/admin/register-success");
+    } catch (err) {
+      setError(err.response?.data?.message || "계정 생성 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
+  const isPasswordMismatch = formData.password && formData.passwordConfirm && formData.password !== formData.passwordConfirm;
+
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">관리자 계정 생성</h2>
-      <p className="text-sm text-gray-500 mb-6">* SUPER_ADMIN 권한으로 현재 아파트의 관리자를 등록합니다.</p>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 이름 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">이름</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+    <div className="admin-reg-container">
+      <div className="admin-reg-box">
+        <div className="admin-reg-header">
+          <h2 className="admin-reg-title">관리자 계정 생성</h2>
+          <p className="admin-reg-subtitle">
+            {aptInfo?.apartmentName ? (
+              <>
+                <strong className="apt-name-highlight">{aptInfo.apartmentName}</strong>의 신규 관리자를 등록합니다.
+              </>
+            ) : (
+              "신규 관리자를 등록합니다."
+            )}
+          </p>
         </div>
 
-        {/* 로그인 ID */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">로그인 ID</label>
-          <input
-            type="text"
-            name="loginId"
-            value={formData.loginId}
-            onChange={handleChange}
-            placeholder="4~50자"
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+        <form className="admin-reg-form" onSubmit={handleSubmit}>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">이름</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} className="admin-reg-input" required placeholder="실명을 입력하세요" />
+          </div>
 
-        {/* 이메일 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">이메일</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">로그인 ID</label>
+            <input type="text" name="loginId" value={formData.loginId} onChange={handleChange} className="admin-reg-input" required placeholder="아이디를 입력하세요" />
+          </div>
 
-        {/* 비밀번호 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">비밀번호</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="최소 8자 이상"
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">이메일</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} className="admin-reg-input" required placeholder="example@domain.com" />
+          </div>
 
-        {/* 비밀번호 확인 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">비밀번호 확인</label>
-          <input
-            type="password"
-            name="passwordConfirm"
-            value={formData.passwordConfirm}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">비밀번호</label>
+            <div className="admin-reg-password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                className="admin-reg-input" 
+                required 
+              />
+              <button 
+                type="button" 
+                className="admin-reg-toggle-btn" 
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex="-1"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {formData.password && (
+              <div className="admin-reg-strength-bar">
+                <div className={`admin-reg-strength-fill strength-${passwordStrength}`}></div>
+              </div>
+            )}
+          </div>
 
-        {/* 전화번호 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">전화번호</label>
-          <input
-            type="text"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            placeholder="010-1234-5678"
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">비밀번호 확인</label>
+            <div className="admin-reg-password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="passwordConfirm" 
+                value={formData.passwordConfirm} 
+                onChange={handleChange} 
+                className={`admin-reg-input ${isPasswordMismatch ? "admin-reg-input-error" : ""}`} 
+                required 
+              />
+            </div>
+          </div>
 
-        {/* 생년월일 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">생년월일</label>
-          <input
-            type="date"
-            name="birthDate"
-            value={formData.birthDate}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">전화번호</label>
+            <input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="admin-reg-input" required placeholder="010-0000-0000" />
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 px-4 rounded-md text-white font-semibold ${
-            loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700 transition'
-          }`}
-        >
-          {loading ? '등록 중...' : '관리자 계정 생성'}
-        </button>
-      </form>
+          <div className="admin-reg-group">
+            <label className="admin-reg-label">생년월일</label>
+            <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className="admin-reg-input" />
+          </div>
+
+          {(error || isPasswordMismatch) && (
+            <div className="admin-reg-error-msg">
+              {error || "비밀번호가 일치하지 않습니다."}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} className="admin-reg-submit-btn">
+            {loading ? "등록 중..." : "관리자 계정 생성"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default RegisterAdminPage ;
+export default RegisterAdminPage;

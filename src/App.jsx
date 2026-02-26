@@ -1,41 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 
-/* 페이지 컴포넌트 임포트 */
 import Login from "./pages/Auth/Login";
 import PasswordReset from "./pages/Auth/PasswordReset";
-import PasswordResetRequest from "./pages/Auth/PasswordResetRequest";
-import PasswordResetOtp from "./pages/Auth/PasswordResetOtp";
-import PasswordResetNewPassword from "./pages/Auth/PasswordResetNewPassword";
-
 import Layout from "./components/layout/Layout";
-
-/* 입주민 관련 */
 import ResidentManagePage from "./pages/Resident/ResidentManagePage";
 import HouseholdManagePage from "./pages/Household/HouseholdManagePage";
-
-/* 공지사항 관련 */
 import NoticesList from "./pages/Notices/NoticesList";
-import NoticeCreate from "./pages/Notices/NoticeCreate";
-import NoticeEdit from "./pages/Notices/NoticeEdit";
-import NoticeLog from "./pages/Notices/NoticeLog";
-
-/* 안전 / 모니터링 */
 import  FireMonitoringDashboard from "./pages/FireMonitoring/FireMonitoringDashboard";
-
-/* 민원 관련 */
 import ComplaintsList from "./pages/Complaints/ComplaintsList";
-import ComplaintAnswer from "./pages/Complaints/ComplaintAnswer";
-import ComplaintLog from "./pages/Complaints/ComplaintLog";
-
-/* 관리비 관련 */
 import ManagementFeePage from "./pages/Management/ManagementFeePage"; 
 import BillListPage from "./pages/Bill/BillListPage"; 
-
-/* 계정 관련 */
 import PasswordChange from "./pages/Account/PasswordChange";
 import ProfilePage from "./pages/Account/ProfilePage";
 import RegisterAdminPage from "./pages/Account/RegisterAdminPage";
+import Statistics from "./pages/Statistics/Statistics";
 
 import "./App.css";
 
@@ -47,8 +26,6 @@ function App() {
           {/* ---------------------- 인증 관련 ---------------------- */}
           <Route path="/login" element={<Login />} />
           <Route path="/password-reset" element={<PasswordReset />} />
-          <Route path="/password-reset/otp" element={<PasswordResetOtp />} />
-          <Route path="/password-reset/new" element={<PasswordResetNewPassword />} />
 
           {/* ---------------------- 관리자 영역 ---------------------- */}
           <Route path="/admin/*" element={<Layout>
@@ -58,27 +35,25 @@ function App() {
               <Route path="household/list" element={<HouseholdManagePage />} />
 
               {/* 공지사항 */}
-              <Route path="notices" element={<NoticesList />} />
-              <Route path="notices/create" element={<NoticeCreate />} />
-              <Route path="notices/:noticeId/edit" element={<NoticeEdit />} />
-              <Route path="notices/log" element={<NoticeLog />} />
+              <Route path="notice/list" element={<NoticesList />} />
 
               {/* 안전 / 화재 모니터링 */}
               <Route path="safety" element={<FireMonitoringDashboard />} />
 
               {/* 민원 관리 */}
-              <Route path="complaints/list" element={<ComplaintsList />} />
-              <Route path="complaints/log" element={<ComplaintLog />} />
-              <Route path="complaints/answer" element={<ComplaintAnswer />} />
+              <Route path="complaint/list" element={<ComplaintsList />} />
 
               {/* 관리비 */}
-              <Route path="bills" element={<BillListPage />} />
-              <Route path="bills/items" element={<ManagementFeePage />} />
+              <Route path="bill/list" element={<BillListPage />} />
+              <Route path="bill/item/list" element={<ManagementFeePage />} />
 
               {/* 계정 설정 */}
               <Route path="account" element={<ProfilePage />} />
               <Route path="account/password-change" element={<PasswordChange />} />
               <Route path="settings/register-admin" element={<RegisterAdminPage />} />
+
+              {/* 통계 */}
+              <Route path="settings/dashboard" element={<Statistics />} />
 
               <Route path="*" element={<Navigate to="household/list" replace />} />
             </Routes>
