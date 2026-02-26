@@ -331,7 +331,7 @@ export default function NoticesList() {
                 ) : (
                   <>
                     <button className="btn-primary" onClick={handleSave} disabled={saving}>
-                      {saving ? "저장 중..." : "저장 완료"}
+                      {saving ? "저장 중..." : "저장"}
                     </button>
                     <button className="btn-secondary" onClick={() => drawerMode === "edit" ? setDrawerMode("view") : closeDrawer()}>취소</button>
                   </>
