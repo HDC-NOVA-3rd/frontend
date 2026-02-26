@@ -33,6 +33,11 @@ const ManagementFeePage = () => {
 
   useEffect(() => { fetchFees(); }, []);
 
+  // 고지서 총액 계산 (활성화된 항목의 단가 합계)
+  const totalBillAmount = fees
+    .filter(fee => fee.active)
+    .reduce((sum, fee) => sum + (Number(fee.price) || 0), 0);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -90,10 +95,17 @@ const ManagementFeePage = () => {
   return (
     <div className={`safety-dashboard mgmt-page ${loading ? 'safety-dashboard--loading' : ''}`}>
 
-
-
-      {/* KPI 섹션 - Safety Dashboard 스타일 적용 */}
+      {/* KPI 섹션 */}
       <section className="kpi-section">
+        
+        <div className="kpi-card kpi-card--warning" style={{ borderLeft: '4px solid #f59e0b' }}>
+          <span className="kpi-label">세대별 관리비</span>
+          <div className="kpi-data">
+            <span className="kpi-value" style={{ color: '#f59e0b' }}>{totalBillAmount.toLocaleString()}</span>
+            <span className="kpi-sub">원</span>
+          </div>
+        </div>
+
         <div className="kpi-card kpi-card--primary">
           <span className="kpi-label">전체 항목</span>
           <div className="kpi-data">
@@ -101,6 +113,9 @@ const ManagementFeePage = () => {
             <span className="kpi-sub">건</span>
           </div>
         </div>
+
+
+
         <div className="kpi-card kpi-card--success">
           <span className="kpi-label">활성 항목</span>
           <div className="kpi-data">
@@ -108,6 +123,7 @@ const ManagementFeePage = () => {
             <span className="kpi-sub">사용중</span>
           </div>
         </div>
+        
         <div className="kpi-card kpi-card--danger">
           <span className="kpi-label">비활성 항목</span>
           <div className="kpi-data">
@@ -118,8 +134,7 @@ const ManagementFeePage = () => {
       </section>
 
       {/* 메인 리스트 영역 */}
-
-            <div className="section-header">
+      <div className="section-header">
         <h3>
           <span className="pulse-dot"></span>
           관리비 항목 설정
@@ -175,7 +190,7 @@ const ManagementFeePage = () => {
         </table>
       </div>
 
-      {/* 등록/수정 모달 - Safety Dashboard Drawer/Banner 스타일 혼합 */}
+      {/* 등록/수정 모달 */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content zone-detail-drawer shadow-lg">

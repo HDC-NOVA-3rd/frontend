@@ -47,7 +47,7 @@ export default function Login() {
           setAuth(tokenData.accessToken);
           
           // 전역 로딩이나 상태 업데이트와 충돌 피하기 위해 즉시 이동
-          navigate("/admin/safety", { replace: true });
+          navigate("/admin/household/list", { replace: true });
         } else {
           throw new Error("인증 데이터가 올바르지 않습니다.");
         }

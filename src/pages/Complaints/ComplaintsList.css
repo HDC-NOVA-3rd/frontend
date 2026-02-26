@@ -2006,3 +2006,126 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+/* 번호 강조 */
+.text-bold {
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* 관리 열 버튼 그룹 */
+.inline-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* 상태 버튼 스타일 */
+.primary-outline {
+  background: #ffffff;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+}
+.primary-outline:hover {
+  background: #eff6ff;
+}
+
+/* 처리 완료 텍스트 */
+.text-done {
+  font-size: 0.85rem;
+  color: #10b981;
+  font-weight: 500;
+}
+
+/* 제목 말줄임 방지 및 정렬 */
+.text-left { text-align: left; padding-left: 15px !important; }
+.text-ellipsis {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #fbfcfd;
+}
+
+.tab-item {
+  border: none;
+  background: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-item:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.tab-item.active {
+  background-color: #eff6ff;
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.tab-count {
+  font-size: 11px;
+  background-color: #e2e8f0;
+  color: #475569;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+}
+
+.tab-item.active .tab-count {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.tab-divider {
+  width: 1px;
+  height: 16px;
+  background-color: #e2e8f0;
+  margin: 0 5px;
+}
+/* 세부 페이지들의 고정 너비 제한 해제 */
+.notices-page, 
+.safety-dashboard {
+  /* max-width: 1060px; <- 기존의 고정값 제거 또는 확장 */
+  max-width: 1600px; 
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px;
+  box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
+  transition: all 0.3s ease; /* 사이드바 이동과 동기화 */
+}
+
+/* KPI 카드 가로 크기 자동 맞춤 */
+.kpi-section {
+  display: grid;
+  /* 사이드바가 접히면 1fr이 자동으로 늘어남 */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 20px;
+  width: 100%;
+}
+
+/* 민원 통계 대시보드 가로 크기 자동 맞춤 */
+.stats-dashboard {
+  display: grid;
+  /* 6개 카드가 공간에 따라 유동적으로 배치 */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  width: 100%;
+}

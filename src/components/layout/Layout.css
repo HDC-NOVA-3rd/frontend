@@ -19,3 +19,31 @@
     padding: 1.5rem 1rem;
   }
 }
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-main {
+  /* 사이드바 너비만큼 왼쪽 여백 확보 */
+  margin-left: 260px; 
+  padding: 20px;
+  padding-top: 84px; /* 헤더 높이만큼 */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 사이드바와 동일한 애니메이션 */
+  flex-grow: 1;
+  background-color: #f8fafc;
+}
+
+/* 사이드바가 접혔을 때 메인 영역 여백 변경 */
+.layout-main.collapsed {
+  margin-left: 80px;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .layout-main, .layout-main.collapsed {
+    margin-left: 0;
+    padding-top: 74px;
+  }
+}

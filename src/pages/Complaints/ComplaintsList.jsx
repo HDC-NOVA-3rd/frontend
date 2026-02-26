@@ -29,10 +29,10 @@ const formatFullDate = (raw) => {
 };
 
 const STATUS_MAP = {
-  RECEIVED: { label: "접수", class: "status-received" },
-  ASSIGNED: { label: "배정", class: "status-assigned" },
-  IN_PROGRESS: { label: "처리중", class: "status-processing" },
-  COMPLETED: { label: "완료", class: "status-completed" },
+  RECEIVED: { label: "접수", class: "status-received", next: "ASSIGNED", nextLabel: "담당 배정" },
+  ASSIGNED: { label: "배정", class: "status-assigned", next: "IN_PROGRESS", nextLabel: "처리 시작" },
+  IN_PROGRESS: { label: "처리중", class: "status-processing", next: "COMPLETED", nextLabel: "처리 완료" },
+  COMPLETED: { label: "완료", class: "status-completed", next: null, nextLabel: null },
 };
 
 export default function ComplaintsList() {
@@ -42,6 +42,9 @@ export default function ComplaintsList() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [currentAdminId, setCurrentAdminId] = useState(null);
+  
+  // 새 상태: 탭 필터
+  const [currentTab, setCurrentTab] = useState("ALL");
 
   // Drawer 제어: 'ANSWER'(답변) | 'LOG'(전체로그) | null
   const [drawerType, setDrawerType] = useState(null); 
@@ -82,13 +85,23 @@ export default function ComplaintsList() {
     } catch (err) { alert("배정 처리 실패"); }
   };
 
-  const handleStatusChange = async (e, complaintId) => {
+  // 다음 상태로 변경 핸들러
+  const handleNextStatus = async (e, item) => {
     e.stopPropagation();
-    const newStatus = e.target.value;
+    const nextStatus = STATUS_MAP[item.status]?.next;
+    if (!nextStatus) return;
+
     try {
-      await changeComplaintStatus(complaintId, newStatus);
+      if (nextStatus === "ASSIGNED") {
+        // 배정 단계일 때는 배정 API 호출
+        await assignAdmin(item.complaintId, currentAdminId, currentAdminId);
+      } else {
+        await changeComplaintStatus(item.complaintId, nextStatus);
+      }
       loadData();
-    } catch (err) { alert("상태 변경 중 오류가 발생했습니다."); }
+    } catch (err) {
+      alert("상태 변경 중 오류가 발생했습니다.");
+    }
   };
 
   const handleOpenAnswer = (e, item) => {
@@ -127,12 +140,23 @@ export default function ComplaintsList() {
     return { total: complaints.length, byStatus, avgHours: doneCnt > 0 ? (totalMs / doneCnt / 3600000) : 0 };
   }, [complaints]);
 
+  // 탭별 건수 계산
+  const counts = useMemo(() => ({
+    ALL: complaints.length,
+    RECEIVED: complaints.filter(c => c.status === "RECEIVED").length,
+    ASSIGNED: complaints.filter(c => c.status === "ASSIGNED").length,
+    IN_PROGRESS: complaints.filter(c => c.status === "IN_PROGRESS").length,
+    COMPLETED: complaints.filter(c => c.status === "COMPLETED").length,
+  }), [complaints]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return complaints.filter(c => 
-      (c.title || "").toLowerCase().includes(q) || String(c.complaintId).includes(q)
-    );
-  }, [complaints, search]);
+    return complaints.filter(c => {
+      const matchesTab = currentTab === "ALL" || c.status === currentTab;
+      const matchesSearch = (c.title || "").toLowerCase().includes(q) || String(c.complaintId).includes(q);
+      return matchesTab && matchesSearch;
+    });
+  }, [complaints, search, currentTab]);
 
   return (
     <div className="notices-page">
@@ -159,12 +183,29 @@ export default function ComplaintsList() {
 
       {/* 3. 리스트 카드 */}
       <div className="notices-card">
+        {/* 상태 필터 탭 추가 */}
+        <div className="filter-tabs">
+          <button className={`tab-item ${currentTab === "ALL" ? "active" : ""}`} onClick={() => setCurrentTab("ALL")}>
+            전체 <span className="tab-count">{counts.ALL}</span>
+          </button>
+          <div className="tab-divider" />
+          {Object.entries(STATUS_MAP).map(([key, info]) => (
+            <button 
+              key={key} 
+              className={`tab-item ${currentTab === key ? "active" : ""}`} 
+              onClick={() => setCurrentTab(key)}
+            >
+              {info.label} <span className="tab-count">{counts[key]}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="notices-filter-bar">
           <input 
             className="notices-search-input" 
             value={search} 
             onChange={(e) => setSearch(e.target.value)} 
-            placeholder="민원 내용 또는 제목으로 검색..." 
+            placeholder="민원 번호 또는 제목으로 검색..." 
           />
           <button className="notices-btn" onClick={loadData}>🔄 새로고침</button>
         </div>
@@ -173,54 +214,48 @@ export default function ComplaintsList() {
           <table className="notices-table">
             <thead>
               <tr>
-
-                <th style={{ width: "100px" }}>상태</th>
-                <th>제목</th>
-                <th style={{ width: "100px" }}>민원 번호</th>
-                <th style={{ width: "240px" }}>빠른 관리</th>
+                <th style={{ width: "80px" }}>번호</th>
+                <th style={{ width: "100px" }}>민원 상태</th>
+                <th>민원 제목</th>
                 <th style={{ width: "120px" }}>접수 일시</th>
+                <th style={{ width: "200px" }}>민원 관리</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((item) => (
-                <tr key={item.complaintId} onClick={() => setSelected(item)} className="row-hover">
-                  <td>
-                    <span className={`status-badge ${STATUS_MAP[item.status]?.class}`}>
-                      {STATUS_MAP[item.status]?.label}
-                    </span>
-                  </td>
-                  <td className="text-left">{item.title}</td>
-                  <td>{item.complaintId}</td>
-                  <td>
-                    {/* 인라인 관리 영역: 클릭 시 행 이벤트(상세보기) 전파 방지 */}
-                    <div className="inline-actions" onClick={(e) => e.stopPropagation()}>
-                      {item.status === "RECEIVED" ? (
-                        <button className="notices-btn primary sm" onClick={(e) => handleAssignMe(e, item.complaintId)}>
-                          🙋 본인 배정
-                        </button>
-                      ) : (
-                        <div className="action-group">
-                          <select 
-                            className="status-select-sm" 
-                            value={item.status} 
-                            onChange={(e) => handleStatusChange(e, item.complaintId)}
-                          >
-                            {Object.keys(STATUS_MAP).map(k => (
-                              <option key={k} value={k}>{STATUS_MAP[k].label}</option>
-                            ))}
-                          </select>
-                          {(item.status === "ASSIGNED" || item.status === "IN_PROGRESS") && (
-                            <button className="notices-btn sm" onClick={(e) => handleOpenAnswer(e, item)}>
-                              ✏️ 답변
+              {filtered.map((item) => {
+                const statusInfo = STATUS_MAP[item.status];
+                return (
+                  <tr key={item.complaintId} onClick={() => setSelected(item)} className="row-hover">
+                    <td>{item.complaintId}</td>
+                    <td>
+                      <span className={`status-badge ${statusInfo?.class}`}>
+                        {statusInfo?.label}
+                      </span>
+                    </td>
+                    <td className="text-left">{item.title}</td>
+                    <td>{formatDate(item.createdAt)}</td>
+                    <td>
+                      {/* 인라인 관리 영역: 버튼식으로 변경 */}
+                      <div className="inline-actions" onClick={(e) => e.stopPropagation()}>
+                        {statusInfo?.next ? (
+                          <div className="action-group">
+                            <button className="notices-btn sm primary-outline" onClick={(e) => handleNextStatus(e, item)}>
+                              {statusInfo.nextLabel}
                             </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td>{formatDate(item.createdAt)}</td>
-                </tr>
-              ))}
+                            {(item.status === "ASSIGNED" || item.status === "IN_PROGRESS") && (
+                              <button className="notices-btn sm" onClick={(e) => handleOpenAnswer(e, item)}>
+                                ✏️ 답변
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-done">처리 완료</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           {filtered.length === 0 && <div className="empty-state">해당하는 민원 내역이 없습니다.</div>}
@@ -262,8 +297,8 @@ export default function ComplaintsList() {
                       <span className="log-time">{formatFullDate(log.createdAt)}</span>
                     </div>
                     <div className="log-body">
-                      <p className="log-message"><strong>[{log.memberName}]</strong> 님의 민원이 업데이트되었습니다.</p>
-                      <span className="log-id">#{log.complaintId}</span>
+                      <p className="log-message"><strong>[{log.complaintId}]</strong>번 민원이 업데이트되었습니다.</p>
+                      <span className="log-id">#{log.status} #{log.type}</span>
                     </div>
                   </div>
                 </div>

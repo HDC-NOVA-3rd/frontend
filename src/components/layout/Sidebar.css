@@ -502,3 +502,109 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* 사이드바 기본 너비 설정 */
+.sidebar {
+  width: 260px;
+  transition: width 0.3s ease; /* 애니메이션 효과 */
+  position: relative;
+}
+
+/* 접혔을 때의 너비 */
+.sidebar.collapsed {
+  width: 80px;
+}
+
+/* 접기/펴기 버튼 스타일 */
+.toggle-btn {
+  position: absolute;
+  right: -12px; /* 사이드바 경계선에 걸치게 */
+  top: 25px;
+  width: 24px;
+  height: 24px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toggle-btn:hover {
+  background-color: #f8f9fa;
+}
+
+/* 접혔을 때 메뉴 아이템 정렬 */
+.sidebar.collapsed .menu-item {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .admin-details {
+  display: none; /* 텍스트 숨김 */
+}
+/* 사이드바 기본 스타일 */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: #fff;
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 부드러운 전환 */
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+/* 접혔을 때의 스타일 */
+.sidebar.collapsed {
+  width: 80px;
+}
+
+/* 토글 버튼 스타일 (경계선에 위치) */
+.sidebar-toggle-btn {
+  position: absolute;
+  right: -12px;
+  top: 30px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 101;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #f9fafb;
+  color: #3b82f6;
+}
+
+/* 접혔을 때 내부 정렬 */
+.sidebar.collapsed .sidebar-header,
+.sidebar.collapsed .menu-item,
+.sidebar.collapsed .admin-info-section {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .admin-details {
+  display: none;
+}
+
+.sidebar.collapsed .logout-btn {
+  justify-content: center;
+  padding: 12px 0;
+}

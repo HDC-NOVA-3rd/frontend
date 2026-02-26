@@ -2,21 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Home, Bell, MessageSquare, Users, ShieldCheck, 
-  Receipt, Settings, KeyRound, UserPlus, LogOut, LayoutDashboard, User
+  Receipt, Settings, KeyRound, UserPlus, LogOut, 
+  LayoutDashboard, User, BarChart3, ChevronLeft, ChevronRight 
 } from "lucide-react";
 import { adminLogout, getMyApartmentInfo, getMyAdminInfo } from "../../services/adminApi";
 import "./Sidebar.css";
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = localStorage.getItem("userRole") || "MANAGER";
 
-  // 상태 관리: 아파트 정보 및 내 정보
   const [aptInfo, setAptInfo] = useState(null);
   const [adminInfo, setAdminInfo] = useState(null);
 
-  // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     const fetchSidebarData = async () => {
       try {
@@ -57,6 +56,7 @@ export default function Sidebar({ isOpen, onClose }) {
     { label: "내 계정 정보", icon: LayoutDashboard, path: "/admin/account", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "비밀번호 변경", icon: KeyRound, path: "/admin/account/password-change", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "관리자 추가", icon: UserPlus, path: "/admin/settings/register-admin", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "전체 통계", icon: BarChart3, path: "/admin/settings/overall-statistics", roles: ["SUPER_ADMIN", "MANAGER"] },
   ];
 
   const filteredMenus = menuItems.filter(item => item.roles.includes(userRole));
@@ -65,11 +65,19 @@ export default function Sidebar({ isOpen, onClose }) {
     <>
       <div className={`sidebar-overlay ${isOpen ? "show" : ""}`} onClick={onClose} />
       
-      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
-        {/* 상단: 아파트 관리 시스템 제목 */}
+      <aside className={`sidebar ${isOpen ? "open" : ""} ${isCollapsed ? "collapsed" : ""}`}>
+        {/* 접기/펴기 토글 버튼 */}
+        <button 
+          className="sidebar-toggle-btn" 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label="Toggle Sidebar"
+        >
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+
         <div className="sidebar-header">
           <h3 className="sidebar-logo">
-            {aptInfo?.apartmentName ? `${aptInfo.apartmentName} 관리시스템` : "아파트 관리시스템"}
+            {isCollapsed ? "APT" : (aptInfo?.apartmentName ? `${aptInfo.apartmentName}` : "관리시스템")}
           </h3>
         </div>
 
@@ -83,20 +91,19 @@ export default function Sidebar({ isOpen, onClose }) {
                   key={index}
                   to={item.path}
                   className={`menu-item ${isActive ? "active" : ""}`}
+                  title={isCollapsed ? item.label : ""}
                   onClick={() => { if (window.innerWidth <= 768) onClose(); }}
                 >
                   <div className="icon-wrapper">
                     <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                   </div>
-                  <span className="menu-label">{item.label}</span>
-                  {isActive && <div className="active-bar" />}
+                  {!isCollapsed && <span className="menu-label">{item.label}</span>}
                 </Link>
               );
             })}
           </div>
         </nav>
 
-        {/* 하단: 내 정보 및 로그아웃 */}
         <div className="sidebar-footer">
           {adminInfo && (
             <div className="admin-info-section">
@@ -107,16 +114,18 @@ export default function Sidebar({ isOpen, onClose }) {
                   <div className="profile-placeholder"><User size={24} /></div>
                 )}
               </div>
-              <div className="admin-details">
-                <span className="admin-name">{adminInfo.name} 님</span>
-                <span className="admin-email">{adminInfo.email}</span>
-              </div>
+              {!isCollapsed && (
+                <div className="admin-details">
+                  <span className="admin-name">{adminInfo.name} 님</span>
+                  <span className="admin-email">{adminInfo.email}</span>
+                </div>
+              )}
             </div>
           )}
           
           <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={18} />
-            <span>로그아웃</span>
+            {!isCollapsed && <span>로그아웃</span>}
           </button>
         </div>
       </aside>
