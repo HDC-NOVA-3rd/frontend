@@ -9,7 +9,7 @@ import "./ResidentManagePage.css";
 
 const ResidentManagePage = () => {
   const [residents, setResidents] = useState([]);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer 열림 상태
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingResident, setEditingResident] = useState(null);
   const [formData, setFormData] = useState({ name: "", phone: "", dong: "", ho: "" });
 
@@ -28,19 +28,16 @@ const ResidentManagePage = () => {
     return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
   };
 
-  /** 2. 데이터 로드 (백엔드 필터가 안될 경우를 대비해 넓은 범위로 가져옴) */
+  /** 2. 데이터 로드 */
   const fetchData = useCallback(async () => {
     try {
       const params = {
-        // 백엔드 필터가 동작하지 않으므로, 최대한 전체 데이터를 가져오거나 
-        // 페이징 사이즈를 크게 조절하여 프론트에서 필터링할 수 있게 합니다.
         searchTerm: null, 
         dongNo: null,
         page: 0, 
         size: 1000 
       };
       const response = await getResidentsByApartment(params);
-      
       const data = response.content || [];
       setResidents(data);
     } catch (error) {
@@ -52,13 +49,10 @@ const ResidentManagePage = () => {
     fetchData();
   }, [fetchData]);
 
-  /** 2-1. 프론트엔드 필터링 로직 (백엔드 미지원 대비 핵심 수정본) */
+  /** 2-1. 프론트엔드 필터링 로직 */
   const filteredResidents = useMemo(() => {
     return residents.filter(res => {
-      // 동 필터링
       const matchDong = selectedDong === "all" || String(res.dongNo) === String(selectedDong);
-      
-      // 검색어 필터링 (이름, 연락처, 호수)
       const s = searchTerm.toLowerCase();
       const matchSearch = !s || 
         res.name.toLowerCase().includes(s) || 
@@ -71,16 +65,15 @@ const ResidentManagePage = () => {
 
   /** 3. 상단 대시보드 및 동 리스트 계산 */
   const stats = useMemo(() => {
-    const recent = [...residents].reverse().slice(0, 5); // 최신 등록순
+    const recent = [...residents].reverse().slice(0, 5);
     const dongList = ["all", ...new Set(residents.map(res => res.dongNo))].sort();
-    
     const householdCount = new Set(residents.map(r => `${r.dongNo}-${r.hoNo}`)).size;
     const avgRes = residents.length > 0 ? (residents.length / (householdCount || 1)).toFixed(1) : 0;
 
     return { recent, dongList, householdCount, avgRes };
   }, [residents]);
 
-  /** 4. CSV 다운로드 (필터링된 데이터 기준) */
+  /** 4. CSV 다운로드 */
   const handleDownloadExcel = () => {
     if (filteredResidents.length === 0) {
       alert("다운로드할 데이터가 없습니다.");
@@ -100,7 +93,7 @@ const ResidentManagePage = () => {
     link.click();
   };
 
-  /** 5. CRUD 핸들링 (Drawer 오픈 로직) */
+  /** 5. CRUD 핸들링 */
   const openDrawer = (resident = null) => {
     if (resident) {
       setEditingResident(resident);
@@ -132,14 +125,14 @@ const ResidentManagePage = () => {
         await createResident(refinedData);
       }
       closeDrawer();
-      fetchData(); // 등록/수정 후 전체 다시 로드
+      fetchData();
     } catch (error) {
       alert("저장 실패");
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("정말 삭제하시겠습니까?")) {
+    if (window.confirm("해당 입주민을 명부에서 제외하시겠습니까?")) {
       await deleteResident(id);
       fetchData();
     }
@@ -147,7 +140,6 @@ const ResidentManagePage = () => {
 
   return (
     <div className="manage-page-container">
-
       {/* 대시보드 통계 카드 섹션 */}
       <section className="dashboard-section">
         <div className="stats-grid">
@@ -205,7 +197,14 @@ const ResidentManagePage = () => {
         <div className="table-container">
           <table className="main-table">
             <thead>
-              <tr><th>동</th><th>호</th><th>성명</th><th>연락처</th><th>관리</th></tr>
+              <tr>
+                <th>동</th>
+                <th>호</th>
+                <th>성명</th>
+                <th>연락처</th>
+                <th>정보 수정</th>
+                <th>명부 제외</th>
+              </tr>
             </thead>
             <tbody>
               {filteredResidents.map((r) => (
@@ -214,21 +213,29 @@ const ResidentManagePage = () => {
                   <td>{r.hoNo}호</td>
                   <td className="bold">{r.name}</td>
                   <td>{r.phone}</td>
-                  <td className="actions">
-                    <button className="btn-edit-sm" onClick={() => openDrawer(r)}>수정</button>
-                    <button className="btn-delete-sm" onClick={() => handleDelete(r.residentId)}>삭제</button>
+                  {/* 수정 버튼 컬럼 */}
+                  <td>
+                    <button className="btn-edit-sm" onClick={() => openDrawer(r)}>변경</button>
+                  </td>
+                  {/* 삭제 버튼 컬럼 */}
+                  <td>
+                    <button className="btn-delete-sm" onClick={() => handleDelete(r.residentId)}>제외</button>
                   </td>
                 </tr>
               ))}
               {filteredResidents.length === 0 && (
-                <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>검색 결과가 없습니다.</td></tr>
+                <tr>
+                  <td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>
+                    검색 결과가 없습니다.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* --- 오른쪽 Drawer (모달 대체) --- */}
+      {/* --- 오른쪽 Drawer --- */}
       <div 
         className={`drawer-overlay ${isDrawerOpen ? "show" : ""}`} 
         onClick={closeDrawer} 
@@ -287,7 +294,7 @@ const ResidentManagePage = () => {
           <div className="drawer-footer">
             <button type="button" className="btn-secondary" onClick={closeDrawer}>취소</button>
             <button type="submit" className="btn-primary">
-              {editingResident ? "저장" : "등록 완료"}
+              {editingResident ? "저장" : "등록"}
             </button>
           </div>
         </form>

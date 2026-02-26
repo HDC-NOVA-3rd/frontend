@@ -769,3 +769,193 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+/* ── 4. 사이드 Drawer (고지서 상세) ───────────────────── */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -520px; /* 닫힘 상태 */
+  width: 500px;
+  height: 100vh;
+  background: white;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.open {
+  right: 0; /* 열림 상태 */
+}
+
+/* 배경 블러 효과 */
+.drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1150;
+}
+
+/* Drawer 헤더 */
+.drawer-header {
+  padding: 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-close {
+  background: #f8fafc;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.drawer-close:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Drawer 바디 */
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* 상단 요약 카드 */
+.detail-info-card {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-row .label {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.detail-row .value {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.status-text.paid { color: #10b981; }
+.status-text.unpaid { color: #ef4444; }
+
+/* 세부 항목 테이블 (영수증 스타일) */
+.item-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.item-table th {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 2px solid #f1f5f9;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.item-table td {
+  padding: 16px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.item-type {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.text-right { text-align: right; }
+
+/* 테이블 합계 영역 */
+.item-table tfoot th, 
+.item-table tfoot td {
+  padding: 20px 8px;
+  background-color: #fcfdfe;
+}
+
+.total-price {
+  font-size: 1.25rem;
+  color: #3b82f6;
+  font-weight: 800;
+}
+
+/* 하단 버튼 */
+.drawer-actions {
+  margin-top: 40px;
+  display: flex;
+  gap: 12px;
+}
+
+.close-action-btn {
+  width: 100%;
+  height: 48px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-action-btn:hover {
+  background: #e2e8f0;
+}
+
+/* 로딩 상태 */
+.drawer-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+}
+
+/* 반응형 (모바일) */
+@media (max-width: 600px) {
+  .side-drawer {
+    width: 100%;
+    right: -100%;
+  }
+}
