@@ -1064,3 +1064,75 @@
     max-width: 200px;
   }
 }
+/* Drawer 기본 레이아웃 */
+.notices-page {
+  display: flex;
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.notices-main {
+  flex: 1;
+  transition: margin-right 0.3s ease;
+  padding: 24px;
+}
+
+/* Drawer가 열렸을 때 메인 영역 살짝 밀기 (선택 사항) */
+.drawer-is-open .notices-main {
+  margin-right: 80px;
+  filter: grayscale(0.2);
+}
+
+/* Drawer 본체 */
+.notices-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 550px; /* 적절한 너비 */
+  height: 100%;
+  background: #fff;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawer-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* 상세 보기 내부 스타일 */
+.view-group { margin-bottom: 24px; }
+.view-group label { font-size: 13px; color: #666; display: block; margin-bottom: 8px; }
+.view-value.title { font-size: 20px; font-weight: 700; color: #111; }
+.view-value.content-box { 
+  background: #f9fafb; 
+  padding: 16px; 
+  border-radius: 8px; 
+  white-space: pre-wrap; 
+  min-height: 200px;
+  line-height: 1.6;
+}
+
+/* 푸터 하단 고정 */
+.drawer-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+
+.clickable-row:hover { background: #f0f7ff; }

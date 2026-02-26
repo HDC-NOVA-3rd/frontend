@@ -36,21 +36,19 @@ export default function Sidebar({ isOpen, onClose }) {
 
     { label: "세대 현황", icon: Home, path: "/admin/household/list" },
         {
-      label: "공지사항",
+      label: "공지 목록",
       icon: Bell,
       submenu: [
-        { label: "공지사항 등록", path: "/admin/notices/create" },
-        { label: "공지사항 목록", path: "/admin/notices" },
-        { label: "공지 로그", path: "/admin/notices/log" },
+        { label: "공지 목록", path: "/admin/notice/list" },
       ],
     },
     {
       label: "민원 현황",
       icon: FileText,
       submenu: [
-        { label: "민원 목록", path: "/admin/complaints/list" }, 
-        { label: "변경 내역", path: "/admin/complaints/log" },
-        { label: "민원 답변", path: "/admin/complaints/answer" },
+        { label: "민원 목록", path: "/admin/complaint/list" }, 
+        { label: "변경 내역", path: "/admin/complaint/log" },
+        { label: "민원 답변", path: "/admin/complaint/answer" },
       ],
     },
     {
@@ -71,8 +69,8 @@ export default function Sidebar({ isOpen, onClose }) {
       label: "고지서 관리",
       icon: CreditCard,
       submenu: [
-        { label: "수납 현황", path: "/admin/bills" },
-        { label: "세부 항목", path: "/admin/bills/items" },
+        { label: "수납 현황", path: "/admin/bill/list" },
+        { label: "세부 항목", path: "/admin/bill/item/list" },
       ],
     },
     {

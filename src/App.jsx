@@ -16,9 +16,6 @@ import HouseholdManagePage from "./pages/Household/HouseholdManagePage";
 
 /* 공지사항 관련 */
 import NoticesList from "./pages/Notices/NoticesList";
-import NoticeCreate from "./pages/Notices/NoticeCreate";
-import NoticeEdit from "./pages/Notices/NoticeEdit";
-import NoticeLog from "./pages/Notices/NoticeLog";
 
 /* 안전 / 모니터링 */
 import  FireMonitoringDashboard from "./pages/FireMonitoring/FireMonitoringDashboard";
@@ -58,22 +55,19 @@ function App() {
               <Route path="household/list" element={<HouseholdManagePage />} />
 
               {/* 공지사항 */}
-              <Route path="notices" element={<NoticesList />} />
-              <Route path="notices/create" element={<NoticeCreate />} />
-              <Route path="notices/:noticeId/edit" element={<NoticeEdit />} />
-              <Route path="notices/log" element={<NoticeLog />} />
+              <Route path="notice/list" element={<NoticesList />} />
 
               {/* 안전 / 화재 모니터링 */}
               <Route path="safety" element={<FireMonitoringDashboard />} />
 
               {/* 민원 관리 */}
-              <Route path="complaints/list" element={<ComplaintsList />} />
-              <Route path="complaints/log" element={<ComplaintLog />} />
-              <Route path="complaints/answer" element={<ComplaintAnswer />} />
+              <Route path="complaint/list" element={<ComplaintsList />} />
+              <Route path="complaint/log" element={<ComplaintLog />} />
+              <Route path="complaint/answer" element={<ComplaintAnswer />} />
 
               {/* 관리비 */}
-              <Route path="bills" element={<BillListPage />} />
-              <Route path="bills/items" element={<ManagementFeePage />} />
+              <Route path="bill/list" element={<BillListPage />} />
+              <Route path="bill/item/list" element={<ManagementFeePage />} />
 
               {/* 계정 설정 */}
               <Route path="account" element={<ProfilePage />} />
