@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Home, Bell, MessageSquare, Users, ShieldCheck, 
   Receipt, Settings, KeyRound, UserPlus, LogOut, 
-  LayoutDashboard, User, BarChart3, ChevronLeft, ChevronRight 
+  LayoutDashboard, User, BarChart3, ChevronLeft, ChevronRight, Building2 
 } from "lucide-react";
 import { adminLogout, getMyApartmentInfo, getMyAdminInfo } from "../../services/adminApi";
 import "./Sidebar.css";
@@ -19,14 +19,14 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
   useEffect(() => {
     const fetchSidebarData = async () => {
       try {
-        const [aptRes, adminRes] = await Promise.all([
-          getMyApartmentInfo(),
-          getMyAdminInfo()
-        ]);
-        setAptInfo(aptRes.data);
-        setAdminInfo(adminRes.data);
+        // api.js의 get함수는 이미 response.data를 리턴하므로 res를 직접 넣습니다.
+        const aptRes = await getMyApartmentInfo();
+        const adminRes = await getMyAdminInfo();
+        
+        setAptInfo(aptRes); 
+        setAdminInfo(adminRes);
       } catch (error) {
-        console.error("데이터 로드 실패:", error);
+        console.error("사이드바 데이터 로드 실패:", error);
       }
     };
     fetchSidebarData();
@@ -35,8 +35,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
   const handleLogout = async () => {
     if (!window.confirm("로그아웃 하시겠습니까?")) return;
     try {
-      const token = localStorage.getItem("refreshToken");
-      if (token) await adminLogout({ refreshToken: token });
+      await adminLogout();
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -66,7 +65,6 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
       <div className={`sidebar-overlay ${isOpen ? "show" : ""}`} onClick={onClose} />
       
       <aside className={`sidebar ${isOpen ? "open" : ""} ${isCollapsed ? "collapsed" : ""}`}>
-        {/* 접기/펴기 토글 버튼 */}
         <button 
           className="sidebar-toggle-btn" 
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -76,9 +74,18 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
         </button>
 
         <div className="sidebar-header">
-          <h3 className="sidebar-logo">
-            {isCollapsed ? "APT" : (aptInfo?.apartmentName ? `${aptInfo.apartmentName}` : "관리시스템")}
-          </h3>
+          <div className="logo-wrapper">
+            {/* 아파트 로고 아이콘 */}
+            <Building2 size={24} className="apt-icon" />
+            {!isCollapsed && (
+              <h3 className="sidebar-logo">
+                    {/* 아파트 이름이 있으면 '이름 + 관리시스템', 없으면 그냥 '관리시스템' */}
+                    {aptInfo?.apartmentName 
+                      ? `${aptInfo.apartmentName} 관리소` 
+                      : "아파트 관리소"}
+              </h3>
+            )}
+          </div>
         </div>
 
         <nav className="sidebar-nav">
@@ -111,7 +118,9 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
                 {adminInfo.profileImg ? (
                   <img src={adminInfo.profileImg} alt="Profile" />
                 ) : (
-                  <div className="profile-placeholder"><User size={24} /></div>
+                  <div className="profile-placeholder">
+                    <User size={isCollapsed ? 18 : 22} />
+                  </div>
                 )}
               </div>
               {!isCollapsed && (
@@ -123,7 +132,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed, setIsCollapsed }
             </div>
           )}
           
-          <button className="logout-btn" onClick={handleLogout}>
+          <button className="logout-btn" onClick={handleLogout} title={isCollapsed ? "로그아웃" : ""}>
             <LogOut size={18} />
             {!isCollapsed && <span>로그아웃</span>}
           </button>

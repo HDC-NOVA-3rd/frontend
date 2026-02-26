@@ -9,15 +9,12 @@ import "./ResidentManagePage.css";
 
 const ResidentManagePage = () => {
   const [residents, setResidents] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer 열림 상태
   const [editingResident, setEditingResident] = useState(null);
   const [formData, setFormData] = useState({ name: "", phone: "", dong: "", ho: "" });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDong, setSelectedDong] = useState("all");
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
 
   /** 1. 연락처 자동 하이픈 포맷터 */
   const formatPhone = (value) => {
@@ -31,54 +28,68 @@ const ResidentManagePage = () => {
     return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
   };
 
-  /** 2. 데이터 로드 */
+  /** 2. 데이터 로드 (백엔드 필터가 안될 경우를 대비해 넓은 범위로 가져옴) */
   const fetchData = useCallback(async () => {
     try {
       const params = {
-        searchTerm: searchTerm.trim() || null,
-        dongNo: selectedDong === "all" ? null : selectedDong,
-        page: currentPage,
-        size: 10
+        // 백엔드 필터가 동작하지 않으므로, 최대한 전체 데이터를 가져오거나 
+        // 페이징 사이즈를 크게 조절하여 프론트에서 필터링할 수 있게 합니다.
+        searchTerm: null, 
+        dongNo: null,
+        page: 0, 
+        size: 1000 
       };
       const response = await getResidentsByApartment(params);
       
-      setResidents(response.content || []);
-      setTotalPages(response.totalPages || 0);
-      setTotalElements(response.totalElements || 0);
+      const data = response.content || [];
+      setResidents(data);
     } catch (error) {
       console.error("데이터 로드 실패", error);
     }
-  }, [searchTerm, selectedDong, currentPage]);
-
-  useEffect(() => { setCurrentPage(0); }, [searchTerm, selectedDong]);
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => fetchData(), 300);
-    return () => clearTimeout(timer);
+    fetchData();
   }, [fetchData]);
 
-  /** 3. 상단 대시보드용 데이터 계산 */
+  /** 2-1. 프론트엔드 필터링 로직 (백엔드 미지원 대비 핵심 수정본) */
+  const filteredResidents = useMemo(() => {
+    return residents.filter(res => {
+      // 동 필터링
+      const matchDong = selectedDong === "all" || String(res.dongNo) === String(selectedDong);
+      
+      // 검색어 필터링 (이름, 연락처, 호수)
+      const s = searchTerm.toLowerCase();
+      const matchSearch = !s || 
+        res.name.toLowerCase().includes(s) || 
+        res.phone.includes(s) || 
+        String(res.hoNo).includes(s);
+
+      return matchDong && matchSearch;
+    });
+  }, [residents, selectedDong, searchTerm]);
+
+  /** 3. 상단 대시보드 및 동 리스트 계산 */
   const stats = useMemo(() => {
-    const recent = [...residents].slice(0, 5);
+    const recent = [...residents].reverse().slice(0, 5); // 최신 등록순
     const dongList = ["all", ...new Set(residents.map(res => res.dongNo))].sort();
     
-    // 가상의 통계 데이터 (필요 시 API 응답값으로 대체)
     const householdCount = new Set(residents.map(r => `${r.dongNo}-${r.hoNo}`)).size;
-    const avgRes = totalElements > 0 ? (totalElements / (householdCount || 1)).toFixed(1) : 0;
+    const avgRes = residents.length > 0 ? (residents.length / (householdCount || 1)).toFixed(1) : 0;
 
     return { recent, dongList, householdCount, avgRes };
-  }, [residents, totalElements]);
+  }, [residents]);
 
-  /** 4. CSV 다운로드 */
+  /** 4. CSV 다운로드 (필터링된 데이터 기준) */
   const handleDownloadExcel = () => {
-    if (residents.length === 0) {
+    if (filteredResidents.length === 0) {
       alert("다운로드할 데이터가 없습니다.");
       return;
     }
     const headers = ["동", "호", "성명", "연락처"];
     const csvRows = [
       headers.join(","),
-      ...residents.map(r => [`${r.dongNo}동`, `${r.hoNo}호`, r.name, r.phone].join(","))
+      ...filteredResidents.map(r => [`${r.dongNo}동`, `${r.hoNo}호`, r.name, r.phone].join(","))
     ];
     const csvContent = "\uFEFF" + csvRows.join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -89,8 +100,8 @@ const ResidentManagePage = () => {
     link.click();
   };
 
-  /** 5. CRUD 핸들링 */
-  const openModal = (resident = null) => {
+  /** 5. CRUD 핸들링 (Drawer 오픈 로직) */
+  const openDrawer = (resident = null) => {
     if (resident) {
       setEditingResident(resident);
       setFormData({ name: resident.name, phone: resident.phone, dong: resident.dongNo, ho: resident.hoNo });
@@ -98,15 +109,20 @@ const ResidentManagePage = () => {
       setEditingResident(null);
       setFormData({ name: "", phone: "", dong: "", ho: "" });
     }
-    setIsModalOpen(true);
+    setIsDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setIsDrawerOpen(false);
+    setEditingResident(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const refinedData = {
       ...formData,
-      dong: formData.dong.replace(/[동\s]/g, ""), 
-      ho: formData.ho.replace(/[호\s]/g, "")
+      dong: String(formData.dong).replace(/[동\s]/g, ""), 
+      ho: String(formData.ho).replace(/[호\s]/g, "")
     };
 
     try {
@@ -115,8 +131,8 @@ const ResidentManagePage = () => {
       } else {
         await createResident(refinedData);
       }
-      setIsModalOpen(false);
-      fetchData();
+      closeDrawer();
+      fetchData(); // 등록/수정 후 전체 다시 로드
     } catch (error) {
       alert("저장 실패");
     }
@@ -137,7 +153,7 @@ const ResidentManagePage = () => {
         <div className="stats-grid">
           <div className="stat-card blue">
             <span className="label">전체 입주민</span>
-            <span className="value">{totalElements}<span>명</span></span>
+            <span className="value">{residents.length}<span>명</span></span>
           </div>
           <div className="stat-card green">
             <span className="label">입주 세대수</span>
@@ -180,11 +196,9 @@ const ResidentManagePage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="list-info-text">
-        <div className="header-btns">
-          <button className="btn-outline" onClick={handleDownloadExcel}>엑셀 다운로드</button>
-          <button className="btn-add" onClick={() => openModal()}>+ 신규 등록</button>
-        </div>
+          <div className="header-btns">
+            <button className="btn-outline" onClick={handleDownloadExcel}>엑셀 다운로드</button>
+            <button className="btn-add" onClick={() => openDrawer()}>+ 신규 등록</button>
           </div>
         </div>
 
@@ -194,68 +208,90 @@ const ResidentManagePage = () => {
               <tr><th>동</th><th>호</th><th>성명</th><th>연락처</th><th>관리</th></tr>
             </thead>
             <tbody>
-              {residents.map((r) => (
+              {filteredResidents.map((r) => (
                 <tr key={r.residentId}>
                   <td>{r.dongNo}동</td>
                   <td>{r.hoNo}호</td>
                   <td className="bold">{r.name}</td>
                   <td>{r.phone}</td>
                   <td className="actions">
-                    <button className="btn-edit-sm" onClick={() => openModal(r)}>수정</button>
+                    <button className="btn-edit-sm" onClick={() => openDrawer(r)}>수정</button>
                     <button className="btn-delete-sm" onClick={() => handleDelete(r.residentId)}>삭제</button>
                   </td>
                 </tr>
               ))}
+              {filteredResidents.length === 0 && (
+                <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>검색 결과가 없습니다.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
-
-        {totalPages > 0 && (
-          <div className="pagination-wrapper">
-            <button disabled={currentPage === 0} onClick={() => setCurrentPage(p => p - 1)}>이전</button>
-            {[...Array(totalPages)].map((_, i) => (
-              <button key={i} className={currentPage === i ? "active" : ""} onClick={() => setCurrentPage(i)}>
-                {i + 1}
-              </button>
-            ))}
-            <button disabled={currentPage >= totalPages - 1} onClick={() => setCurrentPage(p => p + 1)}>다음</button>
-          </div>
-        )}
       </section>
 
-      {/* 모달 */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <h3>{editingResident ? "정보 수정" : "신규 등록"}</h3>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>성명</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required placeholder="성명 입력" />
-              </div>
-              <div className="form-group">
-                <label>연락처</label>
-                <input 
-                  type="text" 
-                  value={formData.phone} 
-                  onChange={(e) => setFormData({...formData, phone: formatPhone(e.target.value)})} 
-                  required 
-                  placeholder="010-0000-0000"
-                  maxLength={13} 
-                />
-              </div>
-              <div className="form-row">
-                <div className="form-group"><label>동</label><input type="text" value={formData.dong} onChange={(e) => setFormData({...formData, dong: e.target.value})} required placeholder="예: 101" /></div>
-                <div className="form-group"><label>호</label><input type="text" value={formData.ho} onChange={(e) => setFormData({...formData, ho: e.target.value})} required placeholder="예: 1201" /></div>
-              </div>
-              <div className="modal-btns">
-                <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>취소</button>
-                <button type="submit" className="btn-primary">저장</button>
-              </div>
-            </form>
-          </div>
+      {/* --- 오른쪽 Drawer (모달 대체) --- */}
+      <div 
+        className={`drawer-overlay ${isDrawerOpen ? "show" : ""}`} 
+        onClick={closeDrawer} 
+      />
+      <aside className={`right-drawer ${isDrawerOpen ? "open" : ""}`}>
+        <div className="drawer-header">
+          <h3>{editingResident ? "입주민 정보 수정" : "신규 입주민 등록"}</h3>
+          <button className="btn-close" onClick={closeDrawer}>&times;</button>
         </div>
-      )}
+        
+        <form onSubmit={handleSubmit} className="drawer-form">
+          <div className="form-group">
+            <label>성명</label>
+            <input 
+              type="text" 
+              value={formData.name} 
+              onChange={(e) => setFormData({...formData, name: e.target.value})} 
+              required 
+              placeholder="성명 입력" 
+            />
+          </div>
+          <div className="form-group">
+            <label>연락처</label>
+            <input 
+              type="text" 
+              value={formData.phone} 
+              onChange={(e) => setFormData({...formData, phone: formatPhone(e.target.value)})} 
+              required 
+              placeholder="010-0000-0000"
+              maxLength={13} 
+            />
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>동</label>
+              <input 
+                type="text" 
+                value={formData.dong} 
+                onChange={(e) => setFormData({...formData, dong: e.target.value})} 
+                required 
+                placeholder="예: 101" 
+              />
+            </div>
+            <div className="form-group">
+              <label>호</label>
+              <input 
+                type="text" 
+                value={formData.ho} 
+                onChange={(e) => setFormData({...formData, ho: e.target.value})} 
+                required 
+                placeholder="예: 1201" 
+              />
+            </div>
+          </div>
+          
+          <div className="drawer-footer">
+            <button type="button" className="btn-secondary" onClick={closeDrawer}>취소</button>
+            <button type="submit" className="btn-primary">
+              {editingResident ? "수정 저장" : "등록 완료"}
+            </button>
+          </div>
+        </form>
+      </aside>
     </div>
   );
 };

@@ -608,3 +608,93 @@
   justify-content: center;
   padding: 12px 0;
 }
+/* 사이드바가 접혔을 때 텍스트 숨기기 처리 */
+.sidebar.collapsed .admin-details,
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .logout-btn span {
+  display: none;
+}
+
+/* 이미지 동그랗게 유지 */
+.admin-profile-img img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+/* 상단 로고 영역 */
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.apt-icon {
+  color: #4f46e5; /* 브랜드 색상에 맞게 조절하세요 */
+  flex-shrink: 0;
+}
+
+/* 하단 내 정보 영역 */
+.admin-info-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.sidebar.collapsed .admin-info-section {
+  padding: 8px;
+  justify-content: center;
+  background: transparent;
+}
+
+.admin-profile-img {
+  flex-shrink: 0;
+}
+
+.admin-profile-img img, .profile-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-placeholder {
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.admin-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.admin-email {
+  font-size: 11px;
+  color: #6b7280;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* 사이드바 접혔을 때 텍스트 숨김 처리 */
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .admin-details,
+.sidebar.collapsed .logout-btn span {
+  display: none;
+}
