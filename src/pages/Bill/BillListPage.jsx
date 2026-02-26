@@ -16,17 +16,14 @@ import { getBill, getBillExcel } from "../../services/billApi";
 import * as XLSX from "xlsx";
 
 const BillListPage = () => {
-  // --- 상태 관리 ---
   const [allBills, setAllBills] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [selectedBill, setSelectedBill] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 페이징 상태
   const [page, setPage] = useState(0);
   const itemsPerPage = 10;
 
-  // 검색 조건 상태
   const [searchCond, setSearchCond] = useState({
     year: "",
     month: "",
@@ -35,7 +32,6 @@ const BillListPage = () => {
     onlyUnpaid: false,
   });
 
-  // --- 데이터 페칭 ---
   const fetchBills = useCallback(async () => {
     setLoading(true);
     try {
@@ -52,7 +48,6 @@ const BillListPage = () => {
     fetchBills();
   }, [fetchBills]);
 
-  // --- 1. 단지 전체 통계 (상단 고정 KPI) ---
   const totalStats = useMemo(() => {
     return allBills.reduce(
       (acc, bill) => {
@@ -68,7 +63,6 @@ const BillListPage = () => {
     );
   }, [allBills]);
 
-  // --- 2. 프론트엔드 필터링 로직 ---
   const filteredBills = useMemo(() => {
     return allBills.filter(bill => {
       const matchDong = searchCond.dongNo ? bill.dongName.includes(searchCond.dongNo) : true;
@@ -83,7 +77,6 @@ const BillListPage = () => {
     });
   }, [allBills, searchCond]);
 
-  // --- 3. 검색 결과 요약 통계 ---
   const searchStats = useMemo(() => {
     return filteredBills.reduce(
       (acc, bill) => {
@@ -99,7 +92,6 @@ const BillListPage = () => {
     );
   }, [filteredBills]);
 
-  // --- 페이지네이션 처리 ---
   const paginatedBills = useMemo(() => {
     const start = page * itemsPerPage;
     return filteredBills.slice(start, start + itemsPerPage);
@@ -107,7 +99,6 @@ const BillListPage = () => {
 
   const totalPages = Math.ceil(filteredBills.length / itemsPerPage);
 
-  // --- 핸들러 ---
   const handleReset = () => {
     setSearchCond({ year: "", month: "", dongNo: "", hoNo: "", onlyUnpaid: false });
     setPage(0);
@@ -148,8 +139,6 @@ const BillListPage = () => {
 
   return (
     <div className="bill-dashboard">
-      
-      {/* 1. 단지 전체 현황 (KPI) */}
       <div className="bill-kpi-section global-stats">
         <div className="bill-kpi-card">
           <FileText size={20} className="icon-blue" />
@@ -181,16 +170,16 @@ const BillListPage = () => {
         </div>
       </div>
 
-      {/* 2. 검색 필터 섹션 */}
       <div className="bill-filter-card">
         <div className="bill-filter-form">
-          {/* 필터 입력부 */}
+          {/* 왼쪽 입력부 */}
           <div className="input-group">
-            <div className="search-input-wrapper">
-              <Search size={16} className="search-icon" />
+            <div className="search-input-wrapper" style={{position:'relative', display:'flex', alignItems:'center'}}>
+              <Search size={16} className="search-icon" style={{position:'absolute', left:'10px', color:'#64748b'}} />
               <select 
                 value={searchCond.year} 
                 onChange={(e) => {setSearchCond({...searchCond, year: e.target.value}); setPage(0);}}
+                style={{paddingLeft:'32px'}}
               >
                 <option value="">전체 연도</option>
                 <option value="2026">2026년</option>
@@ -213,6 +202,7 @@ const BillListPage = () => {
               type="text" 
               placeholder="동" 
               className="text-input"
+              style={{width: '70px'}}
               value={searchCond.dongNo} 
               onChange={(e) => {setSearchCond({...searchCond, dongNo: e.target.value}); setPage(0);}} 
             />
@@ -220,11 +210,12 @@ const BillListPage = () => {
               type="text" 
               placeholder="호" 
               className="text-input"
+              style={{width: '70px'}}
               value={searchCond.hoNo} 
               onChange={(e) => {setSearchCond({...searchCond, hoNo: e.target.value}); setPage(0);}} 
             />
             
-            <label className="checkbox-label">
+            <label className="checkbox-label" style={{display:'flex', alignItems:'center', gap:'4px', whiteSpace:'nowrap', fontSize:'14px'}}>
               <input 
                 type="checkbox" 
                 checked={searchCond.onlyUnpaid} 
@@ -234,7 +225,7 @@ const BillListPage = () => {
             </label>
           </div>
 
-          {/* 인라인 요약 및 버튼 그룹 */}
+          {/* 오른쪽 요약 및 버튼 그룹 */}
           <div className="filter-right-wrapper">
             <div className="search-summary-inline">
               <div className="summary-item">검색 <strong>{searchStats.count.toLocaleString()}</strong>건</div>
@@ -242,23 +233,19 @@ const BillListPage = () => {
               <div className="summary-item text-red">미납 <strong>{searchStats.unpaidCount.toLocaleString()}</strong>건</div>
               <div className="summary-sep">|</div>
               <div className="summary-item">총액 <strong>{searchStats.amount.toLocaleString()}</strong>원</div>
-              <div className="summary-sep">|</div>
-              <div className="summary-item text-red">미납합계 <strong>{searchStats.unpaidAmount.toLocaleString()}</strong>원</div>
-            </div>
-            
-            <div className="button-group">
-              <button type="button" className="reset-btn" onClick={handleReset} title="필터 초기화">
-                <RotateCcw size={18} />
-              </button>
+
               <button type="button" className="excel-btn" onClick={handleExcelDownload}>
                 <Download size={16} /> 엑셀 다운로드
               </button>
+              <button type="button" className="reset-btn" onClick={handleReset} title="필터 초기화">
+                <RotateCcw size={16} /> 초기화
+              </button>
             </div>
+            
           </div>
         </div>
       </div>
 
-      {/* 4. 테이블 섹션 */}
       <div className="bill-table-card">
         {loading ? (
           <div className="loading-box"><Loader2 className="spin" /> 로딩중...</div>
@@ -309,7 +296,6 @@ const BillListPage = () => {
         </div>
       </div>
 
-      {/* 5. 사이드 Drawer */}
       <div className={`side-drawer ${isDrawerOpen ? "open" : ""}`}>
         <div className="drawer-header">
           <h3>📄 고지서 상세 내역</h3>
