@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, ShieldCheck } from "lucide-react";
 import { adminLogin, verifyOtp } from "../../services/adminApi";
@@ -20,34 +20,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "otpCode") {
-      const onlyNums = value.replace(/[^0-9]/g, "");
-      setFormData((prev) => ({
-        ...prev,
-        [name]: onlyNums,
-      }));
-
-      if (onlyNums.length === 6) {
-        handleProcessLogin(true, onlyNums);
-      }
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-    setError("");
-  };
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    await handleProcessLogin(isOtpStep, formData.otpCode);
-  };
-
-  const handleProcessLogin = async (isOtp, currentOtpCode) => {
+  // 로직 분리 및 useCallback으로 메모리 최적화
+  const handleProcessLogin = useCallback(async (isOtp, currentOtpCode) => {
     if (isLoading) return;
     
     setError("");
@@ -68,29 +42,56 @@ export default function Login() {
           otpCode: currentOtpCode,
         });
 
-        // 백엔드에서 리프레시 토큰은 이미 쿠키로 구워졌을 것이고,
-        // 액세스 토큰은 메모리 상태 관리를 위해 setAuth에 넘깁니다.
-        
-        if (tokenData && tokenData.accessToken) {
-          // AuthContext의 setAuth를 통해 메모리에 토큰 저장 및 유저 정보 설정
+        // 결과값 검증 및 AuthContext 적용
+        if (tokenData?.accessToken) {
           setAuth(tokenData.accessToken);
-
-          // 관리자 권한에 따른 페이지 리다이렉션
-          navigate("/admin/safety");
+          
+          // 전역 로딩이나 상태 업데이트와 충돌 피하기 위해 즉시 이동
+          navigate("/admin/safety", { replace: true });
         } else {
           throw new Error("인증 데이터가 올바르지 않습니다.");
         }
       }
     } catch (err) {
+      // api.js의 ApiError 인스턴스일 경우 err.message를 사용
       const msg = err.message || "인증에 실패했습니다.";
       setError(msg);
 
       if (isOtp) {
+        // OTP 실패 시 입력란만 초기화하여 재입력 유도
         setFormData((prev) => ({ ...prev, otpCode: "" }));
       }
     } finally {
       setIsLoading(false);
     }
+  }, [formData, isLoading, navigate, setAuth]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "otpCode") {
+      const onlyNums = value.replace(/[^0-9]/g, "");
+      setFormData((prev) => ({
+        ...prev,
+        [name]: onlyNums,
+      }));
+
+      // 6자리 입력 시 자동 제출
+      if (onlyNums.length === 6) {
+        handleProcessLogin(true, onlyNums);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+    if (error) setError(""); // 입력 시작 시 에러 메시지 삭제
+  };
+
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
+    await handleProcessLogin(isOtpStep, formData.otpCode);
   };
 
   return (
@@ -117,6 +118,7 @@ export default function Login() {
                   onChange={handleChange}
                   className="form-input"
                   required
+                  autoComplete="username"
                 />
               </div>
               <div className="form-group">
@@ -128,6 +130,7 @@ export default function Login() {
                   onChange={handleChange}
                   className="form-input"
                   required
+                  autoComplete="current-password"
                 />
               </div>
             </>
@@ -153,8 +156,9 @@ export default function Login() {
                   className="otp-icon"
                   style={{
                     position: "absolute",
-                    right: "10px",
-                    top: "10px",
+                    right: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
                     color: "#6366f1",
                   }}
                 />
@@ -163,13 +167,13 @@ export default function Login() {
           )}
 
           {error && (
-            <div className="login-error">
+            <div className="login-error" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontSize: '0.875rem', marginTop: '8px' }}>
               <AlertCircle size={16} />
               <span>{error}</span>
             </div>
           )}
 
-          <button type="submit" className="login-button" disabled={isLoading}>
+          <button type="submit" className="login-button" disabled={isLoading} style={{ marginTop: '20px' }}>
             {isLoading ? "처리 중..." : isOtpStep ? "인증하기" : "로그인"}
           </button>
 
@@ -204,6 +208,7 @@ export default function Login() {
                 marginTop: "10px",
                 cursor: "pointer",
                 width: "100%",
+                fontSize: "0.875rem"
               }}
             >
               이전으로 돌아가기
