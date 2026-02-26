@@ -131,16 +131,6 @@ const ResidentManagePage = () => {
 
   return (
     <div className="manage-page-container">
-      <header className="page-header">
-        <div className="title-area">
-          <h2>입주민 관리 시스템</h2>
-          <p>단지 내 입주민 정보를 효율적으로 통합 관리합니다.</p>
-        </div>
-        <div className="header-btns">
-          <button className="btn-outline" onClick={handleDownloadExcel}>엑셀 다운로드</button>
-          <button className="btn-add" onClick={() => openModal()}>+ 신규 등록</button>
-        </div>
-      </header>
 
       {/* 대시보드 통계 카드 섹션 */}
       <section className="dashboard-section">
@@ -191,7 +181,10 @@ const ResidentManagePage = () => {
             />
           </div>
           <div className="list-info-text">
-            검색결과: <strong>{totalElements}</strong>명 
+        <div className="header-btns">
+          <button className="btn-outline" onClick={handleDownloadExcel}>엑셀 다운로드</button>
+          <button className="btn-add" onClick={() => openModal()}>+ 신규 등록</button>
+        </div>
           </div>
         </div>
 

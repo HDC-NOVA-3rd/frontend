@@ -168,15 +168,6 @@ const HouseholdManagePage = () => {
 
   return (
     <div className="safety-dashboard">
-      <header className="section-header">
-        <h3><Users size={22} /> 입주민 및 세대 관리</h3>
-        <div className="header-actions">
-          <span className="last-updated">{apartment?.apartmentName || "단지 정보"}</span>
-          <button className="refresh-btn" onClick={fetchData} disabled={loading}>
-            <RefreshCw size={16} className={loading ? "spin" : ""} />
-          </button>
-        </div>
-      </header>
 
       <section className="kpi-section">
         <div className="kpi-card kpi-card--primary">
@@ -188,7 +179,7 @@ const HouseholdManagePage = () => {
 
         <div className="kpi-card kpi-card--info">
           <div className="kpi-icon"><LayoutGrid size={20} /></div>
-          <span className="kpi-label">관리 중인 세대 수</span>
+          <span className="kpi-label">전체 세대 수</span>
           <div className="kpi-data">
             <span className="kpi-value">{stats.totalHo}</span>
             <span className="kpi-sub">세대</span>
@@ -197,7 +188,7 @@ const HouseholdManagePage = () => {
 
         <div className="kpi-card kpi-card--success">
           <div className="kpi-icon"><Users size={20} /></div>
-          <span className="kpi-label">등록된 총 입주민</span>
+          <span className="kpi-label">전체입주민 수</span>
           <div className="kpi-data">
             <span className="kpi-value">{residents.length}</span>
             <span className="kpi-sub">명</span>

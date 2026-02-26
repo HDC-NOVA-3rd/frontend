@@ -33,19 +33,15 @@ export default function Sidebar({ isOpen, onClose }) {
   };
 
   const menuItems = [
+
     { label: "세대 현황", icon: Home, path: "/admin/household/list" },
-    {
-      label: "안전 모니터링",
-      icon: AlertTriangle,
+        {
+      label: "공지사항",
+      icon: Bell,
       submenu: [
-        { label: "화재감시", path: "/admin/safety" },
-      ],
-    },
-    {
-      label: "입주민 관리",
-      icon: Users,
-      submenu: [
-        { label: "입주민 관리", path: "/admin/resident/manage" },
+        { label: "공지사항 등록", path: "/admin/notices/create" },
+        { label: "공지사항 목록", path: "/admin/notices" },
+        { label: "공지 로그", path: "/admin/notices/log" },
       ],
     },
     {
@@ -58,29 +54,34 @@ export default function Sidebar({ isOpen, onClose }) {
       ],
     },
     {
-      label: "공지사항",
-      icon: Bell,
+      label: "주민 명부",
+      icon: Users,
       submenu: [
-        { label: "공지사항 등록", path: "/admin/notices/create" },
-        { label: "공지사항 목록", path: "/admin/notices" },
-        { label: "공지 로그", path: "/admin/notices/log" },
+        { label: "주민 명부", path: "/admin/resident/manage" },
+      ],
+    },
+        {
+      label: "안전 관리",
+      icon: AlertTriangle,
+      submenu: [
+        { label: "안전 관리", path: "/admin/safety" },
       ],
     },
     {
       label: "고지서 관리",
       icon: CreditCard,
       submenu: [
-        { label: "세대별 납부 현황", path: "/admin/bills" },
-        { label: "관리비 세부 항목", path: "/admin/bills/items" },
+        { label: "수납 현황", path: "/admin/bills" },
+        { label: "세부 항목", path: "/admin/bills/items" },
       ],
     },
     {
       label: "시스템 설정",
       icon: Settings,
       submenu: [
-        { label: "내 계정 정보", path: "/admin/account" },
+        { label: "계정 정보", path: "/admin/account" },
         { label: "비밀번호 변경", path: "/admin/account/password-change" },
-        { label: "관리자 계정 생성", path: "/admin/settings/register-admin" },
+        { label: "계정 생성", path: "/admin/settings/register-admin" },
       ],
     },
   ];

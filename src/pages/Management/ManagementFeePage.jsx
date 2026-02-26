@@ -89,21 +89,8 @@ const ManagementFeePage = () => {
 
   return (
     <div className={`safety-dashboard mgmt-page ${loading ? 'safety-dashboard--loading' : ''}`}>
-      {/* 상단 헤더 섹션 */}
-      <header className="section-header">
-        <h3>
-          <span className="pulse-dot"></span>
-          관리비 항목 설정
-        </h3>
-        <div className="header-actions">
-           <button className="action-btn action-btn--unlock" onClick={() => openEditModal()}>
-             + 항목 추가
-           </button>
-           <button className={`refresh-btn ${loading ? 'refreshing' : ''}`} onClick={fetchFees}>
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-           </button>
-        </div>
-      </header>
+
+
 
       {/* KPI 섹션 - Safety Dashboard 스타일 적용 */}
       <section className="kpi-section">
@@ -131,6 +118,22 @@ const ManagementFeePage = () => {
       </section>
 
       {/* 메인 리스트 영역 */}
+
+            <div className="section-header">
+        <h3>
+          <span className="pulse-dot"></span>
+          관리비 항목 설정
+        </h3>
+        <div className="header-actions">
+           <button className="action-btn action-btn--unlock" onClick={() => openEditModal()}>
+             + 항목 추가
+           </button>
+           <button className={`refresh-btn ${loading ? 'refreshing' : ''}`} onClick={fetchFees}>
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+           </button>
+        </div>
+      </div>
+      
       <div className="table-wrapper">
         <table className="mgmt-table">
           <thead>
