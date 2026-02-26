@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   getNoticeList,
   getNotice,
@@ -8,11 +8,9 @@ import {
   getNoticeLogs,
 } from "../../services/noticeApi";
 import { 
-  Bell, 
   Search, 
   Plus, 
   RotateCcw, 
-  ChevronRight, 
   X, 
   FileText, 
   Send,
@@ -47,8 +45,10 @@ export default function NoticesList() {
   const [logLoading, setLogLoading] = useState(false);
 
   // 데이터 로드 및 통계 계산
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
+    if (loading) return;
     setLoading(true);
+    setError("");
     try {
       const [noticeRes, logRes] = await Promise.all([
         getNoticeList(),
@@ -60,7 +60,6 @@ export default function NoticesList() {
       
       setNotices(noticeList);
       
-      // 통계 계산
       const read = logList.filter(l => l.read).length;
       setStats({
         totalSent: logList.length,
@@ -72,9 +71,17 @@ export default function NoticesList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading]);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { 
+    loadData(); 
+  }, []); // 초기 1회 로드
+
+  // 새로고침 핸들러
+  const handleRefresh = () => {
+    setSearch(""); // 검색어 초기화
+    loadData();
+  };
 
   const loadNoticeLogs = async (noticeId) => {
     setLogLoading(true);
@@ -171,17 +178,17 @@ export default function NoticesList() {
   return (
     <div className="bill-dashboard">
       
-      {/* KPI 섹션 - 확인/미확인 추가 */}
+      {/* KPI 섹션 */}
       <div className="bill-kpi-section">
         <div className="bill-kpi-card">
-          <FileText className="icon-blue" size={24} style={{color: '#3b82f6'}} />
+          <FileText size={24} style={{color: '#3b82f6'}} />
           <div>
             <div className="kpi-label">전체 공지</div>
             <div className="kpi-value">{notices.length}건</div>
           </div>
         </div>
         <div className="bill-kpi-card">
-          <Send className="icon-green" size={24} style={{color: '#10b981'}} />
+          <Send size={24} style={{color: '#10b981'}} />
           <div>
             <div className="kpi-label">총 발송</div>
             <div className="kpi-value">{stats.totalSent}회</div>
@@ -207,20 +214,28 @@ export default function NoticesList() {
       <div className="bill-filter-card">
         <div className="bill-filter-form">
           <div className="input-group">
-            <div className="search-wrapper" style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
-              <Search size={18} style={{position: 'absolute', left: '12px', color: '#64748b'}} />
+            <div className="search-wrapper">
+              <Search size={18} className="search-icon" />
               <input 
                 type="text" 
                 placeholder="공지 제목 또는 내용 검색..." 
                 value={search} 
                 onChange={(e) => setSearch(e.target.value)}
-                style={{paddingLeft: '40px', width: '300px'}}
               />
             </div>
           </div>
           <div className="button-group">
-            <button className="reset-btn" onClick={loadData}><RotateCcw size={16} /> 새로고침</button>
-            <button className="btn-add" onClick={() => openDrawer("create")}><Plus size={16} /> 새 공지 등록</button>
+            <button 
+              className="reset-btn" 
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RotateCcw size={16} className={loading ? "spin" : ""} /> 
+              {loading ? "로딩 중" : "새로고침"}
+            </button>
+            <button className="btn-add" onClick={() => openDrawer("create")}>
+              <Plus size={16} /> 새 공지 등록
+            </button>
           </div>
         </div>
       </div>
@@ -241,7 +256,7 @@ export default function NoticesList() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="6" className="no-data">로딩 중...</td></tr>
+                <tr><td colSpan="6" className="no-data">데이터를 불러오는 중입니다...</td></tr>
               ) : filteredNotices.length > 0 ? (
                 filteredNotices.map((n, idx) => (
                   <tr key={n.noticeId} className="row-hover" onClick={() => openDrawer("view", n.noticeId)}>
@@ -251,7 +266,6 @@ export default function NoticesList() {
                     <td>{n.authorName}</td>
                     <td>{n.createdAt ? new Date(n.createdAt).toLocaleDateString() : "-"}</td>
                     <td>
-                      {/* '상세보기'에서 '확인여부'로 텍스트 변경 */}
                       <button className="sm-detail-btn">확인여부</button>
                     </td>
                   </tr>
@@ -264,7 +278,7 @@ export default function NoticesList() {
         </div>
       </div>
 
-      {/* Drawer 영역 (이전과 동일) */}
+      {/* Drawer 영역 */}
       <div className={`side-drawer ${drawerMode ? "open" : ""}`}>
         <div className="drawer-header">
           <h3>{drawerMode === "create" ? "새 공지 작성" : "공지사항 상세"}</h3>
@@ -283,8 +297,10 @@ export default function NoticesList() {
         )}
 
         <div className="drawer-body">
+          {error && <div className="error-msg">{error}</div>}
+          
           {drawerLoading ? (
-            <div className="loading-box">로딩 중...</div>
+            <div className="loading-box">공지 정보를 로딩 중...</div>
           ) : drawerTab === "content" ? (
             <div className="drawer-content">
               <div className="field">
@@ -309,12 +325,14 @@ export default function NoticesList() {
               <div className="drawer-actions" style={{marginTop: '30px'}}>
                 {drawerMode === "view" ? (
                   <>
-                    <button className="btn-primary" onClick={() => setDrawerMode("edit")}>수정하기</button>
+                    <button className="btn-primary" onClick={() => setDrawerMode("edit")}>편집</button>
                     <button className="btn-delete-sm" onClick={handleDelete}>삭제</button>
                   </>
                 ) : (
                   <>
-                    <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? "저장 중..." : "저장 완료"}</button>
+                    <button className="btn-primary" onClick={handleSave} disabled={saving}>
+                      {saving ? "저장 중..." : "저장 완료"}
+                    </button>
                     <button className="btn-secondary" onClick={() => drawerMode === "edit" ? setDrawerMode("view") : closeDrawer()}>취소</button>
                   </>
                 )}

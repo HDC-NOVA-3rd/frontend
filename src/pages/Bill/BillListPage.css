@@ -595,3 +595,177 @@
   margin-top: 0;
   margin-bottom: 0;
 }
+/* 필터 카드 내부 폼 레이아웃 */
+.bill-filter-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap; /* 줄바꿈 절대 방지 */
+}
+
+/* 왼쪽 입력 그룹 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 1; /* 창이 작아지면 어느 정도 줄어듦 허용 */
+}
+
+/* 오른쪽 요약 및 버튼 그룹 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0; /* 버튼과 요약은 절대 줄어들거나 밀리지 않음 */
+}
+
+/* 검색 요약 텍스트 한 줄 유지 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+/* 버튼 그룹 정렬 */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 새로고침 버튼 (가로 정렬 보장) */
+.reset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+/* 엑셀 버튼 (가로 정렬 보장) */
+.excel-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #10b981; /* 엑셀 느낌의 초록색 */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.excel-btn:hover {
+  background: #059669;
+}
+
+/* 반응형 처리: 화면이 아주 작아질 때만 예외 처리 */
+@media (max-width: 1200px) {
+  .bill-filter-form {
+    flex-direction: column; /* 아주 좁으면 세로로 변경 (선택사항) */
+    align-items: stretch;
+  }
+  .filter-right-wrapper {
+    justify-content: space-between;
+  }
+}
+/* 필터 카드 메인 레이아웃 */
+.bill-filter-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽과 오른쪽을 양 끝으로 배치 */
+  gap: 16px;
+  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  width: 100%;
+}
+
+/* 왼쪽: 입력 그룹 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 1; /* 창이 좁아지면 유연하게 줄어듦 */
+}
+
+/* 오른쪽: 요약 + 버튼 컨테이너 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0; /* 이 영역은 절대 줄어들거나 밑으로 밀리지 않음 */
+}
+
+/* 인라인 요약 텍스트 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #64748b;
+  white-space: nowrap; /* 글자 줄바꿈 방지 */
+}
+
+.summary-item strong {
+  color: #1e293b;
+  margin-left: 2px;
+}
+
+.text-red strong {
+  color: #ef4444;
+}
+
+/* 버튼 그룹 */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 버튼 공통 가로 정렬 */
+.reset-btn, .excel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap; /* 버튼 내 텍스트 줄바꿈 방지 */
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.reset-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.excel-btn {
+  background: #10b981;
+  border: none;
+  color: white;
+}
+
+/* 아이콘 회전 애니메이션 */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -888,3 +888,101 @@
   min-width: 950px; 
   table-layout: fixed;
 }
+/* 새로고침 아이콘 회전 애니메이션 */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 버튼 로딩 중 스타일 */
+.reset-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #f1f5f9;
+}
+/* 새로고침 애니메이션 */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 검색창 아이콘 위치 및 인풋 너비 고정 */
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute; 
+  left: 12px; 
+  color: #64748b;
+  pointer-events: none;
+}
+
+.search-wrapper input {
+  padding-left: 40px !important;
+  width: 100%;
+  max-width: 500px; /* 적절한 가로 길이 유지 */
+}
+
+/* 테이블 내용 말줄임표 처리 */
+.cell-content {
+  text-align: left !important;
+  color: #64748b;
+  max-width: 400px; /* 너비 제한 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 로딩 중 버튼 스타일 */
+.reset-btn:disabled {
+  background-color: #e2e8f0;
+  cursor: not-allowed;
+  color: #94a3b8;
+}
+
+/* 테이블 공통 로딩/데이터 없음 스타일 */
+.no-data {
+  padding: 40px !important;
+  color: #94a3b8;
+  text-align: center;
+}
+/* 새로고침 버튼 스타일 수정 */
+.reset-btn {
+  display: flex;           /* 가로 배열 선언 */
+  flex-direction: row;     /* 세로가 아닌 가로 방향으로 */
+  align-items: center;     /* 수직 중앙 정렬 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  gap: 8px;                /* 아이콘과 글자 사이 간격 */
+  
+  padding: 10px 16px;
+  background: #f1f5f9; 
+  color: #475569; 
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;     /* 중요: 글자가 밑으로 떨어지지 않게 방지 */
+  min-width: 100px;        /* 버튼이 너무 작아지지 않게 최소 너비 설정 */
+}
+
+/* 아이콘 회전 애니메이션 (기존과 동일) */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
