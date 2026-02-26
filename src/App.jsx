@@ -22,8 +22,7 @@ import  FireMonitoringDashboard from "./pages/FireMonitoring/FireMonitoringDashb
 
 /* 민원 관련 */
 import ComplaintsList from "./pages/Complaints/ComplaintsList";
-import ComplaintAnswer from "./pages/Complaints/ComplaintAnswer";
-import ComplaintLog from "./pages/Complaints/ComplaintLog";
+
 
 /* 관리비 관련 */
 import ManagementFeePage from "./pages/Management/ManagementFeePage"; 
@@ -62,8 +61,6 @@ function App() {
 
               {/* 민원 관리 */}
               <Route path="complaint/list" element={<ComplaintsList />} />
-              <Route path="complaint/log" element={<ComplaintLog />} />
-              <Route path="complaint/answer" element={<ComplaintAnswer />} />
 
               {/* 관리비 */}
               <Route path="bill/list" element={<BillListPage />} />

@@ -47,8 +47,6 @@ export default function Sidebar({ isOpen, onClose }) {
       icon: FileText,
       submenu: [
         { label: "민원 목록", path: "/admin/complaint/list" }, 
-        { label: "변경 내역", path: "/admin/complaint/log" },
-        { label: "민원 답변", path: "/admin/complaint/answer" },
       ],
     },
     {
@@ -66,19 +64,37 @@ export default function Sidebar({ isOpen, onClose }) {
       ],
     },
     {
-      label: "고지서 관리",
+      label: "납부 현황",
       icon: CreditCard,
       submenu: [
-        { label: "수납 현황", path: "/admin/bill/list" },
-        { label: "세부 항목", path: "/admin/bill/item/list" },
+        { label: "납부 현황", path: "/admin/bill/list" },
+      ],
+    },
+        {
+      label: "고지 항목",
+      icon: CreditCard,
+      submenu: [
+        { label: "고지 항목", path: "/admin/bill/item/list" },
       ],
     },
     {
-      label: "시스템 설정",
+      label: "계정 정보",
       icon: Settings,
       submenu: [
         { label: "계정 정보", path: "/admin/account" },
+      ],
+    },
+        {
+      label: "비밀번호 변경",
+      icon: Settings,
+      submenu: [
         { label: "비밀번호 변경", path: "/admin/account/password-change" },
+      ],
+    },
+        {
+      label: "계정 생성",
+      icon: Settings,
+      submenu: [
         { label: "계정 생성", path: "/admin/settings/register-admin" },
       ],
     },
