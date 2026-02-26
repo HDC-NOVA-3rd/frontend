@@ -1,176 +1,239 @@
-import React, { useState } from 'react';
-import { createAdmin } from '../../services/adminApi'; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { createAdmin } from "../../services/adminApi";
+import "./RegisterAdminPage.css";
 
-const RegisterAdminPage  = () => {
+const RegisterAdminPage = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    loginId: '',
-    password: '',
-    passwordConfirm: '',
-    phoneNumber: '',
-    birthDate: '',
+    name: "",
+    email: "",
+    loginId: "",
+    password: "",
+    passwordConfirm: "",
+    phoneNumber: "",
+    birthDate: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  // 입력값 변경 핸들러
+  // 🛡 SUPER_ADMIN 접근 제한
+  // useEffect(() => {
+  //   const role = localStorage.getItem("role");
+  //   if (role !== "SUPER_ADMIN") {
+  //     alert("접근 권한이 없습니다.");
+  //     navigate("/admin");
+  //   }
+  // }, [navigate]);
+
+  // 전화번호 자동 하이픈
+  const formatPhoneNumber = (value) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7)
+      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(
+      7,
+      11
+    )}`;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "phoneNumber") {
+      setFormData((prev) => ({
+        ...prev,
+        phoneNumber: formatPhoneNumber(value),
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    setError("");
   };
 
-  // 등록 제출 핸들러
+  // 🧠 비밀번호 강도 계산
+  const calculateStrength = (password) => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
+  };
+
+  const passwordStrength = calculateStrength(formData.password);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 프론트엔드 1차 검증: 비밀번호 일치 확인
     if (formData.password !== formData.passwordConfirm) {
-      alert("비밀번호가 일치하지 않습니다.");
+      setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    if (!window.confirm("새로운 관리자 계정을 생성하시겠습니까?")) return;
-
     setLoading(true);
+
     try {
-      // API 호출 (제공해주신 adminApi.js의 createAdmin 사용)
       await createAdmin(formData);
-      alert("관리자 계정이 성공적으로 생성되었습니다.");
-      
-      // 등록 후 폼 초기화
-      setFormData({
-        name: '',
-        email: '',
-        loginId: '',
-        password: '',
-        passwordConfirm: '',
-        phoneNumber: '',
-        birthDate: '',
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      // 백엔드 BusinessException 메시지가 있다면 출력
-      alert(error.response?.data?.message || "계정 생성 중 오류가 발생했습니다.");
+
+      // 🔄 성공 페이지 이동
+      navigate("/admin/register-success");
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "계정 생성 중 오류가 발생했습니다."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const isPasswordMismatch =
+    formData.password &&
+    formData.passwordConfirm &&
+    formData.password !== formData.passwordConfirm;
+
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">관리자 계정 생성</h2>
-      <p className="text-sm text-gray-500 mb-6">* SUPER_ADMIN 권한으로 현재 아파트의 관리자를 등록합니다.</p>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 이름 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">이름</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+    <div className="login-container">
+      <div className="login-box">
+        <div className="login-header">
+          <h2 className="login-title">관리자 계정 생성</h2>
+          <p className="login-subtitle">
+            SUPER_ADMIN 권한으로 관리자를 등록합니다.
+          </p>
         </div>
 
-        {/* 로그인 ID */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">로그인 ID</label>
-          <input
-            type="text"
-            name="loginId"
-            value={formData.loginId}
-            onChange={handleChange}
-            placeholder="4~50자"
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">이름</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="form-input"
+              required
+            />
+          </div>
 
-        {/* 이메일 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">이메일</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label className="form-label">로그인 ID</label>
+            <input
+              type="text"
+              name="loginId"
+              value={formData.loginId}
+              onChange={handleChange}
+              className="form-input"
+              required
+            />
+          </div>
 
-        {/* 비밀번호 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">비밀번호</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="최소 8자 이상"
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label className="form-label">이메일</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="form-input"
+              required
+            />
+          </div>
 
-        {/* 비밀번호 확인 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">비밀번호 확인</label>
-          <input
-            type="password"
-            name="passwordConfirm"
-            value={formData.passwordConfirm}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+          {/* 👁 비밀번호 토글 */}
+          <div className="form-group">
+            <label className="form-label">비밀번호</label>
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="form-input"
+                required
+              />
+              <button
+                type="button"
+                className="toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                👁
+              </button>
+            </div>
 
-        {/* 전화번호 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">전화번호</label>
-          <input
-            type="text"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            placeholder="010-1234-5678"
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+            {/* 🧠 강도 바 */}
+            {formData.password && (
+              <div className="strength-bar">
+                <div
+                  className={`strength strength-${passwordStrength}`}
+                ></div>
+              </div>
+            )}
+          </div>
 
-        {/* 생년월일 */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">생년월일</label>
-          <input
-            type="date"
-            name="birthDate"
-            value={formData.birthDate}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <div className="form-group">
+            <label className="form-label">비밀번호 확인</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="passwordConfirm"
+              value={formData.passwordConfirm}
+              onChange={handleChange}
+              className={`form-input ${
+                isPasswordMismatch ? "input-error" : ""
+              }`}
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 px-4 rounded-md text-white font-semibold ${
-            loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700 transition'
-          }`}
-        >
-          {loading ? '등록 중...' : '관리자 계정 생성'}
-        </button>
-      </form>
+          <div className="form-group">
+            <label className="form-label">전화번호</label>
+            <input
+              type="text"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">생년월일</label>
+            <input
+              type="date"
+              name="birthDate"
+              value={formData.birthDate}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          {(error || isPasswordMismatch) && (
+            <div className="login-error">
+              {error || "비밀번호가 일치하지 않습니다."}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="login-button"
+          >
+            {loading ? "등록 중..." : "관리자 계정 생성"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default RegisterAdminPage ;
+export default RegisterAdminPage;

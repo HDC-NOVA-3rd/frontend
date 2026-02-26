@@ -26,15 +26,15 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const menuItems = [
     { label: "세대 현황", icon: Home, path: "/admin/household/list", roles: ["SUPER_ADMIN", "MANAGER"] },
-    { label: "공지 사항", icon: Bell, path: "/admin/notice/list", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "공지사항", icon: Bell, path: "/admin/notice/list", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "민원 관리", icon: MessageSquare, path: "/admin/complaint/list", roles: ["SUPER_ADMIN", "MANAGER"] },
-    { label: "주민 명부", icon: Users, path: "/admin/resident/manage", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "입주민 명부", icon: Users, path: "/admin/resident/manage", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "안전 관리", icon: ShieldCheck, path: "/admin/safety", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "납부 현황", icon: Receipt, path: "/admin/bill/list", roles: ["SUPER_ADMIN", "MANAGER"] },
-    { label: "고지 항목 설정", icon: Settings, path: "/admin/bill/item/list", roles: ["SUPER_ADMIN", "MANAGER"] },
-    { label: "계정 정보", icon: LayoutDashboard, path: "/admin/account", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "고지서 항목", icon: Settings, path: "/admin/bill/item/list", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "내 계정 정보", icon: LayoutDashboard, path: "/admin/account", roles: ["SUPER_ADMIN", "MANAGER"] },
     { label: "비밀번호 변경", icon: KeyRound, path: "/admin/account/password-change", roles: ["SUPER_ADMIN", "MANAGER"] },
-    { label: "관리자 생성", icon: UserPlus, path: "/admin/settings/register-admin", roles: ["SUPER_ADMIN", "MANAGER"] },
+    { label: "관리자 추가", icon: UserPlus, path: "/admin/settings/register-admin", roles: ["SUPER_ADMIN", "MANAGER"] },
   ];
 
   const filteredMenus = menuItems.filter(item => item.roles.includes(userRole));

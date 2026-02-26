@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getMyAdminInfo } from '../../services/adminApi'; 
-import './CommonInfo.css';
+import './ProfilePage.css';
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState(null);
