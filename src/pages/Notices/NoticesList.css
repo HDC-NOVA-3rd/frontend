@@ -326,6 +326,163 @@
   to { transform: rotate(360deg); }
 }
 
+/* restored notice-create features */
+.btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-add:disabled,
+.reset-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.drawer-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawer-status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.drawer-status.success {
+  background: #ecfdf5;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.drawer-status.error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.drawer-status.info {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.drawer-status.warning {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.success-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.success-panel h4 {
+  margin: 0;
+  color: #14532d;
+}
+
+.success-panel p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.success-icon {
+  color: #16a34a;
+}
+
+.dong-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dong-helper {
+  margin-left: 8px;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.dong-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.dong-actions button {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #475569;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.dong-actions button:hover {
+  background: #f8fafc;
+}
+
+.dong-grid-select {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+}
+
+.dong-item-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.dong-item-select.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.helper-text {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.helper-text.success {
+  color: #166534;
+}
+
 /* 모바일 대응 */
 @media (max-width: 640px) {
   .filter-group {
