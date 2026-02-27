@@ -16,7 +16,7 @@
   background: rgba(239, 68, 68, 0.25);
   pointer-events: none;
   z-index: 70;
-  animation: critical-flash 800ms ease-out 1;
+  animation: critical-flash 800ms ease-out 1 forwards;
 }
 
 @keyframes critical-flash {
@@ -37,8 +37,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  background: linear-gradient(90deg, #b91c1c, #ef4444);
-  color: #fff;
+  background: linear-gradient(90deg, #b91c1c, #ef4444) !important;
+  color: #fff !important;
   border-radius: 12px;
   box-shadow: 0 12px 28px rgba(185, 28, 28, 0.35);
   animation: critical-banner-in 220ms ease-out;
@@ -79,12 +79,14 @@
   display: block;
   font-size: 1rem;
   line-height: 1.2;
+  color: #fff;
 }
 
 .critical-alert-banner__content p {
   margin: 0.2rem 0 0;
   font-size: 0.82rem;
   opacity: 0.95;
+  color: #fff;
 }
 
 .critical-alert-banner__close {
