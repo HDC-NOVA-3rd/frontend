@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createAdmin, getMyApartmentInfo } from "../../services/adminApi";
-import { Eye, EyeOff } from "lucide-react"; 
+import { Eye, EyeOff, CheckCircle } from "lucide-react"; // CheckCircle 아이콘 추가
 
 import "./RegisterAdminPage.css";
 
@@ -22,6 +22,23 @@ const RegisterAdminPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); 
+
+  const handleReset = () => {
+  // 1. 폼 데이터 초기화
+  setFormData({
+    name: "",
+    email: "",
+    loginId: "",
+    password: "",
+    passwordConfirm: "",
+    phoneNumber: "",
+    birthDate: "",
+  });
+  // 2. 에러 및 성공 상태 초기화
+  setError("");
+  setIsSuccess(false);
+};
 
   useEffect(() => {
     const fetchAptData = async () => {
@@ -73,7 +90,7 @@ const RegisterAdminPage = () => {
     setLoading(true);
     try {
       await createAdmin(formData);
-      navigate("/admin/register-success");
+      setIsSuccess(true); // [수정] 페이지 이동 대신 성공 상태 true로 변경
     } catch (err) {
       setError(err.response?.data?.message || "계정 생성 중 오류가 발생했습니다.");
     } finally {
@@ -83,6 +100,34 @@ const RegisterAdminPage = () => {
 
   const isPasswordMismatch = formData.password && formData.passwordConfirm && formData.password !== formData.passwordConfirm;
 
+  // --- 성공 화면 렌더링 함수 ---
+  if (isSuccess) {
+    return (
+      <div className="admin-reg-container">
+        <div className="admin-reg-box success-view" style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <CheckCircle size={64} color="#10b981" style={{ marginBottom: '20px' }} />
+          <h2 className="admin-reg-title">등록 완료!</h2>
+          <p className="admin-reg-subtitle">
+            <strong className="apt-name-highlight">{formData.name}</strong> 관리자 계정이 정상적으로 생성되었습니다.
+          </p>
+          <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <button onClick={() => navigate("/admin/login")} className="admin-reg-submit-btn">
+              로그인하러 가기
+            </button>
+            <button 
+              onClick={handleReset} // 여기서 위에서 만든 초기화 함수 호출
+              className="admin-reg-submit-btn" 
+              style={{ backgroundColor: '#6b7280' }}
+            >
+              추가 등록하기
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- 기본 등록 폼 렌더링 ---
   return (
     <div className="admin-reg-container">
       <div className="admin-reg-box">
@@ -100,6 +145,7 @@ const RegisterAdminPage = () => {
         </div>
 
         <form className="admin-reg-form" onSubmit={handleSubmit}>
+          {/* ... 기존 input 필드들 (동일) ... */}
           <div className="admin-reg-group">
             <label className="admin-reg-label">이름</label>
             <input type="text" name="name" value={formData.name} onChange={handleChange} className="admin-reg-input" required placeholder="실명을 입력하세요" />
