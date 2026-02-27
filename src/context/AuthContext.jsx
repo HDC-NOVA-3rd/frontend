@@ -91,6 +91,11 @@ export function AuthProvider({ children }) {
 
   // 앱 구동 시 자동 로그인 시도
   useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith("/login") || path.startsWith("/password-reset")) {
+      setLoading(false);
+      return;
+    }
     refreshAuth();
   }, [refreshAuth]);
 

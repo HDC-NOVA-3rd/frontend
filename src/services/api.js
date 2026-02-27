@@ -117,6 +117,8 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
     const serverData = error.response?.data;
+    const hasAuthHeader =
+      Boolean(originalRequest?.headers?.Authorization) || Boolean(memoryToken);
 
     // 에러 메시지 추출 공통 로직
     const message = serverData?.message || serverData?.error || error.message || "알 수 없는 오류가 발생했습니다.";
@@ -140,6 +142,11 @@ api.interceptors.response.use(
     if (status === 401) {
       // 로그인 API(/auth/login) 호출 중 401은 리프레시 시도 없이 즉시 에러 반환
       if (originalRequest.url.includes("/api/admin/auth/login")) {
+        return Promise.reject(new ApiError(status, error.response?.statusText, message, serverData));
+      }
+
+      // 인증 헤더 없이 들어온 401은 리프레시 대상이 아님
+      if (!hasAuthHeader) {
         return Promise.reject(new ApiError(status, error.response?.statusText, message, serverData));
       }
 
