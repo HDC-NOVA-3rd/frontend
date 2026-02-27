@@ -16,7 +16,7 @@
   background: rgba(239, 68, 68, 0.25);
   pointer-events: none;
   z-index: 70;
-  animation: critical-flash 800ms ease-out 1 forwards;
+  animation: critical-flash 800ms ease-out infinite;
 }
 
 @keyframes critical-flash {
