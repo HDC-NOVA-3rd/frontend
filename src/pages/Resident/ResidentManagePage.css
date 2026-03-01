@@ -1,0 +1,443 @@
+/* =========================================================
+   Integrated Management Page System
+   (Residents, Fees, Common Management)
+   ========================================================= */
+
+.manage-page-container {
+  padding: 24px;
+  background-color: #f8fafc; /* Safety Dashboard와 동일한 배경색 */
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+/* ── Header Area ───────────────────────────────────────── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.title-area h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.title-area p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.header-btns {
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Dashboard (KPI) Section ───────────────────────────── */
+.dashboard-section {
+  display: grid;
+  /* 사이드바가 접히면 2.5fr 영역이 유동적으로 확장됨 */
+  grid-template-columns: minmax(0, 2.5fr) minmax(300px, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card.blue { border-top-color: #3b82f6; }
+.stat-card.green { border-top-color: #10b981; }
+.stat-card.orange { border-top-color: #f59e0b; }
+
+.stat-card .label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stat-card .value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-card .value span {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+/* 최근 등록 내역 (Recent Card) */
+.recent-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.recent-card h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recent-mini-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.875rem;
+}
+
+/* ── Main Content (Table) ──────────────────────────────── */
+.main-content-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.search-group {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.search-group select, 
+.search-group input {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-group input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ── Table Design (통일된 스타일) ───────────────────────── */
+.table-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.main-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.main-table th {
+  background-color: #f8fafc;
+  padding: 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.main-table td {
+  padding: 16px 14px;
+  text-align: center;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.main-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* ── Buttons (Action UI) ────────────────────────────────── */
+.btn-primary, .btn-add {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover, .btn-add:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: white;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-edit-sm {
+  background: #eff6ff;
+  color: #3b82f6;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-delete-sm {
+  background: #fef2f2;
+  color: #ef4444;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ── Pagination ────────────────────────────────────────── */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.pagination-wrapper button {
+  min-width: 36px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.pagination-wrapper button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .dashboard-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .manage-page-container { padding: 16px; }
+  .control-bar { flex-direction: column; align-items: stretch; }
+  .search-group { flex-direction: column; }
+}
+/* Drawer 기본 스타일 */
+.right-drawer {
+  position: fixed;
+  top: 0;
+  right: -450px; /* 처음에는 화면 밖에 숨김 */
+  width: 400px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease-in-out;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.right-drawer.open {
+  right: 0; /* 열릴 때 화면 안으로 */
+}
+
+/* 배경 어둡게 처리 (오버레이) */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.drawer-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Drawer 내부 구성 */
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.drawer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.drawer-footer {
+  margin-top: auto;
+  display: flex;
+  gap: 1rem;
+  padding-top: 2rem;
+}
+
+.drawer-footer button {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* 폼 디자인 스타일 유지 */
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555; }
+.form-group input { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+/* ── Dashboard (KPI) Section 보정 ── */
+.dashboard-section {
+  display: grid;
+  /* 비율 조절: 통계 그리드와 최근 등록 내역의 조화 */
+  grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* 최근 등록 내역 카드 (개선된 버전) */
+.recent-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #64748b; /* 일반 통계 카드와 통일감 부여 */
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-card h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.recent-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent-mini-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background-color: #f8fafc; /* 리스트 아이템에 배경색 추가 */
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+}
+
+.recent-mini-item:hover {
+  background-color: #f1f5f9;
+}
+
+.recent-mini-item span {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.recent-mini-item strong {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.empty-txt {
+  text-align: center;
+  color: #94a3b8;
+  padding: 20px 0;
+  font-size: 0.875rem;
+}
+
+/* ── 검색창(Control Bar) 길이 수정 ── */
+.search-group {
+  display: flex;
+  gap: 10px;
+  flex: 2; /* 버튼 영역보다 더 넓은 비중 할당 */
+}
+
+.search-group input {
+  flex: 1; /* input이 가능한 모든 공간을 차지하도록 설정 */
+  min-width: 300px; /* 최소 너비 확보 */
+}
+
+.search-group select {
+  min-width: 120px;
+}

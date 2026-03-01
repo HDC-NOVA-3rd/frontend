@@ -1,0 +1,53 @@
+.overview-tab {
+  padding: 32px 48px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 40px;
+  width: 100%;
+}
+
+.overview-tab__section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.overview-tab__section-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.overview-tab__cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1400px) {
+  .overview-tab {
+    grid-template-columns: 1fr;
+    padding: 24px 32px;
+  }
+
+  .overview-tab__cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .overview-tab__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-tab {
+    padding: 16px;
+  }
+
+  .overview-tab__cards {
+    grid-template-columns: 1fr;
+  }
+}

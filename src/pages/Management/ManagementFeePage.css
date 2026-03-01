@@ -1,0 +1,478 @@
+/* Safety Dashboard의 기본 컬러 및 폰트 계승 */
+.mgmt-page {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Table Design */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.mgmt-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mgmt-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.mgmt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.row-inactive {
+  background-color: #f8fafc;
+  opacity: 0.7;
+}
+
+/* Typography & Cells */
+.fee-name-cell {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+
+.text-primary {
+  color: #3b82f6;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+}
+
+/* Action Buttons Mini */
+.action-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit-mini, .btn-status-mini {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-edit-mini {
+  background: white;
+  color: #64748b;
+}
+
+.btn-edit-mini:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btn-status-mini.deactivate {
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.btn-status-mini.restore {
+  background: #f0fdf4;
+  color: #22c55e;
+  border-color: #bbf7d0;
+}
+
+/* Modal & Form Elements */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.custom-input, .custom-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.custom-input:focus, .custom-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+/* Re-using Safety Dashboard KPI Card Specifics */
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.kpi-card--primary::before { background: #3b82f6; }
+.kpi-card--success::before { background: #22c55e; }
+.kpi-card--danger::before { background: #ef4444; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mgmt-table th:nth-child(1),
+  .mgmt-table td:nth-child(1),
+  .mgmt-table th:nth-child(4),
+  .mgmt-table td:nth-child(4) {
+    display: none;
+  }
+  
+  .kpi-section {
+    grid-template-columns: 1fr;
+  }
+}
+/* 1. 페이지 쉘: 가로 폭 제한을 유동적으로 변경 */
+.mgmt-page {
+  padding: 1.5rem;
+  /* max-width: 1400px; <- 고정보다는 100%를 활용하되 너무 퍼지지 않게 조절 */
+  max-width: 1600px; 
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  transition: all 0.3s ease; /* 사이드바 애니메이션과 동기화 */
+}
+
+/* 2. 테이블 래퍼: 사이드바가 접힐 때 가로로 확장됨 */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow-x: auto; /* 가로 스크롤 대비 */
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  /* 테이블이 너무 찌그러지지 않게 최소 너비 설정 */
+  min-width: 800px; 
+}
+
+/* 3. KPI 섹션: 사이드바 변화에 따라 카드 배치 최적화 */
+.kpi-section {
+  display: grid;
+  /* 공간이 넓어지면 카드가 더 많이 배치되도록 설정 */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+/* 4. 액션 버튼 영역 (줄어들지 않게 설정) */
+.action-cell {
+  display: flex;
+  gap: 0.5rem;
+  white-space: nowrap; /* 버튼이 줄바꿈되지 않도록 */
+}
+
+/* 5. 모달 창: 화면 중앙 유지 */
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px; /* 모달은 너무 넓어지면 안 예쁘므로 고정 */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* 6. 반응형 (Layout.js에서 설정한 중단점과 일치시킴) */
+@media (max-width: 1024px) {
+  .mgmt-page {
+    padding: 1rem;
+  }
+  
+  .kpi-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  /* 모바일에서는 불필요한 열 숨기기 */
+  .mgmt-table th:nth-child(1),
+  .mgmt-table td:nth-child(1),
+  .mgmt-table th:nth-child(4),
+  .mgmt-table td:nth-child(4) {
+    display: none;
+  }
+  
+  .kpi-section {
+    grid-template-columns: 1fr;
+  }
+
+  .mgmt-table {
+    min-width: 100%; /* 모바일은 스크롤보다 컬럼 숨기기 위주 */
+  }
+}
+/* 1. 페이지 쉘 및 기본 설정 */
+.mgmt-page {
+  padding: 1.5rem;
+  max-width: 1600px; 
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 2. KPI 섹션: 그리드 배치 최적화 */
+.kpi-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  position: relative;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.kpi-card--primary::before { background: #3b82f6; }
+.kpi-card--success::before { background: #22c55e; }
+.kpi-card--danger::before { background: #ef4444; }
+.kpi-card--warning::before { background: #f59e0b; }
+
+/* 3. 테이블 디자인 */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 900px;
+}
+
+.mgmt-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mgmt-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.row-inactive {
+  background-color: #f8fafc;
+  color: #94a3b8;
+}
+
+.fee-name-cell {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* 4. 공통 오버레이 (Drawer & Modal 공용) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 5. 우측 드로어 (Drawer) 상세 설정 */
+.zone-detail-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 420px;
+  background: white;
+  box-shadow: -10px 0 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawer-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-sensors {
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 6. 중앙 확인 모달 (Confirm Modal) 상세 설정 */
+.critical-alert-banner {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: modalPop 0.2s ease-out;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* 7. 폼 요소 스타일 */
+.custom-input, .custom-textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  box-sizing: border-box;
+}
+
+.custom-input:focus, .custom-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.drawer-actions {
+  padding: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.drawer-action-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* 8. 버튼 및 배지 */
+.action-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.action-btn--unlock { background: #3b82f6; color: white; border: none; }
+.action-btn--lock { background: #ef4444; color: white; border: none; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge--safe { background: #f0fdf4; color: #16a34a; }
+.status-badge--unknown { background: #f1f5f9; color: #64748b; }
+
+/* 9. 반응형 조절 */
+@media (max-width: 1024px) {
+  .kpi-section { grid-template-columns: repeat(2, 1fr); }
+  .zone-detail-drawer { width: 100%; max-width: 400px; }
+}
+
+@media (max-width: 768px) {
+  .mgmt-table th:nth-child(1), .mgmt-table td:nth-child(1),
+  .mgmt-table th:nth-child(4), .mgmt-table td:nth-child(4) {
+    display: none;
+  }
+  .kpi-section { grid-template-columns: 1fr; }
+  .mgmt-table { min-width: 100%; }
+}

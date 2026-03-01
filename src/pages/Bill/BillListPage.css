@@ -1,0 +1,961 @@
+/* =========================================================
+   Bill List & Billing Management System
+   ========================================================= */
+
+.bill-dashboard {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.3s ease;
+}
+
+/* ── 1. KPI 현황 섹션 ─────────────────────────────────── */
+.bill-kpi-section {
+  display: grid;
+  /* 화면 크기에 따라 4개에서 1개까지 유동적 배치 */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.bill-kpi-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  border-top: 4px solid #e2e8f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bill-kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* KPI 컬러 포인트 통합 */
+.bill-kpi-card:nth-child(1) { border-top-color: #3b82f6; } /* 전체 */
+.bill-kpi-card:nth-child(2) { border-top-color: #06b6d4; } /* 당월 */
+.bill-kpi-card:nth-child(3) { border-top-color: #10b981; } /* 입금 */
+.bill-kpi-card.danger { border-top-color: #ef4444; }        /* 미납 */
+
+.kpi-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* ── 2. 필터 섹션 (통일된 디자인) ─────────────────────── */
+.bill-filter-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.input-group select, 
+.input-group input {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-group input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 검색 요약 바 */
+.search-summary-bar {
+  display: flex;
+  gap: 20px;
+  padding: 12px 20px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.summary-item strong { color: #0f172a; }
+.summary-item.text-red strong { color: #ef4444; }
+
+/* ── 3. 테이블 섹션 ───────────────────────────────────── */
+.bill-table-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table-responsive {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.bill-table th {
+  background-color: #f8fafc;
+  padding: 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bill-table td {
+  padding: 16px 14px;
+  text-align: center;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* 상태 뱃지 */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.status-paid { background: #dcfce7; color: #15803d; }
+.status-unpaid { background: #fee2e2; color: #b91c1c; }
+
+/* ── 4. 사이드 Drawer (고지서 상세) ───────────────────── */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -520px; /* 초기 위치 숨김 */
+  width: 500px;
+  height: 100vh;
+  background: white;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.open { right: 0; }
+
+.drawer-header {
+  padding: 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.detail-info-card {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  border-left: 4px solid #3b82f6;
+  padding-left: 12px;
+  margin: 24px 0 16px;
+}
+
+/* ── 5. 공용 컴포넌트 (버튼, 로딩, 페이지네이션) ────── */
+.excel-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.excel-btn:hover { background: #059669; }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination button:not(:disabled):hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* 로딩 스피너 (중앙 정렬 최적화) */
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: #94a3b8;
+  gap: 12px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  color: #3b82f6;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── 반응형 대응 ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .bill-filter-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .side-drawer {
+    width: 100%;
+    right: -100%;
+  }
+}
+/* 필터 폼 레이아웃 수정 */
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between; /* 왼쪽 입력창과 오른쪽 요약/버튼 분리 */
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap; /* 화면이 좁아지면 줄바꿈 */
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* 오른쪽 섹션 (요약 + 버튼) */
+.filter-right-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-grow: 1;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+}
+
+/* 인라인 요약 바 스타일 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8fafc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.summary-item strong {
+  color: #1e293b;
+}
+
+.summary-item.text-red {
+  color: #ef4444;
+}
+
+.summary-item.text-red strong {
+  color: #b91c1c;
+}
+
+.summary-sep {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+/* 필터 폼의 전체 레이아웃 */
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between; /* 왼쪽 입력과 오른쪽 요약/버튼을 양끝으로 배치 */
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap; /* 화면 좁을 때 대응 */
+}
+
+/* 필터 입력 영역 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 요약 + 버튼 영역 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 인라인 요약 바 스타일 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.summary-item strong {
+  color: #1e293b;
+  margin-left: 2px;
+}
+
+.summary-sep {
+  color: #cbd5e1;
+  font-weight: 300;
+}
+
+.text-red {
+  color: #ef4444 !important;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* 필터 카드 레이아웃 */
+.bill-filter-card {
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap; /* 가로 고정 */
+}
+
+/* 입력 그룹 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input-wrapper select {
+  padding-left: 36px; /* 아이콘 공간 */
+}
+
+.input-group select, 
+.input-group .text-input {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #334155;
+  background-color: #ffffff;
+}
+
+.input-group .text-input {
+  width: 100px; /* 동/호 입력창 너비 조절 */
+}
+
+/* 체크박스 스타일 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* 요약 바 & 버튼 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.summary-sep {
+  color: #e2e8f0;
+}
+
+/* 버튼 스타일 */
+.button-group {
+  display: flex;
+  gap: 6px;
+}
+
+.reset-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.excel-btn {
+  height: 40px;
+  padding: 0 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 반응형: 화면이 아주 작아질 때만 세로로 */
+@media (max-width: 1200px) {
+  .bill-filter-form {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .filter-right-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+/* ── 필터 라인 수평 정렬 최종 수정 ── */
+
+.bill-filter-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center !important; /* 부모에서 자식들을 세로 중앙 정렬 */
+  gap: 16px;
+}
+
+/* 왼쪽/오른쪽 그룹 내부 정렬 */
+.input-group, 
+.filter-right-wrapper,
+.button-group {
+  display: flex;
+  align-items: center !important;
+  vertical-align: middle;
+}
+
+/* 모든 입력 요소와 버튼의 높이를 40px로 강제 통일 */
+.input-group select, 
+.input-group .text-input, 
+.search-summary-inline, 
+.reset-btn, 
+.excel-btn {
+  height: 40px !important;
+  box-sizing: border-box !important; /* 테두리 포함 높이 계산 */
+  margin: 0 !important; /* 보이지 않는 마진 제거 */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 버튼 내부 아이콘 위치 보정 */
+.reset-btn svg, 
+.excel-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* 텍스트가 있는 엑셀 버튼 패딩 조정 */
+.excel-btn {
+  padding: 0 16px !important;
+  line-height: 1 !important; /* 줄간격 때문에 밀리는 현상 방지 */
+}
+
+/* 인라인 요약바 패딩 및 라인 높이 조정 */
+.search-summary-inline {
+  padding: 0 16px !important;
+  line-height: 40px; 
+}
+
+/* 체크박스 라벨 정렬 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  height: 40px; /* 라벨 전체 높이도 일치 */
+  margin-top: 0;
+  margin-bottom: 0;
+}
+/* 필터 카드 내부 폼 레이아웃 */
+.bill-filter-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: nowrap; /* 줄바꿈 절대 방지 */
+}
+
+/* 왼쪽 입력 그룹 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 1; /* 창이 작아지면 어느 정도 줄어듦 허용 */
+}
+
+/* 오른쪽 요약 및 버튼 그룹 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0; /* 버튼과 요약은 절대 줄어들거나 밀리지 않음 */
+}
+
+/* 검색 요약 텍스트 한 줄 유지 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+/* 버튼 그룹 정렬 */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 새로고침 버튼 (가로 정렬 보장) */
+.reset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+/* 엑셀 버튼 (가로 정렬 보장) */
+.excel-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #10b981; /* 엑셀 느낌의 초록색 */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.excel-btn:hover {
+  background: #059669;
+}
+
+/* 반응형 처리: 화면이 아주 작아질 때만 예외 처리 */
+@media (max-width: 1200px) {
+  .bill-filter-form {
+    flex-direction: column; /* 아주 좁으면 세로로 변경 (선택사항) */
+    align-items: stretch;
+  }
+  .filter-right-wrapper {
+    justify-content: space-between;
+  }
+}
+/* 필터 카드 메인 레이아웃 */
+.bill-filter-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽과 오른쪽을 양 끝으로 배치 */
+  gap: 16px;
+  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  width: 100%;
+}
+
+/* 왼쪽: 입력 그룹 */
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 1; /* 창이 좁아지면 유연하게 줄어듦 */
+}
+
+/* 오른쪽: 요약 + 버튼 컨테이너 */
+.filter-right-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0; /* 이 영역은 절대 줄어들거나 밑으로 밀리지 않음 */
+}
+
+/* 인라인 요약 텍스트 */
+.search-summary-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #64748b;
+  white-space: nowrap; /* 글자 줄바꿈 방지 */
+}
+
+.summary-item strong {
+  color: #1e293b;
+  margin-left: 2px;
+}
+
+.text-red strong {
+  color: #ef4444;
+}
+
+/* 버튼 그룹 */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 버튼 공통 가로 정렬 */
+.reset-btn, .excel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap; /* 버튼 내 텍스트 줄바꿈 방지 */
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.reset-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.excel-btn {
+  background: #10b981;
+  border: none;
+  color: white;
+}
+
+/* 아이콘 회전 애니메이션 */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+/* ── 4. 사이드 Drawer (고지서 상세) ───────────────────── */
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: -520px; /* 닫힘 상태 */
+  width: 500px;
+  height: 100vh;
+  background: white;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-drawer.open {
+  right: 0; /* 열림 상태 */
+}
+
+/* 배경 블러 효과 */
+.drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1150;
+}
+
+/* Drawer 헤더 */
+.drawer-header {
+  padding: 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawer-close {
+  background: #f8fafc;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.drawer-close:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Drawer 바디 */
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* 상단 요약 카드 */
+.detail-info-card {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-row .label {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.detail-row .value {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.status-text.paid { color: #10b981; }
+.status-text.unpaid { color: #ef4444; }
+
+/* 세부 항목 테이블 (영수증 스타일) */
+.item-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.item-table th {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 2px solid #f1f5f9;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.item-table td {
+  padding: 16px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.item-type {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.text-right { text-align: right; }
+
+/* 테이블 합계 영역 */
+.item-table tfoot th, 
+.item-table tfoot td {
+  padding: 20px 8px;
+  background-color: #fcfdfe;
+}
+
+.total-price {
+  font-size: 1.25rem;
+  color: #3b82f6;
+  font-weight: 800;
+}
+
+/* 하단 버튼 */
+.drawer-actions {
+  margin-top: 40px;
+  display: flex;
+  gap: 12px;
+}
+
+.close-action-btn {
+  width: 100%;
+  height: 48px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-action-btn:hover {
+  background: #e2e8f0;
+}
+
+/* 로딩 상태 */
+.drawer-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+}
+
+/* 반응형 (모바일) */
+@media (max-width: 600px) {
+  .side-drawer {
+    width: 100%;
+    right: -100%;
+  }
+}

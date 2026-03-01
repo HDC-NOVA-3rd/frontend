@@ -1,0 +1,92 @@
+.sensor-log-table {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sensor-log-table__loading,
+.sensor-log-table__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 16px;
+  color: #9ca3af;
+}
+
+.sensor-log-table__empty-icon {
+  font-size: 40px;
+}
+
+.sensor-log-table__empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.sensor-log-table__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sensor-log-table__table thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sensor-log-table__table th {
+  padding: 18px 20px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sensor-log-table__table td {
+  padding: 18px 20px;
+  font-size: 16px;
+  color: #1f2937;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.sensor-log-table__row:hover {
+  background-color: #f9fafb;
+}
+
+.sensor-log-table__type {
+  font-weight: 500;
+  color: #3b82f6;
+}
+
+.sensor-log-table__name {
+  font-weight: 500;
+}
+
+.sensor-log-table__value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.sensor-log-table__value-number {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.sensor-log-table__value-unit {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.sensor-log-table__location {
+  color: #6b7280;
+}
+
+.sensor-log-table__time {
+  white-space: nowrap;
+  color: #9ca3af;
+  font-size: 14px;
+}

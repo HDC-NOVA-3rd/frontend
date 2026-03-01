@@ -1,0 +1,54 @@
+name: React App CI/CD
+
+on:
+  push:
+    branches: [develop, main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 레포지토리 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Docker Hub 로그인
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3. Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:latest
+
+      # 4. 서버에 SSH로 접속하여 Docker 컨테이너 실행
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          script: |
+            # 최신 이미지 풀
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:latest
+
+            # 기존 컨테이너가 있다면 중지 및 삭제
+            docker stop react-frontend || true
+            docker rm react-frontend || true
+
+            # 안 쓰는 구버전 이미지 정리 (선택 사항)
+            docker image prune -f
+
+            # 새 컨테이너 실행 (서버의 80번 포트를 컨테이너의 80번 포트와 연결)
+            docker run -d \
+              --name react-frontend \
+              -p 4000:80 \
+              --restart unless-stopped \
+              ${{ secrets.DOCKERHUB_USERNAME }}/react-frontend:latest

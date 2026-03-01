@@ -1,0 +1,375 @@
+/* 전역 배경 - 이미지의 깨끗한 블루 그레이 톤 재현 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 이미지처럼 아주 연한 블루에서 시작하는 그라데이션 */
+  background: linear-gradient(180deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: 20px;
+}
+
+/* 박스 스타일 - 이미지의 하얀색 카드 느낌 */
+.login-box {
+  background: #ffffff;
+  border-radius: 20px;
+  /* 부드럽고 넓게 퍼지는 고급스러운 그림자 */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 480px; 
+  padding: 3.5rem 2.5rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.login-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a202c; /* 신뢰감 있는 짙은 색상 */
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+  font-size: 0.95rem;
+  color: #718096;
+  margin: 0;
+}
+
+/* 탭 스타일 - #2b59a7 포인트 적용 */
+.login-type-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  background: #edf2f7;
+  padding: 0.5rem;
+  border-radius: 14px;
+}
+
+.login-type-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border: none;
+  background: transparent;
+  color: #718096;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-type-tab.active {
+  background: #2b59a7; /* 요청하신 메인 컬러 */
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(43, 89, 167, 0.25);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-left: 4px;
+}
+
+.form-input {
+  padding: 0.9rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #f7fafc;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  background-color: #fff;
+  border-color: #2b59a7; /* 포커스 시 메인 컬러 */
+  box-shadow: 0 0 0 4px rgba(43, 89, 167, 0.1);
+}
+
+/* 버튼 - 이미지 속 강렬한 블루 버튼 재현 */
+.login-button {
+  padding: 1.1rem;
+  background: #2b59a7; /* 요청하신 메인 컬러 */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+  /* 버튼 하단에 살짝 짙은 그림자를 주어 입체감 부여 */
+  box-shadow: 0 4px 10px rgba(43, 89, 167, 0.3);
+}
+
+.login-button:hover:not(:disabled) {
+  background: #234887; /* 살짝 더 깊은 블루 */
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(43, 89, 167, 0.4);
+}
+
+.login-button:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.login-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #edf2f7;
+}
+
+.login-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+.login-link {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.login-link:hover {
+  color: #2b59a7; /* 호버 시 메인 컬러 */
+  text-decoration: underline;
+}
+
+.login-link-divider {
+  width: 1px;
+  height: 14px;
+  background-color: #e2e8f0;
+  display: block;
+}
+/* 전역 배경 - 이미지의 깨끗한 블루 그레이 톤 재현 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: 20px;
+}
+
+.login-box {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 480px; 
+  padding: 3.5rem 2.5rem;
+  box-sizing: border-box; /* 패딩 포함 너비 계산 */
+  transition: all 0.3s ease;
+}
+
+/* ... (헤더, 타이틀, 탭 스타일 생략 - 동일함) ... */
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%; /* 부모 너비 꽉 채움 */
+}
+
+/* 인풋 박스 스타일 - 가로 100% 및 왼쪽 정렬 */
+.form-input {
+  width: 100%;             /* 가로 크기 꽉 채우기 */
+  padding: 0.9rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #f7fafc;
+  transition: all 0.2s ease;
+  box-sizing: border-box;  /* 테두리 포함 100% */
+  text-align: left;        /* 글자는 왼쪽부터 */
+}
+
+.form-input:focus {
+  outline: none;
+  background-color: #fff;
+  border-color: #2b59a7;
+  box-shadow: 0 0 0 4px rgba(43, 89, 167, 0.1);
+}
+
+/* OTP 전용 스타일 - JS 인라인 대신 여기서 처리 가능 */
+.otp-input-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+/* 전역 배경 - 블루 그레이 그라데이션 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: 20px;
+}
+
+/* 카드 박스 */
+.login-box {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 480px; 
+  padding: 3.5rem 2.5rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.login-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+  font-size: 0.95rem;
+  color: #718096;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%; /* 부모 너비 꽉 채움 */
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-left: 4px;
+}
+
+/* 인풋 박스 핵심 설정 */
+.form-input {
+  width: 100%;             /* 가로 크기 꽉 채우기 */
+  padding: 0.9rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: #f7fafc;
+  transition: all 0.2s ease;
+  box-sizing: border-box;  /* 패딩이 너비를 넘지 않도록 */
+  text-align: left;        /* 글자 왼쪽 정렬 */
+}
+
+.form-input:focus {
+  outline: none;
+  background-color: #fff;
+  border-color: #2b59a7;
+  box-shadow: 0 0 0 4px rgba(43, 89, 167, 0.1);
+}
+
+.otp-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* 에러 메시지 */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ef4444;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  background: #fef2f2;
+  border-radius: 8px;
+}
+
+/* 버튼 */
+.login-button {
+  width: 100%;
+  padding: 1.1rem;
+  background: #2b59a7;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(43, 89, 167, 0.3);
+  transition: all 0.2s;
+}
+
+.login-button:hover:not(:disabled) {
+  background: #234887;
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+/* 하단 링크 */
+.footer-links {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.login-link-btn, .back-button {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.back-button {
+  color: #94a3b8;
+}

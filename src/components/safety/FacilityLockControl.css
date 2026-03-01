@@ -1,0 +1,108 @@
+.facility-lock-control {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.facility-lock-control__title {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.facility-lock-control__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.facility-lock-control__select-wrapper {
+  width: 100%;
+}
+
+.facility-lock-control__select {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+  color: #1f2937;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.facility-lock-control__select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.facility-lock-control__select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.facility-lock-control__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.facility-lock-control__btn {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.facility-lock-control__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.facility-lock-control__btn--lock {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.facility-lock-control__btn--lock:hover:not(:disabled) {
+  background-color: #fee2e2;
+  border-color: #f87171;
+}
+
+.facility-lock-control__btn--lock.facility-lock-control__btn--active {
+  background-color: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.facility-lock-control__btn--unlock {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.facility-lock-control__btn--unlock:hover:not(:disabled) {
+  background-color: #dcfce7;
+  border-color: #86efac;
+}
+
+.facility-lock-control__btn--unlock.facility-lock-control__btn--active {
+  background-color: #16a34a;
+  color: white;
+  border-color: #16a34a;
+}
+
+.facility-lock-control__status {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #4b5563;
+  text-align: center;
+}

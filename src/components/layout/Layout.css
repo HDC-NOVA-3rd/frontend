@@ -1,0 +1,76 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f7fafc;
+}
+
+.layout-main {
+  margin-left: 260px;
+  margin-top: 70px;
+  padding: 2rem;
+  flex: 1;
+  min-height: calc(100vh - 70px);
+}
+
+@media (max-width: 768px) {
+  .layout-main {
+    margin-left: 0;
+    padding: 1.5rem 1rem;
+  }
+}
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-main {
+  /* 사이드바 너비만큼 왼쪽 여백 확보 */
+  margin-left: 260px; 
+  padding: 20px;
+  padding-top: 84px; /* 헤더 높이만큼 */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 사이드바와 동일한 애니메이션 */
+  flex-grow: 1;
+  background-color: #f8fafc;
+}
+
+/* 사이드바가 접혔을 때 메인 영역 여백 변경 */
+.layout-main.collapsed {
+  margin-left: 80px;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .layout-main, .layout-main.collapsed {
+    margin-left: 0;
+    padding-top: 74px;
+  }
+}
+.layout-main {
+  /* 기존 260px 유지 */
+  margin-left: 260px; 
+  
+  /* [수정] 패딩을 확 줄입니다 (84px -> 20px) */
+  padding: 20px;
+  padding-top: 20px; 
+
+  /* [수정] 마진 탑을 제거하거나 최소화합니다 (70px -> 0) */
+  margin-top: 0; 
+  
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-grow: 1;
+  background-color: #f8fafc;
+  
+  /* 전체 높이 계산식 수정 */
+  min-height: 100vh; 
+}
+
+/* 모바일 대응도 함께 수정 */
+@media (max-width: 768px) {
+  .layout-main, .layout-main.collapsed {
+    margin-left: 0;
+    /* 모바일에서도 상단 여백을 줄임 */
+    padding-top: 15px; 
+  }
+}
